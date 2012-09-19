@@ -13,10 +13,12 @@ namespace TestWCF
 	[ServiceContract]
 	public interface IMyService
 	{
+		[WebGet]
 		[OperationContract]
 		string Hello();
 
-		[FaultContract(typeof(ArgumentFaultException))]
+		[OperationContract]
+		[FaultContract(typeof(ArgumentFault))]
 		void TestException();
 	}
 }

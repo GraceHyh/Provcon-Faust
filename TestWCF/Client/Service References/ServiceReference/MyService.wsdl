@@ -1,28 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:tns="http://tempuri.org/" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:i0="http://schemas.microsoft.com/ws/2005/02/mex/bindings" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="MyService" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-  <wsdl:import namespace="http://schemas.microsoft.com/ws/2005/02/mex/bindings" location="http://provcon-faust/TestWCF/MyService.svc?wsdl=wsdl0" />
+<wsdl:definitions xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:tns="http://tempuri.org/" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="MyService" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <xsd:schema targetNamespace="http://tempuri.org/Imports">
       <xsd:import schemaLocation="http://provcon-faust/TestWCF/MyService.svc?xsd=xsd0" namespace="http://tempuri.org/" />
       <xsd:import schemaLocation="http://provcon-faust/TestWCF/MyService.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+      <xsd:import schemaLocation="http://provcon-faust/TestWCF/MyService.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/TestWCF.Model" />
     </xsd:schema>
   </wsdl:types>
-  <wsdl:message name="IMyService_GetData_InputMessage">
-    <wsdl:part name="parameters" element="tns:GetData" />
+  <wsdl:message name="IMyService_Hello_InputMessage">
+    <wsdl:part name="parameters" element="tns:Hello" />
   </wsdl:message>
-  <wsdl:message name="IMyService_GetData_OutputMessage">
-    <wsdl:part name="parameters" element="tns:GetDataResponse" />
+  <wsdl:message name="IMyService_Hello_OutputMessage">
+    <wsdl:part name="parameters" element="tns:HelloResponse" />
+  </wsdl:message>
+  <wsdl:message name="IMyService_TestException_InputMessage">
+    <wsdl:part name="parameters" element="tns:TestException" />
+  </wsdl:message>
+  <wsdl:message name="IMyService_TestException_OutputMessage">
+    <wsdl:part name="parameters" element="tns:TestExceptionResponse" />
+  </wsdl:message>
+  <wsdl:message name="IMyService_TestException_ArgumentFaultFault_FaultMessage">
+    <wsdl:part xmlns:q1="http://schemas.datacontract.org/2004/07/TestWCF.Model" name="detail" element="q1:ArgumentFault" />
   </wsdl:message>
   <wsdl:portType name="IMyService">
-    <wsdl:operation name="GetData">
-      <wsdl:input wsaw:Action="http://tempuri.org/IMyService/GetData" message="tns:IMyService_GetData_InputMessage" />
-      <wsdl:output wsaw:Action="http://tempuri.org/IMyService/GetDataResponse" message="tns:IMyService_GetData_OutputMessage" />
+    <wsdl:operation name="Hello">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMyService/Hello" message="tns:IMyService_Hello_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMyService/HelloResponse" message="tns:IMyService_Hello_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="TestException">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMyService/TestException" message="tns:IMyService_TestException_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMyService/TestExceptionResponse" message="tns:IMyService_TestException_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IMyService/TestExceptionArgumentFaultFault" name="ArgumentFaultFault" message="tns:IMyService_TestException_ArgumentFaultFault_FaultMessage" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="defaultEndpoint" type="tns:IMyService">
     <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
-    <wsdl:operation name="GetData">
-      <soap:operation soapAction="http://tempuri.org/IMyService/GetData" style="document" />
+    <wsdl:operation name="Hello">
+      <soap:operation soapAction="http://tempuri.org/IMyService/Hello" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -30,16 +44,22 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="TestException">
+      <soap:operation soapAction="http://tempuri.org/IMyService/TestException" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="ArgumentFaultFault">
+        <soap:fault use="literal" name="ArgumentFaultFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:service name="MyService">
     <wsdl:port name="defaultEndpoint" binding="tns:defaultEndpoint">
-      <soap:address location="http://provcon-faust/TestWCF/" />
-    </wsdl:port>
-    <wsdl:port name="mexEndpoint" binding="i0:mexEndpoint">
-      <soap12:address location="http://provcon-faust/TestWCF/mex" />
-      <wsa10:EndpointReference>
-        <wsa10:Address>http://provcon-faust/TestWCF/mex</wsa10:Address>
-      </wsa10:EndpointReference>
+      <soap:address location="http://provcon-faust/TestWCF/MyService.svc" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
