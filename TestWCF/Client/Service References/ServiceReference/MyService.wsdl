@@ -29,6 +29,12 @@
   <wsdl:message name="IMyService_TestCollection_OutputMessage">
     <wsdl:part name="parameters" element="tns:TestCollectionResponse" />
   </wsdl:message>
+  <wsdl:message name="IMyService_GetDate_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetDate" />
+  </wsdl:message>
+  <wsdl:message name="IMyService_GetDate_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetDateResponse" />
+  </wsdl:message>
   <wsdl:portType name="IMyService">
     <wsdl:operation name="Hello">
       <wsdl:input wsaw:Action="http://tempuri.org/IMyService/Hello" message="tns:IMyService_Hello_InputMessage" />
@@ -42,6 +48,10 @@
     <wsdl:operation name="TestCollection">
       <wsdl:input wsaw:Action="http://tempuri.org/IMyService/TestCollection" message="tns:IMyService_TestCollection_InputMessage" />
       <wsdl:output wsaw:Action="http://tempuri.org/IMyService/TestCollectionResponse" message="tns:IMyService_TestCollection_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDate">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMyService/GetDate" message="tns:IMyService_GetDate_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMyService/GetDateResponse" message="tns:IMyService_GetDate_OutputMessage" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="defaultEndpoint" type="tns:IMyService">
@@ -69,6 +79,15 @@
     </wsdl:operation>
     <wsdl:operation name="TestCollection">
       <soap:operation soapAction="http://tempuri.org/IMyService/TestCollection" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDate">
+      <soap:operation soapAction="http://tempuri.org/IMyService/GetDate" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>

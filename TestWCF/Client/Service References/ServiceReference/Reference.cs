@@ -24,6 +24,9 @@ namespace TestWCF.Client.ServiceReference {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IMyService/TestCollection", ReplyAction="http://tempuri.org/IMyService/TestCollectionResponse")]
         void TestCollection(System.Collections.Generic.List<string> array, System.Collections.Generic.List<System.Collections.Generic.List<string>> list);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IMyService/GetDate", ReplyAction="http://tempuri.org/IMyService/GetDateResponse")]
+        System.DateTime GetDate();
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -63,6 +66,10 @@ namespace TestWCF.Client.ServiceReference {
         
         public void TestCollection(System.Collections.Generic.List<string> array, System.Collections.Generic.List<System.Collections.Generic.List<string>> list) {
             base.Channel.TestCollection(array, list);
+        }
+        
+        public System.DateTime GetDate() {
+            return base.Channel.GetDate();
         }
     }
 }

@@ -41,6 +41,13 @@ namespace TestWCF.Client
 		static void Main()
 		{
 			var client = new MyServiceClient();
+			var date = client.GetDate();
+			Console.WriteLine(date);
+		}
+
+		static void TestCollections()
+		{
+			var client = new MyServiceClient();
 			var hello = client.Hello();
 			Console.WriteLine("HELLO: {0}", hello);
 

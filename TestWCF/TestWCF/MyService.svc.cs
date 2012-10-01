@@ -52,5 +52,10 @@ namespace TestWCF
 		{
 			Console.WriteLine("TEST COLLECTION!");
 		}
+
+		public DateTime GetDate()
+		{
+			return DateTime.Now;
+		}
 	}
 }

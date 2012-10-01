@@ -49,5 +49,8 @@ namespace TestWCF
 
 		[OperationContract]
 		void TestCollection(string[] array, List<string[]> list);
+
+		[OperationContract]
+		DateTime GetDate();
 	}
 }
