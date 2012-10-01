@@ -17,6 +17,9 @@ namespace TestWCF.Client.ServiceReference {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IMyService/GetSimpleList", ReplyAction="http://tempuri.org/IMyService/GetSimpleListResponse")]
         System.Collections.Generic.List<int> GetSimpleList();
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IMyService/GetListOfStringArray", ReplyAction="http://tempuri.org/IMyService/GetListOfStringArrayResponse")]
+        System.Collections.Generic.List<System.Collections.Generic.List<string>> GetListOfStringArray();
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -48,6 +51,10 @@ namespace TestWCF.Client.ServiceReference {
         
         public System.Collections.Generic.List<int> GetSimpleList() {
             return base.Channel.GetSimpleList();
+        }
+        
+        public System.Collections.Generic.List<System.Collections.Generic.List<string>> GetListOfStringArray() {
+            return base.Channel.GetListOfStringArray();
         }
     }
 }

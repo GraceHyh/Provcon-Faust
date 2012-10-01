@@ -13,16 +13,35 @@
   <wsdl:message name="IMyService_GetSimpleList_OutputMessage">
     <wsdl:part name="parameters" element="tns:GetSimpleListResponse" />
   </wsdl:message>
+  <wsdl:message name="IMyService_GetListOfStringArray_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetListOfStringArray" />
+  </wsdl:message>
+  <wsdl:message name="IMyService_GetListOfStringArray_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetListOfStringArrayResponse" />
+  </wsdl:message>
   <wsdl:portType name="IMyService">
     <wsdl:operation name="GetSimpleList">
       <wsdl:input wsaw:Action="http://tempuri.org/IMyService/GetSimpleList" message="tns:IMyService_GetSimpleList_InputMessage" />
       <wsdl:output wsaw:Action="http://tempuri.org/IMyService/GetSimpleListResponse" message="tns:IMyService_GetSimpleList_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetListOfStringArray">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMyService/GetListOfStringArray" message="tns:IMyService_GetListOfStringArray_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMyService/GetListOfStringArrayResponse" message="tns:IMyService_GetListOfStringArray_OutputMessage" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="defaultEndpoint" type="tns:IMyService">
     <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
     <wsdl:operation name="GetSimpleList">
       <soap:operation soapAction="http://tempuri.org/IMyService/GetSimpleList" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetListOfStringArray">
+      <soap:operation soapAction="http://tempuri.org/IMyService/GetListOfStringArray" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>

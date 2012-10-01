@@ -39,5 +39,8 @@ namespace TestWCF
 	{
 		[OperationContract]
 		IList<int> GetSimpleList();
+
+		[OperationContract]
+		IList<string[]> GetListOfStringArray();
 	}
 }
