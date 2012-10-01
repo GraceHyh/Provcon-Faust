@@ -5,6 +5,7 @@
       <xsd:import schemaLocation="http://provcon-faust/TestWCF/MyService.svc?xsd=xsd0" namespace="http://tempuri.org/" />
       <xsd:import schemaLocation="http://provcon-faust/TestWCF/MyService.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
       <xsd:import schemaLocation="http://provcon-faust/TestWCF/MyService.svc?xsd=xsd2" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+      <xsd:import schemaLocation="http://provcon-faust/TestWCF/MyService.svc?xsd=xsd3" namespace="http://schemas.datacontract.org/2004/07/TestWCF.Model" />
     </xsd:schema>
   </wsdl:types>
   <wsdl:message name="IMyService_GetSimpleList_InputMessage">
@@ -19,6 +20,12 @@
   <wsdl:message name="IMyService_GetListOfStringArray_OutputMessage">
     <wsdl:part name="parameters" element="tns:GetListOfStringArrayResponse" />
   </wsdl:message>
+  <wsdl:message name="IMyService_GetListOfFoo_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetListOfFoo" />
+  </wsdl:message>
+  <wsdl:message name="IMyService_GetListOfFoo_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetListOfFooResponse" />
+  </wsdl:message>
   <wsdl:portType name="IMyService">
     <wsdl:operation name="GetSimpleList">
       <wsdl:input wsaw:Action="http://tempuri.org/IMyService/GetSimpleList" message="tns:IMyService_GetSimpleList_InputMessage" />
@@ -27,6 +34,10 @@
     <wsdl:operation name="GetListOfStringArray">
       <wsdl:input wsaw:Action="http://tempuri.org/IMyService/GetListOfStringArray" message="tns:IMyService_GetListOfStringArray_InputMessage" />
       <wsdl:output wsaw:Action="http://tempuri.org/IMyService/GetListOfStringArrayResponse" message="tns:IMyService_GetListOfStringArray_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetListOfFoo">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMyService/GetListOfFoo" message="tns:IMyService_GetListOfFoo_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMyService/GetListOfFooResponse" message="tns:IMyService_GetListOfFoo_OutputMessage" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="defaultEndpoint" type="tns:IMyService">
@@ -42,6 +53,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetListOfStringArray">
       <soap:operation soapAction="http://tempuri.org/IMyService/GetListOfStringArray" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetListOfFoo">
+      <soap:operation soapAction="http://tempuri.org/IMyService/GetListOfFoo" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>

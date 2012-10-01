@@ -34,6 +34,8 @@ using System.Text;
 
 namespace TestWCF
 {
+	using Model;
+
 	[ServiceContract]
 	public interface IMyService
 	{
@@ -42,5 +44,8 @@ namespace TestWCF
 
 		[OperationContract]
 		IList<string[]> GetListOfStringArray();
+
+		[OperationContract]
+		IList<Foo> GetListOfFoo();
 	}
 }

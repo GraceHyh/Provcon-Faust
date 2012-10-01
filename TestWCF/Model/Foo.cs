@@ -1,4 +1,6 @@
 ﻿//
+// Foo
+//
 // Authors:
 //      Martin Baulig (martin.baulig@xamarin.com)
 //
@@ -12,10 +14,10 @@
 // distribute, sublicense, and/or sell copies of the Software, and to
 // permit persons to whom the Software is furnished to do so, subject to
 // the following conditions:
-//
+// 
 // The above copyright notice and this permission notice shall be
 // included in all copies or substantial portions of the Software.
-//
+// 
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -27,36 +29,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
-using System.ServiceModel;
-using System.ServiceModel.Web;
 using System.Text;
+using System.Runtime.Serialization;
 
-namespace TestWCF
+namespace TestWCF.Model
 {
-	using Model;
-
-	public class MyService : IMyService
+	[DataContract]
+	public class Foo
 	{
-		public IList<int> GetSimpleList()
+		[DataMember]
+		public string Text
 		{
-			return new[] { 1, 2, 3 };
-		}
-
-		public IList<string[]> GetListOfStringArray()
-		{
-			var water = new[] { "Mermaid" };
-			var land = new[] { "Human", "Elf", "Dwarf", "Orc", "Troll" };
-			var air = new[] { "Gryphon", "Drake" };
-
-			return new List<string[]>(new[] { water, land, air });
-		}
-
-		public IList<Foo> GetListOfFoo()
-		{
-			var hello = new Foo { Text = "Hello" };
-			var world = new Foo { Text = "World" };
-			return new List<Foo>(new[] { hello, world });
+			get;
+			set;
 		}
 	}
 }

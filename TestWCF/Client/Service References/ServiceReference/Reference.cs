@@ -9,7 +9,54 @@
 //------------------------------------------------------------------------------
 
 namespace TestWCF.Client.ServiceReference {
+    using System.Runtime.Serialization;
+    using System;
     
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="Foo", Namespace="http://schemas.datacontract.org/2004/07/TestWCF.Model")]
+    [System.SerializableAttribute()]
+    public partial class Foo : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string TextField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Text {
+            get {
+                return this.TextField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.TextField, value) != true)) {
+                    this.TextField = value;
+                    this.RaisePropertyChanged("Text");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="ServiceReference.IMyService")]
@@ -20,6 +67,9 @@ namespace TestWCF.Client.ServiceReference {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IMyService/GetListOfStringArray", ReplyAction="http://tempuri.org/IMyService/GetListOfStringArrayResponse")]
         System.Collections.Generic.List<System.Collections.Generic.List<string>> GetListOfStringArray();
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IMyService/GetListOfFoo", ReplyAction="http://tempuri.org/IMyService/GetListOfFooResponse")]
+        System.Collections.Generic.List<TestWCF.Client.ServiceReference.Foo> GetListOfFoo();
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -55,6 +105,10 @@ namespace TestWCF.Client.ServiceReference {
         
         public System.Collections.Generic.List<System.Collections.Generic.List<string>> GetListOfStringArray() {
             return base.Channel.GetListOfStringArray();
+        }
+        
+        public System.Collections.Generic.List<TestWCF.Client.ServiceReference.Foo> GetListOfFoo() {
+            return base.Channel.GetListOfFoo();
         }
     }
 }

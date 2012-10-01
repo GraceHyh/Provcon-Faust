@@ -46,6 +46,13 @@ namespace TestWCF.Client
 			var complex = client.GetListOfStringArray();
 			foreach (var element in complex)
 				Console.WriteLine(string.Join (",", element));
+
+			Console.WriteLine();
+
+			var foo = client.GetListOfFoo();
+			foreach (var element in foo)
+				Console.WriteLine(element.Text);
+
 			client.Close();
 		}
 	}

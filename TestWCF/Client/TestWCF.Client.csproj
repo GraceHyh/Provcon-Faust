@@ -60,6 +60,9 @@
     <None Include="Service References\ServiceReference\MyService.wsdl" />
     <None Include="Service References\ServiceReference\MyService.xsd" />
     <None Include="Service References\ServiceReference\MyService1.xsd" />
+    <None Include="Service References\ServiceReference\TestWCF.Client.ServiceReference.Foo.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <WCFMetadataStorage Include="Service References\ServiceReference\" />
@@ -75,6 +78,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Service References\ServiceReference\MyService2.xsd" />
+    <None Include="Service References\ServiceReference\MyService3.xsd" />
     <None Include="Service References\ServiceReference\Reference.svcmap">
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
