@@ -36,15 +36,9 @@ namespace TestWCF
 {
 	public class MyService : IMyService
 	{
-		public DateTime GetDate(int foo)
+		public IList<int> GetSimpleList()
 		{
-			return DateTime.Now;
-		}
-
-		public string TestException()
-		{
-			var exc = new ArgumentException("Hello World");
-			throw new FaultException<ArgumentException>(exc, new FaultReason(exc.Message), new FaultCode("Sender"));
+			return new[] { 1, 2, 3 };
 		}
 	}
 }

@@ -1,28 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xs:schema xmlns:tns="http://tempuri.org/" elementFormDefault="qualified" targetNamespace="http://tempuri.org/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:element name="GetDate">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="foo" type="xs:int" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetDateResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="GetDateResult" type="xs:dateTime" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="TestException">
+  <xs:import schemaLocation="http://provcon-faust/TestWCF/MyService.svc?xsd=xsd2" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+  <xs:element name="GetSimpleList">
     <xs:complexType>
       <xs:sequence />
     </xs:complexType>
   </xs:element>
-  <xs:element name="TestExceptionResponse">
+  <xs:element name="GetSimpleListResponse">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="0" name="TestExceptionResult" nillable="true" type="xs:string" />
+        <xs:element xmlns:q1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="GetSimpleListResult" nillable="true" type="q1:ArrayOfint" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

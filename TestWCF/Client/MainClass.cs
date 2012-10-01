@@ -40,22 +40,8 @@ namespace TestWCF.Client
 		static void Main()
 		{
 			var client = new MyServiceClient();
-			try
-			{
-				var result = client.TestException();
-			}
-			catch (FaultException<ArgumentException> exc)
-			{
-				Console.WriteLine("CORRECT EXC: {0}", exc.Message);
-			}
-			catch (FaultException exc)
-			{
-				Console.WriteLine("FAULT EXC: {0}", exc);
-			}
-			catch (Exception exc)
-			{
-				Console.WriteLine("EXC: {0}", exc);
-			}
+			var list = client.GetSimpleList();
+			Console.WriteLine(list.Count);
 			client.Close();
 		}
 	}
