@@ -34,25 +34,8 @@ using System.Text;
 
 namespace TestWCF
 {
-	using Model;
-
 	public class MyService : IMyService
 	{
-		public string Hello()
-		{
-			return "World";
-		}
-
-		public void TestException()
-		{
-			throw new ArgumentFaultException("Test");
-		}
-
-		public void TestCollection(string[] array, List<string[]> list)
-		{
-			Console.WriteLine("TEST COLLECTION!");
-		}
-
 		public DateTime GetDate()
 		{
 			return DateTime.Now;

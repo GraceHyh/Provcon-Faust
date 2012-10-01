@@ -22,12 +22,10 @@
     <MetadataSource Address="http://provcon-faust/TestWCF/MyService.svc" Protocol="http" SourceId="1" />
   </MetadataSources>
   <Metadata>
-    <MetadataFile FileName="MyService3.xsd" MetadataType="Schema" ID="b6f33101-7820-409d-a98d-42dc23125c18" SourceId="1" SourceUrl="http://provcon-faust/TestWCF/MyService.svc?xsd=xsd3" />
-    <MetadataFile FileName="MyService.xsd" MetadataType="Schema" ID="6940aabc-2a99-4dd1-a8cd-93f7b691d099" SourceId="1" SourceUrl="http://provcon-faust/TestWCF/MyService.svc?xsd=xsd1" />
-    <MetadataFile FileName="MyService1.xsd" MetadataType="Schema" ID="a8d3258b-ab65-4e6a-a649-ae05993d231e" SourceId="1" SourceUrl="http://provcon-faust/TestWCF/MyService.svc?xsd=xsd0" />
     <MetadataFile FileName="MyService.wsdl" MetadataType="Wsdl" ID="5e9e5ba3-2773-44a2-a474-07a573e49642" SourceId="1" SourceUrl="http://provcon-faust/TestWCF/MyService.svc?wsdl" />
+    <MetadataFile FileName="MyService.xsd" MetadataType="Schema" ID="6940aabc-2a99-4dd1-a8cd-93f7b691d099" SourceId="1" SourceUrl="http://provcon-faust/TestWCF/MyService.svc?xsd=xsd1" />
     <MetadataFile FileName="MyService.disco" MetadataType="Disco" ID="7cc6aa3b-6466-4417-8af8-0e309e67cebe" SourceId="1" SourceUrl="http://provcon-faust/TestWCF/MyService.svc?disco" />
-    <MetadataFile FileName="MyService2.xsd" MetadataType="Schema" ID="65be6982-5d4d-492a-ab69-19109999b76b" SourceId="1" SourceUrl="http://provcon-faust/TestWCF/MyService.svc?xsd=xsd2" />
+    <MetadataFile FileName="MyService1.xsd" MetadataType="Schema" ID="a8d3258b-ab65-4e6a-a649-ae05993d231e" SourceId="1" SourceUrl="http://provcon-faust/TestWCF/MyService.svc?xsd=xsd0" />
   </Metadata>
   <Extensions>
     <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />

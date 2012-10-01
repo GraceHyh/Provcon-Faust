@@ -34,7 +34,6 @@ using System.ServiceModel;
 namespace TestWCF.Client
 {
 	using ServiceReference;
-	using Model;
 
 	public class MainClass
 	{
@@ -43,26 +42,6 @@ namespace TestWCF.Client
 			var client = new MyServiceClient();
 			var date = client.GetDate();
 			Console.WriteLine(date);
-		}
-
-		static void TestCollections()
-		{
-			var client = new MyServiceClient();
-			var hello = client.Hello();
-			Console.WriteLine("HELLO: {0}", hello);
-
-			var array = new List<string> ();
-			array.Add ("Hello");
-			array.Add ("World");
-
-			var list = new List<List<string>>();
-			list.Add(array);
-
-			client.TestCollection(array.ToList (), list);
-
-			Console.WriteLine("DONE");
-
-			client.Close();
 		}
 	}
 }

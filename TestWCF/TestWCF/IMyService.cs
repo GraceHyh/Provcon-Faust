@@ -34,22 +34,9 @@ using System.Text;
 
 namespace TestWCF
 {
-	using Model;
-
 	[ServiceContract]
 	public interface IMyService
 	{
-		[WebGet]
-		[OperationContract]
-		string Hello();
-
-		[OperationContract]
-		[FaultContract(typeof(ArgumentFault))]
-		void TestException();
-
-		[OperationContract]
-		void TestCollection(string[] array, List<string[]> list);
-
 		[OperationContract]
 		DateTime GetDate();
 	}

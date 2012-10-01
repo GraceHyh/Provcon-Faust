@@ -15,16 +15,6 @@ namespace TestWCF.Client.ServiceReference {
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="ServiceReference.IMyService")]
     public interface IMyService {
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IMyService/Hello", ReplyAction="http://tempuri.org/IMyService/HelloResponse")]
-        string Hello();
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IMyService/TestException", ReplyAction="http://tempuri.org/IMyService/TestExceptionResponse")]
-        [System.ServiceModel.FaultContractAttribute(typeof(TestWCF.Model.ArgumentFault), Action="http://tempuri.org/IMyService/TestExceptionArgumentFaultFault", Name="ArgumentFault", Namespace="http://schemas.datacontract.org/2004/07/TestWCF.Model")]
-        void TestException();
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IMyService/TestCollection", ReplyAction="http://tempuri.org/IMyService/TestCollectionResponse")]
-        void TestCollection(System.Collections.Generic.List<string> array, System.Collections.Generic.List<System.Collections.Generic.List<string>> list);
-        
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IMyService/GetDate", ReplyAction="http://tempuri.org/IMyService/GetDateResponse")]
         System.DateTime GetDate();
     }
@@ -54,18 +44,6 @@ namespace TestWCF.Client.ServiceReference {
         
         public MyServiceClient(System.ServiceModel.Channels.Binding binding, System.ServiceModel.EndpointAddress remoteAddress) : 
                 base(binding, remoteAddress) {
-        }
-        
-        public string Hello() {
-            return base.Channel.Hello();
-        }
-        
-        public void TestException() {
-            base.Channel.TestException();
-        }
-        
-        public void TestCollection(System.Collections.Generic.List<string> array, System.Collections.Generic.List<System.Collections.Generic.List<string>> list) {
-            base.Channel.TestCollection(array, list);
         }
         
         public System.DateTime GetDate() {
