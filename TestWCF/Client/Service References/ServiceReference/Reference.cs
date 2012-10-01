@@ -16,7 +16,11 @@ namespace TestWCF.Client.ServiceReference {
     public interface IMyService {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IMyService/GetDate", ReplyAction="http://tempuri.org/IMyService/GetDateResponse")]
-        System.DateTime GetDate();
+        System.DateTime GetDate(int foo);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IMyService/TestException", ReplyAction="http://tempuri.org/IMyService/TestExceptionResponse")]
+        [System.ServiceModel.FaultContractAttribute(typeof(System.ArgumentException), Action="http://tempuri.org/IMyService/TestExceptionArgumentExceptionFault", Name="ArgumentException", Namespace="http://schemas.datacontract.org/2004/07/System")]
+        string TestException();
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -46,8 +50,12 @@ namespace TestWCF.Client.ServiceReference {
                 base(binding, remoteAddress) {
         }
         
-        public System.DateTime GetDate() {
-            return base.Channel.GetDate();
+        public System.DateTime GetDate(int foo) {
+            return base.Channel.GetDate(foo);
+        }
+        
+        public string TestException() {
+            return base.Channel.TestException();
         }
     }
 }

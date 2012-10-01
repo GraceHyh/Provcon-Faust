@@ -38,6 +38,10 @@ namespace TestWCF
 	public interface IMyService
 	{
 		[OperationContract]
-		DateTime GetDate();
+		DateTime GetDate(int foo);
+
+		[OperationContract(IsInitiating = true)]
+		[FaultContract(typeof(ArgumentException))]
+		string TestException();
 	}
 }

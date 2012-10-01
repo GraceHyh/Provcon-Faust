@@ -4,6 +4,7 @@
     <xsd:schema targetNamespace="http://tempuri.org/Imports">
       <xsd:import schemaLocation="http://provcon-faust/TestWCF/MyService.svc?xsd=xsd0" namespace="http://tempuri.org/" />
       <xsd:import schemaLocation="http://provcon-faust/TestWCF/MyService.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+      <xsd:import schemaLocation="http://provcon-faust/TestWCF/MyService.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/System" />
     </xsd:schema>
   </wsdl:types>
   <wsdl:message name="IMyService_GetDate_InputMessage">
@@ -12,10 +13,24 @@
   <wsdl:message name="IMyService_GetDate_OutputMessage">
     <wsdl:part name="parameters" element="tns:GetDateResponse" />
   </wsdl:message>
+  <wsdl:message name="IMyService_TestException_InputMessage">
+    <wsdl:part name="parameters" element="tns:TestException" />
+  </wsdl:message>
+  <wsdl:message name="IMyService_TestException_OutputMessage">
+    <wsdl:part name="parameters" element="tns:TestExceptionResponse" />
+  </wsdl:message>
+  <wsdl:message name="IMyService_TestException_ArgumentExceptionFault_FaultMessage">
+    <wsdl:part xmlns:q1="http://schemas.datacontract.org/2004/07/System" name="detail" element="q1:ArgumentException" />
+  </wsdl:message>
   <wsdl:portType name="IMyService">
     <wsdl:operation name="GetDate">
       <wsdl:input wsaw:Action="http://tempuri.org/IMyService/GetDate" message="tns:IMyService_GetDate_InputMessage" />
       <wsdl:output wsaw:Action="http://tempuri.org/IMyService/GetDateResponse" message="tns:IMyService_GetDate_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="TestException">
+      <wsdl:input wsaw:Action="http://tempuri.org/IMyService/TestException" message="tns:IMyService_TestException_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IMyService/TestExceptionResponse" message="tns:IMyService_TestException_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IMyService/TestExceptionArgumentExceptionFault" name="ArgumentExceptionFault" message="tns:IMyService_TestException_ArgumentExceptionFault_FaultMessage" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="defaultEndpoint" type="tns:IMyService">
@@ -28,6 +43,18 @@
       <wsdl:output>
         <soap:body use="literal" />
       </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="TestException">
+      <soap:operation soapAction="http://tempuri.org/IMyService/TestException" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="ArgumentExceptionFault">
+        <soap:fault use="literal" name="ArgumentExceptionFault" namespace="" />
+      </wsdl:fault>
     </wsdl:operation>
   </wsdl:binding>
   <wsdl:service name="MyService">
