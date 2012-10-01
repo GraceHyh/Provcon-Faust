@@ -47,5 +47,10 @@ namespace TestWCF
 		{
 			throw new ArgumentFaultException("Test");
 		}
+
+		public void TestCollection(string[] array, List<string[]> list)
+		{
+			Console.WriteLine("TEST COLLECTION!");
+		}
 	}
 }

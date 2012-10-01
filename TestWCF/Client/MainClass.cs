@@ -44,22 +44,17 @@ namespace TestWCF.Client
 			var hello = client.Hello();
 			Console.WriteLine("HELLO: {0}", hello);
 
-			try
-			{
-				client.TestException();
-			}
-			catch (ArgumentFaultException ex)
-			{
-				Console.WriteLine("GOT CUSTOM ARGUMENT FAULT EX: {0}", ex.Message);
-			}
-			catch (FaultException<ArgumentFault> ex)
-			{
-				Console.WriteLine("GOT ARGUMENT FAULT EX: {0}", ex.Message);
-			}
-			catch (FaultException ex)
-			{
-				Console.WriteLine("GOT FAULT EX: {0}", ex.Message);
-			}
+			var array = new List<string> ();
+			array.Add ("Hello");
+			array.Add ("World");
+
+			var list = new List<List<string>>();
+			list.Add(array);
+
+			client.TestCollection(array.ToList (), list);
+
+			Console.WriteLine("DONE");
+
 			client.Close();
 		}
 	}

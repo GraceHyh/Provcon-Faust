@@ -21,6 +21,9 @@ namespace TestWCF.Client.ServiceReference {
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IMyService/TestException", ReplyAction="http://tempuri.org/IMyService/TestExceptionResponse")]
         [System.ServiceModel.FaultContractAttribute(typeof(TestWCF.Model.ArgumentFault), Action="http://tempuri.org/IMyService/TestExceptionArgumentFaultFault", Name="ArgumentFault", Namespace="http://schemas.datacontract.org/2004/07/TestWCF.Model")]
         void TestException();
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IMyService/TestCollection", ReplyAction="http://tempuri.org/IMyService/TestCollectionResponse")]
+        void TestCollection(System.Collections.Generic.List<string> array, System.Collections.Generic.List<System.Collections.Generic.List<string>> list);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -56,6 +59,10 @@ namespace TestWCF.Client.ServiceReference {
         
         public void TestException() {
             base.Channel.TestException();
+        }
+        
+        public void TestCollection(System.Collections.Generic.List<string> array, System.Collections.Generic.List<System.Collections.Generic.List<string>> list) {
+            base.Channel.TestCollection(array, list);
         }
     }
 }

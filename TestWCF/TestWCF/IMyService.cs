@@ -46,5 +46,8 @@ namespace TestWCF
 		[OperationContract]
 		[FaultContract(typeof(ArgumentFault))]
 		void TestException();
+
+		[OperationContract]
+		void TestCollection(string[] array, List<string[]> list);
 	}
 }
