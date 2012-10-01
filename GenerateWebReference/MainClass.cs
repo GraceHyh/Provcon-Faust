@@ -26,6 +26,8 @@
 //
 using System;
 using System.IO;
+using System.Net;
+using System.Reflection;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Xml.Schema;
@@ -43,16 +45,24 @@ namespace TestWSDL2
 	{
 		const string URL = "http://provcon-faust/TestWCF/MyService.svc?wsdl";
 
-		static void Main ()
+		static void Main (string[] args)
 		{
+			if (args.Length < 1) {
+				var me = Assembly.GetExecutingAssembly ().GetName ().Name;
+				Console.WriteLine ("Usage: {0} url", me);
+				Environment.Exit (255);
+			}
+
+			var url = args[0];
+
 			var cr = new ContractReference ();
 			cr.Url = URL;
 
 			var protocol = new DiscoveryClientProtocol ();
 
-			using (var fs = new FileStream ("MyService.wsdl", FileMode.Open, FileAccess.Read)) {
-				protocol.Documents.Add (cr.Url, cr.ReadDocument (fs));
-			}
+			var wc = new WebClient ();
+			using (var stream = wc.OpenRead (url))
+				protocol.Documents.Add (cr.Url, cr.ReadDocument (stream));
 
 			var mset = ToMetadataSet (protocol);
 
