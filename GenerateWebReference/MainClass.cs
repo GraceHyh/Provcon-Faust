@@ -27,10 +27,12 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Xml.Schema;
+using System.Runtime.Serialization;
 using System.ServiceModel.Description;
 using System.Web.Services;
 using System.Web.Services.Discovery;
@@ -43,64 +45,79 @@ namespace TestWSDL2
 {
 	public class MainClass
 	{
-		const string URL = "http://provcon-faust/TestWCF/MyService.svc?wsdl";
+		const string DefaultURL = "http://provcon-faust/TestWCF/MyService.svc?singleWsdl";
 
-		static void Main (string[] args)
+		static int Main(string[] args)
 		{
-			if (args.Length < 1) {
-				var me = Assembly.GetExecutingAssembly ().GetName ().Name;
-				Console.WriteLine ("Usage: {0} url", me);
-				Environment.Exit (255);
+			var url = args.Length > 0 ? args[0] : DefaultURL;
+
+			if (args.Length > 1)
+			{
+				using (TextWriter writer = File.CreateText(args[1]))
+					Generate(url, writer);
+			}
+			else
+			{
+				Generate(url, Console.Out);
 			}
 
-			var url = args[0];
-
-			var cr = new ContractReference ();
-			cr.Url = URL;
-
-			var protocol = new DiscoveryClientProtocol ();
-
-			var wc = new WebClient ();
-			using (var stream = wc.OpenRead (url))
-				protocol.Documents.Add (cr.Url, cr.ReadDocument (stream));
-
-			var mset = ToMetadataSet (protocol);
-
-			WsdlImporter importer = new WsdlImporter (mset);
-			Collection<ContractDescription> contracts = importer.ImportAllContracts ();
-
-			Console.WriteLine ("CONTRACTS: {0}", contracts.Count);
-
-			CodeCompileUnit ccu = new CodeCompileUnit ();
-			CodeNamespace cns = new CodeNamespace ("TestNamespace");
-			ccu.Namespaces.Add (cns);
-			
-			var generator = new ServiceContractGenerator (ccu);
-
-			foreach (var cd in contracts)
-				generator.GenerateServiceContractType (cd);
-
-			var provider = new CSharpCodeProvider ();
-			using (TextWriter w = File.CreateText ("MyService.cs"))
-				provider.GenerateCodeFromCompileUnit (ccu, w, null);
+			return 0;
 		}
 
-		static MetadataSet ToMetadataSet (DiscoveryClientProtocol prot)
+		static void Generate(string url, TextWriter writer)
 		{
-			MetadataSet metadata = new MetadataSet ();
-			foreach (object o in prot.Documents.Values) {
-				if (o is System.Web.Services.Description.ServiceDescription) {
-					metadata.MetadataSections.Add (
-						new MetadataSection (MetadataSection.ServiceDescriptionDialect, "", (System.Web.Services.Description.ServiceDescription) o));
+			var cr = new ContractReference();
+			cr.Url = url;
+
+			var protocol = new DiscoveryClientProtocol();
+
+			var wc = new WebClient();
+			using (var stream = wc.OpenRead(cr.Url))
+				protocol.Documents.Add(cr.Url, cr.ReadDocument(stream));
+
+			var mset = ToMetadataSet(protocol);
+
+			var importer = new WsdlImporter(mset);
+			var xsdImporter = new XsdDataContractImporter();
+			var options = new ImportOptions();
+			options.ReferencedCollectionTypes.Add(typeof(LinkedList<>));
+			xsdImporter.Options = options;
+			importer.State.Add(typeof(XsdDataContractImporter), xsdImporter);
+	
+			Collection<ContractDescription> contracts = importer.ImportAllContracts();
+
+			CodeCompileUnit ccu = new CodeCompileUnit();
+			CodeNamespace cns = new CodeNamespace("TestNamespace");
+			ccu.Namespaces.Add(cns);
+
+			var generator = new ServiceContractGenerator(ccu);
+
+			foreach (var cd in contracts)
+				generator.GenerateServiceContractType(cd);
+
+			var provider = new CSharpCodeProvider();
+			provider.GenerateCodeFromCompileUnit(ccu, writer, null);
+		}
+
+		static MetadataSet ToMetadataSet(DiscoveryClientProtocol prot)
+		{
+			MetadataSet metadata = new MetadataSet();
+			foreach (object o in prot.Documents.Values)
+			{
+				if (o is System.Web.Services.Description.ServiceDescription)
+				{
+					metadata.MetadataSections.Add(
+						new MetadataSection(MetadataSection.ServiceDescriptionDialect, "", (System.Web.Services.Description.ServiceDescription)o));
 				}
-				if (o is XmlSchema) {
-					metadata.MetadataSections.Add (
-						new MetadataSection (MetadataSection.XmlSchemaDialect, "", (XmlSchema) o));
+				if (o is XmlSchema)
+				{
+					metadata.MetadataSections.Add(
+						new MetadataSection(MetadataSection.XmlSchemaDialect, "", (XmlSchema)o));
 				}
 			}
-			
+
 			return metadata;
-		}		
+		}
 
 	}
 }
