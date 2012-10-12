@@ -1,0 +1,44 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" ActiveRuntime="Mono 2.11.5" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="../../GenerateWebReference/MainClass.cs">
+    <Files>
+      <File FileName="Main.cs" Line="27" Column="1" />
+      <File FileName="NativeTest.cs" Line="28" Column="1" />
+      <File FileName="../../GenerateWebReference/MainClass.cs" Line="27" Column="1" />
+      <File FileName="MainWindow.cs" Line="27" Column="1" />
+      <File FileName="MainWindowController.cs" Line="27" Column="1" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State expanded="True">
+          <Node name="TestFramework" expanded="True" selected="True">
+            <Node name="TestFramework" expanded="True" />
+          </Node>
+        </State>
+      </Pad>
+      <Pad Id="ClassPad">
+        <State expanded="True" selected="True">
+          <Node name="FormatXML" expanded="True" />
+          <Node name="Main" expanded="True" />
+          <Node name="TestFramework" expanded="True" />
+          <Node name="TestWCF" expanded="True" />
+        </State>
+      </Pad>
+      <Pad Id="MonoDevelop.NUnit.TestPad">
+        <State expanded="True" selected="True" />
+      </Pad>
+      <Pad Id="MonoDevelop.Debugger.WatchPad">
+        <State />
+      </Pad>
+      <Pad Id="ConnectionManagerPad">
+        <State selected="True" />
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore>
+      <Breakpoint enabled="false" file="/Workspace/mono/mcs/class/System.Runtime.Serialization/System.Runtime.Serialization/XsdDataContractImporter.cs" line="519" />
+    </BreakpointStore>
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
