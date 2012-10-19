@@ -22,8 +22,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+// #define FIDDLER
+
 using System;
+using System.Linq;
 using System.Net;
+#if FIDDLER
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
+#endif
 
 namespace ProvconFaust.TestProxyAuth
 {
@@ -35,11 +42,24 @@ namespace ProvconFaust.TestProxyAuth
 			Test ();
 		}
 
+#if FIDDLER
+		public static bool Validator (object sender, X509Certificate certificate, X509Chain chain, 
+		                              SslPolicyErrors sslPolicyErrors)
+		{
+			return true;
+		}
+#endif
+		
 		static void Setup ()
 		{
+#if FIDDLER
+			ServicePointManager.ServerCertificateValidationCallback = Validator;
+			var proxy_uri = new Uri ("http://192.168.16.101:8888/");
+#else
 			var proxy_uri = new Uri ("http://192.168.16.101:3128/");
+#endif
 
-			var ntlm_cred = new NetworkCredential ("test", "monkey", "Provcon-Faust");
+			var ntlm_cred = new NetworkCredential ("test", "yeknom", "Provcon-Faust");
 			var digest_cred = new NetworkCredential ("mono", "monkey", "Provcon-Faust");
 
 			var cc = new CredentialCache ();
@@ -55,6 +75,7 @@ namespace ProvconFaust.TestProxyAuth
 		static void Test ()
 		{
 			var req = (HttpWebRequest)HttpWebRequest.Create ("https://www.google.com/");
+			req.Timeout = -1;
 
 			try {
 				var res = (HttpWebResponse)req.GetResponse ();
