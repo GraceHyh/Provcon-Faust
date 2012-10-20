@@ -28,10 +28,8 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Net;
-#if FIDDLER
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
-#endif
 
 namespace ProvconFaust.TestProxyAuth
 {
@@ -45,18 +43,16 @@ namespace ProvconFaust.TestProxyAuth
 			TestPost ();
 		}
 
-#if FIDDLER
 		public static bool Validator (object sender, X509Certificate certificate, X509Chain chain, 
 		                              SslPolicyErrors sslPolicyErrors)
 		{
 			return true;
 		}
-#endif
-		
+
 		static void Setup ()
 		{
-#if FIDDLER
 			ServicePointManager.ServerCertificateValidationCallback = Validator;
+#if FIDDLER
 			var proxy_uri = new Uri ("http://192.168.16.101:8888/");
 #else
 			var proxy_uri = new Uri ("http://192.168.16.101:3128/");
@@ -105,7 +101,7 @@ namespace ProvconFaust.TestProxyAuth
 
 		static void TestGet ()
 		{
-			var req = (HttpWebRequest)HttpWebRequest.Create ("https://provcon-faust/TestWCF/MyService.svc/rest/");
+			var req = (HttpWebRequest)HttpWebRequest.Create ("https://192.168.16.101/TestWCF/MyService.svc/rest/");
 			req.Timeout = -1;
 
 			var res = (HttpWebResponse)req.GetResponse ();
@@ -119,7 +115,7 @@ namespace ProvconFaust.TestProxyAuth
 
 		static void TestPost ()
 		{
-			var req = (HttpWebRequest)HttpWebRequest.Create ("https://provcon-faust/TestWCF/MyService.svc/rest/");
+			var req = (HttpWebRequest)HttpWebRequest.Create ("https://192.168.16.101/TestWCF/MyService.svc/rest/");
 			req.Timeout = -1;
 			req.Method = "POST";
 			req.ContentType = "text/xml";
