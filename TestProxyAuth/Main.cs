@@ -32,6 +32,8 @@ using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 #endif
 
+using TestWCF.Client.ServiceReference;
+
 namespace ProvconFaust.TestProxyAuth
 {
 	class MainClass
@@ -39,7 +41,7 @@ namespace ProvconFaust.TestProxyAuth
 		public static void Main (string[] args)
 		{
 			Setup ();
-			Test ();
+			TestService ();
 		}
 
 #if FIDDLER
@@ -83,6 +85,15 @@ namespace ProvconFaust.TestProxyAuth
 			} catch (Exception ex) {
 				Console.WriteLine ("EX: {0}", ex);
 			}
+		}
+
+		static void TestService ()
+		{
+			var client = new MyServiceClient ("sslEndpoint");
+			var hello = client.Hello ();
+			Console.WriteLine (hello);
+			Console.ReadLine ();
+			client.Close ();
 		}
 	}
 }
