@@ -54,7 +54,7 @@ namespace ProvconFaust.TestProxyAuth
 		{
 			ServicePointManager.ServerCertificateValidationCallback = Validator;
 #if FIDDLER
-			var proxy_uri = new Uri ("http://192.168.16.101:8888/");
+			var proxy_uri = new Uri ("http://192.168.16.104:8888/");
 #else
 			var proxy_uri = new Uri ("http://192.168.16.101:3128/");
 #endif
@@ -89,22 +89,25 @@ namespace ProvconFaust.TestProxyAuth
 
 		static void Test ()
 		{
-			var req = (HttpWebRequest)HttpWebRequest.Create ("https://de.wikipedia.org/wiki/Wikipedia:Hauptseite");
+			var url = "https://en.wikipedia.org/wiki/Apple";
+
+			var req = (HttpWebRequest)HttpWebRequest.Create (url);
 			req.KeepAlive = true;
 			req.ProtocolVersion = HttpVersion.Version11;
 			req.Timeout = -1;
 
-			try {
-				var res = (HttpWebResponse)req.GetResponse ();
-				Console.WriteLine (res.StatusCode);
-			} catch (Exception ex) {
-				Console.WriteLine ("EX: {0}", ex);
+			var res = (HttpWebResponse)req.GetResponse ();
+			Console.WriteLine (res.StatusCode);
+
+			using (var reader = new StreamReader (res.GetResponseStream ())) {
+				var text = reader.ReadToEnd ();
+				Console.WriteLine ("Read {0} bytes.", text.Length);
 			}
 		}
 
 		static void Test2 ()
 		{
-			var req = (HttpWebRequest)HttpWebRequest.Create ("https://en.wikipedia.org/wiki/Main_Page");
+			var req = (HttpWebRequest)HttpWebRequest.Create ("https://github.com/mono/mono");
 			req.Timeout = -1;
 			
 			try {
