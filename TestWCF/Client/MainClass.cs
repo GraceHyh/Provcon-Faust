@@ -39,7 +39,7 @@ namespace TestWCF.Client
 	{
 		static void Main()
 		{
-			var client = new MyServiceClient();
+			var client = new MyServiceClient("sslEndpoint");
 			var hello = client.Hello();
 			Console.WriteLine(hello);
 			client.Close();
