@@ -40,19 +40,8 @@ namespace TestWCF.Client
 		static void Main()
 		{
 			var client = new MyServiceClient();
-			var list = client.GetSimpleList();
-			Console.WriteLine(list.Count);
-
-			var complex = client.GetListOfStringArray();
-			foreach (var element in complex)
-				Console.WriteLine(string.Join (",", element));
-
-			Console.WriteLine();
-
-			var foo = client.GetListOfFoo();
-			foreach (var element in foo)
-				Console.WriteLine(element.Text);
-
+			var hello = client.Hello();
+			Console.WriteLine(hello);
 			client.Close();
 		}
 	}

@@ -34,18 +34,10 @@ using System.Text;
 
 namespace TestWCF
 {
-	using Model;
-
 	[ServiceContract]
 	public interface IMyService
 	{
 		[OperationContract]
-		IList<int> GetSimpleList();
-
-		[OperationContract]
-		IList<string[]> GetListOfStringArray();
-
-		[OperationContract]
-		IList<Foo> GetListOfFoo();
+		string Hello();
 	}
 }

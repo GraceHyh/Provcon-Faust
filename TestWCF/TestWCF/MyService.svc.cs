@@ -34,29 +34,11 @@ using System.Text;
 
 namespace TestWCF
 {
-	using Model;
-
 	public class MyService : IMyService
 	{
-		public IList<int> GetSimpleList()
+		public string Hello()
 		{
-			return new[] { 1, 2, 3 };
-		}
-
-		public IList<string[]> GetListOfStringArray()
-		{
-			var water = new[] { "Mermaid" };
-			var land = new[] { "Human", "Elf", "Dwarf", "Orc", "Troll" };
-			var air = new[] { "Gryphon", "Drake" };
-
-			return new List<string[]>(new[] { water, land, air });
-		}
-
-		public IList<Foo> GetListOfFoo()
-		{
-			var hello = new Foo { Text = "Hello" };
-			var world = new Foo { Text = "World" };
-			return new List<Foo>(new[] { hello, world });
+			return "Hello World";
 		}
 	}
 }
