@@ -40,5 +40,10 @@ namespace TestWCF
 		{
 			return "Hello World";
 		}
+
+		public string TestPost(string body)
+		{
+			return "Hello " + body;
+		}
 	}
 }

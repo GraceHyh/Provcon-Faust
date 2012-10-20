@@ -17,6 +17,9 @@ namespace TestWCF.Client.ServiceReference {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IMyService/Hello", ReplyAction="http://tempuri.org/IMyService/HelloResponse")]
         string Hello();
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IMyService/TestPost", ReplyAction="http://tempuri.org/IMyService/TestPostResponse")]
+        string TestPost(string body);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -48,6 +51,10 @@ namespace TestWCF.Client.ServiceReference {
         
         public string Hello() {
             return base.Channel.Hello();
+        }
+        
+        public string TestPost(string body) {
+            return base.Channel.TestPost(body);
         }
     }
 }

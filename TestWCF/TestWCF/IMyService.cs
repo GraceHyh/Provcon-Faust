@@ -37,7 +37,12 @@ namespace TestWCF
 	[ServiceContract]
 	public interface IMyService
 	{
+		[WebGet (UriTemplate="/")]
 		[OperationContract]
 		string Hello();
+
+		[WebInvoke(UriTemplate = "/")]
+		[OperationContract]
+		string TestPost(string body);
 	}
 }

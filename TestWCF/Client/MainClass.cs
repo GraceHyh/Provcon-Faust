@@ -42,6 +42,8 @@ namespace TestWCF.Client
 			var client = new MyServiceClient("sslEndpoint");
 			var hello = client.Hello();
 			Console.WriteLine(hello);
+			var result = client.TestPost("Client Data");
+			Console.WriteLine(result);
 			client.Close();
 		}
 	}
