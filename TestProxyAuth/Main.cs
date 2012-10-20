@@ -22,7 +22,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-// #define FIDDLER
+#define FIDDLER
 
 using System;
 using System.IO;
@@ -38,9 +38,10 @@ namespace ProvconFaust.TestProxyAuth
 		public static void Main (string[] args)
 		{
 			Setup ();
-			// Test ();
-			TestGet ();
-			TestPost ();
+			Test ();
+			Test2 ();
+			// TestGet ();
+			// TestPost ();
 		}
 
 		public static bool Validator (object sender, X509Certificate certificate, X509Chain chain, 
@@ -88,7 +89,9 @@ namespace ProvconFaust.TestProxyAuth
 
 		static void Test ()
 		{
-			var req = (HttpWebRequest)HttpWebRequest.Create ("https://www.google.com/");
+			var req = (HttpWebRequest)HttpWebRequest.Create ("https://de.wikipedia.org/wiki/Wikipedia:Hauptseite");
+			req.KeepAlive = true;
+			req.ProtocolVersion = HttpVersion.Version11;
 			req.Timeout = -1;
 
 			try {
@@ -99,9 +102,22 @@ namespace ProvconFaust.TestProxyAuth
 			}
 		}
 
+		static void Test2 ()
+		{
+			var req = (HttpWebRequest)HttpWebRequest.Create ("https://en.wikipedia.org/wiki/Main_Page");
+			req.Timeout = -1;
+			
+			try {
+				var res = (HttpWebResponse)req.GetResponse ();
+				Console.WriteLine (res.StatusCode);
+			} catch (Exception ex) {
+				Console.WriteLine ("EX: {0}", ex);
+			}
+		}
+
 		static void TestGet ()
 		{
-			var req = (HttpWebRequest)HttpWebRequest.Create ("https://192.168.16.101/TestWCF/MyService.svc/rest/");
+			var req = (HttpWebRequest)HttpWebRequest.Create ("https://192.168.16.101/TestWCF/");
 			req.Timeout = -1;
 
 			var res = (HttpWebResponse)req.GetResponse ();
