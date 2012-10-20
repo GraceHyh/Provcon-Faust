@@ -25,14 +25,13 @@
 // #define FIDDLER
 
 using System;
+using System.IO;
 using System.Linq;
 using System.Net;
 #if FIDDLER
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 #endif
-
-using TestWCF.Client.ServiceReference;
 
 namespace ProvconFaust.TestProxyAuth
 {
@@ -41,7 +40,9 @@ namespace ProvconFaust.TestProxyAuth
 		public static void Main (string[] args)
 		{
 			Setup ();
-			TestService ();
+			// Test ();
+			TestGet ();
+			TestPost ();
 		}
 
 #if FIDDLER
@@ -61,11 +62,15 @@ namespace ProvconFaust.TestProxyAuth
 			var proxy_uri = new Uri ("http://192.168.16.101:3128/");
 #endif
 
+#if NTLM
 			var ntlm_cred = new NetworkCredential ("test", "yeknom", "Provcon-Faust");
+#endif
 			var digest_cred = new NetworkCredential ("mono", "monkey", "Provcon-Faust");
 
 			var cc = new CredentialCache ();
+#if NTLM
 			cc.Add (proxy_uri, "NTLM", ntlm_cred);
+#endif
 			cc.Add (proxy_uri, "Digest", digest_cred);
 
 			var proxy = new WebProxy (proxy_uri, false);
@@ -73,6 +78,17 @@ namespace ProvconFaust.TestProxyAuth
 
 			WebRequest.DefaultWebProxy = proxy;
 		}
+
+#if FIDDLER
+		static void SetupFiddler ()
+		{
+			ServicePointManager.ServerCertificateValidationCallback = Validator;
+			var proxy_uri = new Uri ("http://192.168.16.101:8888/");
+
+			var proxy = new WebProxy (proxy_uri, false);
+			WebRequest.DefaultWebProxy = proxy;
+		}
+#endif
 
 		static void Test ()
 		{
@@ -87,13 +103,39 @@ namespace ProvconFaust.TestProxyAuth
 			}
 		}
 
-		static void TestService ()
+		static void TestGet ()
 		{
-			var client = new MyServiceClient ("sslEndpoint");
-			var hello = client.Hello ();
-			Console.WriteLine (hello);
-			Console.ReadLine ();
-			client.Close ();
+			var req = (HttpWebRequest)HttpWebRequest.Create ("https://provcon-faust/TestWCF/MyService.svc/rest/");
+			req.Timeout = -1;
+
+			var res = (HttpWebResponse)req.GetResponse ();
+			Console.WriteLine ("{0} {1}", (int)res.StatusCode, res.StatusDescription);
+
+			using (var reader = new StreamReader (res.GetResponseStream ())) {
+				var text = reader.ReadToEnd ();
+				Console.WriteLine (text);
+			}
 		}
+
+		static void TestPost ()
+		{
+			var req = (HttpWebRequest)HttpWebRequest.Create ("https://provcon-faust/TestWCF/MyService.svc/rest/");
+			req.Timeout = -1;
+			req.Method = "POST";
+			req.ContentType = "text/xml";
+
+			using (var writer = new StreamWriter (req.GetRequestStream ())) {
+				writer.WriteLine ("<string xmlns=\"http://schemas.microsoft.com/2003/10/Serialization/\">Client Data</string>");
+			}
+			
+			var res = (HttpWebResponse)req.GetResponse ();
+			Console.WriteLine ("{0} {1}", (int)res.StatusCode, res.StatusDescription);
+			
+			using (var reader = new StreamReader (res.GetResponseStream ())) {
+				var text = reader.ReadToEnd ();
+				Console.WriteLine (text);
+			}
+		}
+
 	}
 }
