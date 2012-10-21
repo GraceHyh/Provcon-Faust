@@ -22,7 +22,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#define FIDDLER
+// #define FIDDLER
 
 using System;
 using System.IO;
@@ -37,7 +37,12 @@ namespace ProvconFaust.TestProxyAuth
 	{
 		public static void Main (string[] args)
 		{
-			Setup ();
+#if FIDDLER
+			Setup (new Uri ("http://192.168.16.104:8888/"));
+#else
+			Setup (new Uri ("http://192.168.16.101:3128/"));
+#endif
+
 			Test ();
 			Test2 ();
 			// TestGet ();
@@ -50,24 +55,15 @@ namespace ProvconFaust.TestProxyAuth
 			return true;
 		}
 
-		static void Setup ()
+		static void Setup (Uri proxy_uri)
 		{
 			ServicePointManager.ServerCertificateValidationCallback = Validator;
-#if FIDDLER
-			var proxy_uri = new Uri ("http://192.168.16.104:8888/");
-#else
-			var proxy_uri = new Uri ("http://192.168.16.101:3128/");
-#endif
 
-#if NTLM
 			var ntlm_cred = new NetworkCredential ("test", "yeknom", "Provcon-Faust");
-#endif
 			var digest_cred = new NetworkCredential ("mono", "monkey", "Provcon-Faust");
 
 			var cc = new CredentialCache ();
-#if NTLM
 			cc.Add (proxy_uri, "NTLM", ntlm_cred);
-#endif
 			cc.Add (proxy_uri, "Digest", digest_cred);
 
 			var proxy = new WebProxy (proxy_uri, false);
@@ -75,17 +71,6 @@ namespace ProvconFaust.TestProxyAuth
 
 			WebRequest.DefaultWebProxy = proxy;
 		}
-
-#if FIDDLER
-		static void SetupFiddler ()
-		{
-			ServicePointManager.ServerCertificateValidationCallback = Validator;
-			var proxy_uri = new Uri ("http://192.168.16.101:8888/");
-
-			var proxy = new WebProxy (proxy_uri, false);
-			WebRequest.DefaultWebProxy = proxy;
-		}
-#endif
 
 		static void Test ()
 		{
@@ -110,11 +95,12 @@ namespace ProvconFaust.TestProxyAuth
 			var req = (HttpWebRequest)HttpWebRequest.Create ("https://github.com/mono/mono");
 			req.Timeout = -1;
 			
-			try {
-				var res = (HttpWebResponse)req.GetResponse ();
-				Console.WriteLine (res.StatusCode);
-			} catch (Exception ex) {
-				Console.WriteLine ("EX: {0}", ex);
+			var res = (HttpWebResponse)req.GetResponse ();
+			Console.WriteLine (res.StatusCode);
+
+			using (var reader = new StreamReader (res.GetResponseStream ())) {
+				var text = reader.ReadToEnd ();
+				Console.WriteLine ("Read {0} bytes.", text.Length);
 			}
 		}
 
