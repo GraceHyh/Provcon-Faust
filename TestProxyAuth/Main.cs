@@ -45,8 +45,8 @@ namespace ProvconFaust.TestProxyAuth
 
 			Test ();
 			Test2 ();
-			// TestGet ();
-			// TestPost ();
+			TestGet ();
+			TestPost ();
 		}
 
 		public static bool Validator (object sender, X509Certificate certificate, X509Chain chain, 
