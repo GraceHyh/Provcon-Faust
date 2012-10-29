@@ -38,8 +38,15 @@ namespace DelegateTest
 		public override void AwakeFromNib ()
 		{
 			base.AwakeFromNib ();
-			TextView.Delegate = new MyDelegate ();
-			Console.WriteLine ("TEST");
+			// TextView.Delegate = new MyDelegate ();
+			// Console.WriteLine ("TEST");
+
+			TextView.TextDidChange += (sender, e) => {
+				Console.WriteLine ("TEXT DID CHANGE!");
+			};
+			TextView.DidChangeSelection += (sender, e) => {
+				Console.WriteLine ("DID CHANGE SELECTION!");
+			};
 		}
 		
 		#endregion
