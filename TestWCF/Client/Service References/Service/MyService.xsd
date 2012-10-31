@@ -12,18 +12,4 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="TestPost">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="body" nillable="true" type="xs:string" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="TestPostResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="TestPostResult" nillable="true" type="xs:string" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
 </xs:schema>

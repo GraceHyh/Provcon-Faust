@@ -25,6 +25,8 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 using System;
+using System.IO;
+using System.Net;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -33,18 +35,51 @@ using System.ServiceModel;
 
 namespace TestWCF.Client
 {
-	using ServiceReference;
+	using Service;
 
 	public class MainClass
 	{
 		static void Main()
 		{
-			var client = new MyServiceClient("sslEndpoint");
+			TestService();
+			TestRestService(new Uri ("http://provcon-faust/TestWCF/RestService/MyRestService.svc"));
+			Console.WriteLine("Done!");
+		}
+
+		static void TestService()
+		{
+			var client = new MyServiceClient();
 			var hello = client.Hello();
 			Console.WriteLine(hello);
-			var result = client.TestPost("Client Data");
-			Console.WriteLine(result);
 			client.Close();
+		}
+
+		static void TestRestService(Uri uri)
+		{
+			WebRequest.DefaultWebProxy = new WebProxy("192.168.16.104", 3128);
+
+			var getReq = HttpWebRequest.Create(uri);
+			var getRes = getReq.GetResponse();
+
+			string hello;
+			using (var reader = new StreamReader(getRes.GetResponseStream()))
+				hello = reader.ReadToEnd();
+
+			var putReq = HttpWebRequest.Create(uri);
+			putReq.ContentType = "text/xml";
+			putReq.Method = "POST";
+
+			using (var writer = new StreamWriter(putReq.GetRequestStream()))
+				writer.WriteLine("<string xmlns=\"http://schemas.microsoft.com/2003/10/Serialization/\">Client Data</string>");
+
+			var putRes = (HttpWebResponse)putReq.GetResponse();
+			Console.WriteLine(putRes.StatusCode);
+
+			string response;
+			using (var reader = new StreamReader(putRes.GetResponseStream()))
+				response = reader.ReadToEnd();
+
+			Console.WriteLine(response);
 		}
 	}
 }
