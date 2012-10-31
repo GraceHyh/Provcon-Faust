@@ -27,6 +27,8 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -41,9 +43,23 @@ namespace TestWCF.Client
 	{
 		static void Main()
 		{
+			Setup();
 			TestService();
-			TestRestService(new Uri ("http://provcon-faust/TestWCF/RestService/MyRestService.svc"));
+			TestRestService(new Uri("http://provcon-faust/TestWCF/RestService/MyRestService.svc/"));
+			TestRestService(new Uri("https://provcon-faust/TestWCF/RestService/MyRestService.svc/"));
 			Console.WriteLine("Done!");
+		}
+
+		public static bool Validator (object sender, X509Certificate certificate, X509Chain chain, 
+		                              SslPolicyErrors sslPolicyErrors)
+		{
+			return true;
+		}
+
+		static void Setup()
+		{
+			ServicePointManager.ServerCertificateValidationCallback = Validator;
+			WebRequest.DefaultWebProxy = new WebProxy("192.168.16.104", 3128);
 		}
 
 		static void TestService()
@@ -56,8 +72,6 @@ namespace TestWCF.Client
 
 		static void TestRestService(Uri uri)
 		{
-			WebRequest.DefaultWebProxy = new WebProxy("192.168.16.104", 3128);
-
 			var getReq = HttpWebRequest.Create(uri);
 			var getRes = getReq.GetResponse();
 
