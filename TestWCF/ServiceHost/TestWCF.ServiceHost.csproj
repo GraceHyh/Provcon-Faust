@@ -53,7 +53,7 @@
       <Project>{3a33e4ae-7a50-42fe-b017-98a12df58828}</Project>
       <Name>TestWCF.Model</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TestWCF\TestWCF.RestService.csproj">
+    <ProjectReference Include="..\RestService\TestWCF.RestService.csproj">
       <Project>{0e0613ff-5690-4914-8a24-c9ddd230c39f}</Project>
       <Name>TestWCF.RestService</Name>
     </ProjectReference>
