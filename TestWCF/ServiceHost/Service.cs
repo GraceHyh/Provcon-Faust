@@ -37,7 +37,7 @@ namespace TestWCF.ServiceHost
 	{
 		static void Main()
 		{
-			var host = new System.ServiceModel.ServiceHost(typeof(MyService));
+			var host = new System.ServiceModel.ServiceHost(typeof(MyRestService));
 			host.Open();
 			Console.WriteLine("Service running");
 			foreach (var se in host.Description.Endpoints)
