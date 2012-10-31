@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Express 2012 for Web
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestWCF", "TestWCF\TestWCF.csproj", "{0E0613FF-5690-4914-8A24-C9DDD230C39F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestWCF.RestService", "RestService\TestWCF.RestService.csproj", "{0E0613FF-5690-4914-8A24-C9DDD230C39F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestWCF.Model", "Model\TestWCF.Model.csproj", "{3A33E4AE-7A50-42FE-B017-98A12DF58828}"
 EndProject
