@@ -1,5 +1,5 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
+Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Express 2012 for Web
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestWCF", "TestWCF\TestWCF.csproj", "{0E0613FF-5690-4914-8A24-C9DDD230C39F}"
 EndProject
@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestWCF.Model", "Model\Test
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestWCF.Client", "Client\TestWCF.Client.csproj", "{168FF3A6-90AC-458B-A606-86C794B12A89}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestWCF.Service", "Service\TestWCF.Service.csproj", "{16442578-1726-41EF-B328-409714EF444E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestWCF.ServiceHost", "ServiceHost\TestWCF.ServiceHost.csproj", "{16442578-1726-41EF-B328-409714EF444E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -7,8 +7,8 @@
     <ProjectGuid>{16442578-1726-41EF-B328-409714EF444E}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TestWCF.Service</RootNamespace>
-    <AssemblyName>TestWCF.Service</AssemblyName>
+    <RootNamespace>TestWCF.ServiceHost</RootNamespace>
+    <AssemblyName>TestWCF.ServiceHost</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

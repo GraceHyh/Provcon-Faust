@@ -31,13 +31,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.ServiceModel;
 
-namespace TestWCF.Service
+namespace TestWCF.ServiceHost
 {
-	class Service
+	class Host
 	{
 		static void Main()
 		{
-			var host = new ServiceHost(typeof(MyService));
+			var host = new System.ServiceModel.ServiceHost(typeof(MyService));
 			host.Open();
 			Console.WriteLine("Service running");
 			foreach (var se in host.Description.Endpoints)
