@@ -22,14 +22,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-// #define FIDDLER
-
 using System;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
+using Mono.Security.Protocol.Ntlm;
 
 namespace ProvconFaust.TestProxyAuth
 {
@@ -37,22 +36,115 @@ namespace ProvconFaust.TestProxyAuth
 	{
 		public static void Main (string[] args)
 		{
-#if FIDDLER
-			Setup (new Uri ("http://192.168.16.104:8888/"));
-#else
-			Setup (new Uri ("http://192.168.16.101:3128/"));
-#endif
+			// Decode_Type2 (type2_message);
+			// Decode_Type3 (type3_message);
 
+			// Setup (new Uri ("http://192.168.16.101:8888/"));
 			Test ();
-			Test2 ();
-			TestGet ();
-			TestPost ();
+
+			Compute_Type3 ();
 		}
+
+		// Host: PROVCON-FAUST
+		// Domain: <empty>
+		// Username: test
+		// Password: yeknom
+
+		const string type2_message = "TlRMTVNTUAACAAAAGgAaADgAAAAFgoqi" +
+			"MXN7SA+F8Z0AAAAAAAAAAIgAiABSAAAABgGxHQAAAA9QAFIATwBWAE" +
+			"MATwBOAC0ARgBBAFUAUwBUAAIAGgBQAFIATwBWAEMATwBOAC0ARgBB" +
+			"AFUAUwBUAAEAGgBQAFIATwBWAEMATwBOAC0ARgBBAFUAUwBUAAQAGg" +
+			"BQAHIAbwB2AGMAbwBuAC0ARgBhAHUAcwB0AAMAGgBQAHIAbwB2AGMA" +
+			"bwBuAC0ARgBhAHUAcwB0AAcACABGXoF/hbnNAQAAAAA=";
+
+		const string type3_message = "TlRMTVNTUAADAAAAGAAYAHoAAAA0ATQBk" +
+			"gAAAAAAAABYAAAACAAIAFgAAAAaABoAYAAAAAAAAADGAQAABYKIogYB" +
+			"sR0AAAAPsWcYJbDdinmFcsHxB8UHVXQAZQBzAHQAUABSAE8AVgBDAE8" +
+			"ATgAtAEYAQQBVAFMAVAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABGgc" +
+			"ZC7Ijvcj8k7ZFQG3lIAQEAAAAAAABGXoF/hbnNAZJ12yGYs6TTAAAAA" +
+			"AIAGgBQAFIATwBWAEMATwBOAC0ARgBBAFUAUwBUAAEAGgBQAFIATwBW" +
+			"AEMATwBOAC0ARgBBAFUAUwBUAAQAGgBQAHIAbwB2AGMAbwBuAC0ARgB" +
+			"hAHUAcwB0AAMAGgBQAHIAbwB2AGMAbwBuAC0ARgBhAHUAcwB0AAcACA" +
+			"BGXoF/hbnNAQYABAACAAAACAAwADAAAAAAAAAAAAAAAAAwAACQeoq9X" +
+			"sdVRq7asvn+HAO4IBXY6F0iUDsYp0Er34UjmwoAEAAAAAAAAAAAAAAA" +
+			"AAAAAAAACQAkAEgAVABUAFAALwBwAHIAbwB2AGMAbwBuAC0AZgBhAHU" +
+			"AcwB0AAAAAAAAAAAAAAAAAA==";
 
 		public static bool Validator (object sender, X509Certificate certificate, X509Chain chain, 
 		                              SslPolicyErrors sslPolicyErrors)
 		{
 			return true;
+		}
+
+		static void HexDump (byte[] buffer)
+		{
+			for (int i = 0; i < buffer.Length; i++) {
+				if ((i % 8) == 0) {
+					Console.WriteLine ();
+					Console.Write ("{0:x4} ", i);
+				}
+				Console.Write ("{0:x2} ", buffer [i]);
+			}
+			Console.WriteLine ();
+			Console.WriteLine ();
+		}
+
+		static void HexDump (string name, byte[] buffer)
+		{
+			Console.Write ("{0}: ", name);
+			for (int i = 0; i < buffer.Length; i++) {
+				Console.Write ("{0:x2} ", buffer [i]);
+			}
+			Console.WriteLine ();
+		}
+		
+		static void Decode_Type2 (string text)
+		{
+			var bytes = Convert.FromBase64String (text);
+			HexDump (bytes);
+			var message = new Type2Message (bytes);
+			Console.WriteLine ("TYPE 2: {0:x} {1:x}",
+			                   message.Type, message.Flags);
+		}
+
+		static void Decode_Type3 (string text)
+		{
+			var bytes = Convert.FromBase64String (text);
+			HexDump (bytes);
+			var message = new Type3Message (bytes);
+			Console.WriteLine ("TYPE 3: {0:x} {1:x}",
+			                   message.Type, message.Flags);
+
+			HexDump ("LM", message.LM);
+			HexDump ("LT", message.NT);
+		}
+
+		static void Compute_Type3 ()
+		{
+			Decode_Type3 (type3_message);
+			Console.WriteLine ();
+
+			var bytes = Convert.FromBase64String (type2_message);
+			var message = new Type2Message (bytes);
+			Compute_Type3 (message);
+		}
+
+		static void Compute_Type3 (Type2Message type2)
+		{
+			Type3Message type3 = new Type3Message ();
+			type3.Domain = "";
+			type3.Host = "PROVCON-FAUST";
+			type3.Username = "test";
+			type3.Challenge = type2.Nonce;
+			type3.Password = "yeknom";
+
+			HexDump ("CHALLENGE", type2.Nonce);
+
+			var bytes = type3.GetBytes ();
+
+			var message = new Type3Message (bytes);
+			HexDump ("LM", message.LM);
+			HexDump ("NT", message.NT);
 		}
 
 		static void Setup (Uri proxy_uri)
@@ -74,13 +166,17 @@ namespace ProvconFaust.TestProxyAuth
 
 		static void Test ()
 		{
-			var url = "https://en.wikipedia.org/wiki/Apple";
+			var uri = new Uri ("http://provcon-faust:81/");
 
-			var req = (HttpWebRequest)HttpWebRequest.Create (url);
+			var req = (HttpWebRequest)HttpWebRequest.Create (uri);
 			req.KeepAlive = true;
 			req.ProtocolVersion = HttpVersion.Version11;
 			req.Timeout = -1;
 
+			var cc = new CredentialCache ();
+			cc.Add (uri, "NTLM", new NetworkCredential ("test", "yeknom"));
+			req.Credentials = cc;
+
 			var res = (HttpWebResponse)req.GetResponse ();
 			Console.WriteLine (res.StatusCode);
 
@@ -89,54 +185,5 @@ namespace ProvconFaust.TestProxyAuth
 				Console.WriteLine ("Read {0} bytes.", text.Length);
 			}
 		}
-
-		static void Test2 ()
-		{
-			var req = (HttpWebRequest)HttpWebRequest.Create ("https://github.com/mono/mono");
-			req.Timeout = -1;
-			
-			var res = (HttpWebResponse)req.GetResponse ();
-			Console.WriteLine (res.StatusCode);
-
-			using (var reader = new StreamReader (res.GetResponseStream ())) {
-				var text = reader.ReadToEnd ();
-				Console.WriteLine ("Read {0} bytes.", text.Length);
-			}
-		}
-
-		static void TestGet ()
-		{
-			var req = (HttpWebRequest)HttpWebRequest.Create ("https://192.168.16.101/TestWCF/");
-			req.Timeout = -1;
-
-			var res = (HttpWebResponse)req.GetResponse ();
-			Console.WriteLine ("{0} {1}", (int)res.StatusCode, res.StatusDescription);
-
-			using (var reader = new StreamReader (res.GetResponseStream ())) {
-				var text = reader.ReadToEnd ();
-				Console.WriteLine (text);
-			}
-		}
-
-		static void TestPost ()
-		{
-			var req = (HttpWebRequest)HttpWebRequest.Create ("https://192.168.16.101/TestWCF/MyService.svc/rest/");
-			req.Timeout = -1;
-			req.Method = "POST";
-			req.ContentType = "text/xml";
-
-			using (var writer = new StreamWriter (req.GetRequestStream ())) {
-				writer.WriteLine ("<string xmlns=\"http://schemas.microsoft.com/2003/10/Serialization/\">Client Data</string>");
-			}
-			
-			var res = (HttpWebResponse)req.GetResponse ();
-			Console.WriteLine ("{0} {1}", (int)res.StatusCode, res.StatusDescription);
-			
-			using (var reader = new StreamReader (res.GetResponseStream ())) {
-				var text = reader.ReadToEnd ();
-				Console.WriteLine (text);
-			}
-		}
-
 	}
 }
