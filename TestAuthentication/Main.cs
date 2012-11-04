@@ -30,7 +30,7 @@ using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using Mono.Security.Protocol.Ntlm;
 
-namespace ProvconFaust.TestProxyAuth
+namespace ProvconFaust.TestAuthentication
 {
 	class MainClass
 	{
