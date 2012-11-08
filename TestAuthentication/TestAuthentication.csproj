@@ -48,6 +48,7 @@
     <Compile Include="Main.cs" />
     <Compile Include="MyNtlmClient.cs" />
     <Compile Include="Utils.cs" />
+    <Compile Include="NtlmAuthHelper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
