@@ -36,15 +36,17 @@ namespace ProvconFaust.TestAuthentication
 	{
 		public static void Main (string[] args)
 		{
+#if FIXME
 			var helper = new NtlmAuthHelper ();
 			helper.Run ("test", "fuck");
 			return;
+#endif
 
 			// Decode_Type2 (type2_message);
 			// Decode_Type3 (type3_message);
 
-			// Setup (new Uri ("http://192.168.16.101:8888/"));
-			// Test ();
+			Setup (new Uri ("http://192.168.16.101:8888/"));
+			Test ();
 
 			// Compute_Type3 ();
 		}
@@ -165,7 +167,7 @@ namespace ProvconFaust.TestAuthentication
 			var proxy = new WebProxy (proxy_uri, false);
 			// proxy.Credentials = cc;
 
-			WebRequest.DefaultWebProxy = proxy;
+			// WebRequest.DefaultWebProxy = proxy;
 
 			IAuthenticationModule ntlm = null;
 
@@ -185,6 +187,8 @@ namespace ProvconFaust.TestAuthentication
 
 		static void Test ()
 		{
+			Type3Message.DefaultAuthLevel = NtlmAuthLevel.NTLMv2_only;
+
 			var uri = new Uri ("http://provcon-faust:81/");
 
 			var req = (HttpWebRequest)HttpWebRequest.Create (uri);

@@ -70,22 +70,48 @@ namespace ProvconFaust.TestAuthentication {
 			byte[] nonce, namesBlob;
 			Dump (type2, type3, out timestamp, out nonce, out namesBlob);
 
-			byte[] nt = ChallengeResponse.Compute_NTLM_v2 (
-				type2, "test", "yeknom");
+			byte[] nt = ChallengeResponse2.Compute_NTLMv2 (
+				type2, "test", "yeknom", timestamp, nonce);
 
 			var ok = Utils.Compare (type3.NT, nt);
-			Console.WriteLine (ok);
+			Console.WriteLine ("COMPARE: {0} - {1:x}", ok, type3.Flags);
 			type3.NT = nt;
 
 			// Dump (type2, type3);
 
+			type3.Flags = (NtlmFlags)0x00088201;
+
 			var bytes2 = type3.GetBytes2 ();
+
+			var auth = ntlm.Authenticate (challenge, request, credentials);
+			Console.WriteLine (auth.Message);
+
+			var bytes3 = Convert.FromBase64String (auth.Message.Substring (5));
+			var test = new Type3Message (bytes3);
+
+			Console.WriteLine ("TEST: {0:x} - {1} {2}", test.Flags,
+			                   bytes2.Length, bytes3.Length);
+
+			Console.WriteLine ("TEST #1: {0} {1} {2} - {3} {4} {5}",
+			                   type3.Host, type3.Domain, type3.Username,
+			                   test.Host, test.Domain, test.Username);
+
+			Console.WriteLine ("TEST #2: {0} {1} {2}", test.LM != null, test.NT.Length,
+			                   type3.NT.Length);
+
+			// test.NT = type3.NT;
+
+			// test.Host = type3.Host;
+			test.Domain = type3.Domain;
+			// test.Flags = type3.Flags;
+
+			var bytes4 = test.GetBytes2 ();
 
 			// Utils.HexDump (bytes);
 			// Utils.HexDump (bytes2);
-			// Utils.Compare (bytes, bytes2);
+			// Utils.Compare (bytes2, bytes3);
 
-			var auth = new Authorization ("NTLM " + Convert.ToBase64String (bytes2));
+			// auth = new Authorization ("NTLM " + Convert.ToBase64String (bytes4));
 			Console.WriteLine (auth.Message);
 			return auth;
 		}
@@ -96,7 +122,7 @@ namespace ProvconFaust.TestAuthentication {
 			Console.WriteLine ();
 			Console.WriteLine ("DUMP:");
 			Console.WriteLine ("=====");
-			var ntlm_hash = ChallengeResponse.Compute_NTLM_Password ("yeknom");
+			var ntlm_hash = ChallengeResponse2.Compute_NTLM_Password ("yeknom");
 			Utils.HexDump ("NTLM HASH", ntlm_hash);
 			
 			var ubytes = Encoding.Unicode.GetBytes ("TEST");
@@ -113,59 +139,58 @@ namespace ProvconFaust.TestAuthentication {
 			var ntlmv2_md5 = new HMACMD5 (ntlmv2_hash);
 
 			Utils.HexDump (type3.NT);
-			using (var br = new BinaryReader (new MemoryStream (type3.NT))) {
-				var hash = br.ReadBytes (16);
-				Utils.HexDump (hash);
+			var br = new BinaryReader (new MemoryStream (type3.NT));
+			var hash = br.ReadBytes (16);
+			Utils.HexDump (hash);
 
-				if (br.ReadInt32 () != 0x0101)
-					throw new InvalidDataException ();
-				if (br.ReadInt32 () != 0)
-					throw new InvalidDataException ();
+			if (br.ReadInt32 () != 0x0101)
+				throw new InvalidDataException ();
+			if (br.ReadInt32 () != 0)
+				throw new InvalidDataException ();
 
-				timestamp = br.ReadInt64 ();
-				var ticks = timestamp + 504911232000000000;
-				Console.WriteLine ("TIMESTAMP: {0} {1}", timestamp, new DateTime (ticks));
+			timestamp = br.ReadInt64 ();
+			var ticks = timestamp + 504911232000000000;
+			Console.WriteLine ("TIMESTAMP: {0} {1}", timestamp, new DateTime (ticks));
 
-				nonce = br.ReadBytes (8);
-				Utils.HexDump ("NONCE", nonce);
+			nonce = br.ReadBytes (8);
+			Utils.HexDump ("NONCE", nonce);
 
-				br.ReadInt32 ();
+			br.ReadInt32 ();
 
-				var pos = br.BaseStream.Position;
+			var pos = br.BaseStream.Position;
 
-				while (true) {
-					var type = br.ReadInt16 ();
-					var length = br.ReadInt16 ();
-					Console.WriteLine ("NAMES BLOB: {0:x} {1:x}", type, length);
-					if (type == 0)
-						break;
-					var contents = br.ReadBytes (length);
-					Utils.HexDump (contents);
-				}
-
-				namesBlob = new byte [br.BaseStream.Position - pos];
-				Array.Copy (type3.NT, pos, namesBlob, 0, namesBlob.Length);
-
-				var blob = new byte [type3.NT.Length - 16];
-				Array.Copy (type3.NT, 16, blob, 0, blob.Length);
-
-				Utils.HexDump ("TYPE 2 CHALLENGE", type2.Nonce);
-
-				var buffer = new byte [type2.Nonce.Length + blob.Length];
-				type2.Nonce.CopyTo (buffer, 0);
-				blob.CopyTo (buffer, type2.Nonce.Length);
-
-				Utils.HexDump (blob);
-
-				var test = ntlmv2_md5.ComputeHash (buffer);
-				Utils.HexDump ("THE HASH", test);
-				var ok = Utils.Compare (hash, test);
-				Console.WriteLine (ok);
-
-				Console.WriteLine ();
-				Console.WriteLine ("==========");
+			while (true) {
+				var type = br.ReadInt16 ();
+				var length = br.ReadInt16 ();
+				Console.WriteLine ("NAMES BLOB: {0:x} {1:x}", type, length);
+				if (type == 0)
+					break;
+				var contents = br.ReadBytes (length);
+				Utils.HexDump (contents);
 			}
-			
+
+			namesBlob = new byte [br.BaseStream.Position - pos];
+			Array.Copy (type3.NT, pos, namesBlob, 0, namesBlob.Length);
+
+			var blob = new byte [type3.NT.Length - 16];
+			Array.Copy (type3.NT, 16, blob, 0, blob.Length);
+
+			Utils.HexDump ("TYPE 2 CHALLENGE", type2.Nonce);
+
+			var buffer = new byte [type2.Nonce.Length + blob.Length];
+			type2.Nonce.CopyTo (buffer, 0);
+			blob.CopyTo (buffer, type2.Nonce.Length);
+
+			Utils.HexDump (blob);
+
+			var test = ntlmv2_md5.ComputeHash (buffer);
+			Utils.HexDump ("THE HASH", test);
+			var ok = Utils.Compare (hash, test);
+			Console.WriteLine (ok);
+
+			Console.WriteLine ();
+			Console.WriteLine ("==========");
+			Console.WriteLine ();
 		}
 
 		public Authorization PreAuthenticate (WebRequest request, ICredentials credentials)
