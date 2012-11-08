@@ -51,14 +51,17 @@ namespace ProvconFaust.TestAuthentication {
 			Console.WriteLine ();
 		}
 
-		public static void Compare (byte[] a, byte[] b)
+		public static bool Compare (byte[] a, byte[] b)
 		{
+			bool same = true;
 			var length = Math.Min (a.Length, b.Length);
 			for (int i = 0; i < length; i++) {
 				if (a[i] == b[i])
 					continue;
 				Console.WriteLine ("{0:x4}: {1:x2} - {2:x2}", i, a[i], b[i]);
+				same = false;
 			}
+			return same;
 		}
 	}
 }

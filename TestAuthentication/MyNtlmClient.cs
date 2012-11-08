@@ -24,8 +24,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Diagnostics;
+using System.IO;
 using System.Net;
+using System.Text;
+using System.Diagnostics;
+using System.Security.Cryptography;
 using Mono.Security.Protocol.Ntlm;
 
 namespace ProvconFaust.TestAuthentication {
@@ -55,20 +58,114 @@ namespace ProvconFaust.TestAuthentication {
 			if (!result.StartsWith ("AF "))
 				return null;
 
+			var t2_bytes = Convert.FromBase64String (challenge.Substring (5));
+			var type2 = new Type2Message (t2_bytes);
+			Utils.HexDump (t2_bytes);
+			Console.WriteLine ("TYPE2: {0}", type2.TargetName);
+
 			var bytes = Convert.FromBase64String (result.Substring (3));
 			var type3 = new Type3Message (bytes);
-			Console.WriteLine (type3.LM.Length);
+
+			long timestamp;
+			byte[] nonce, namesBlob;
+			Dump (type2, type3, out timestamp, out nonce, out namesBlob);
+
+			byte[] nt = ChallengeResponse.Compute_NTLM_v2 (
+				type2, "test", "yeknom");
+
+			var ok = Utils.Compare (type3.NT, nt);
+			Console.WriteLine (ok);
+			type3.NT = nt;
+
+			// Dump (type2, type3);
 
 			var bytes2 = type3.GetBytes2 ();
 
-			Utils.HexDump (bytes);
-			Utils.HexDump (bytes2);
-
-			Utils.Compare (bytes, bytes2);
+			// Utils.HexDump (bytes);
+			// Utils.HexDump (bytes2);
+			// Utils.Compare (bytes, bytes2);
 
 			var auth = new Authorization ("NTLM " + Convert.ToBase64String (bytes2));
 			Console.WriteLine (auth.Message);
 			return auth;
+		}
+
+		static void Dump (Type2Message type2, Type3Message type3,
+		                  out long timestamp, out byte[] nonce, out byte[] namesBlob)
+		{
+			Console.WriteLine ();
+			Console.WriteLine ("DUMP:");
+			Console.WriteLine ("=====");
+			var ntlm_hash = ChallengeResponse.Compute_NTLM_Password ("yeknom");
+			Utils.HexDump ("NTLM HASH", ntlm_hash);
+			
+			var ubytes = Encoding.Unicode.GetBytes ("TEST");
+			var tbytes = Encoding.Unicode.GetBytes ("PROVCON-FAUST");
+			
+			var bytes = new byte [ubytes.Length + tbytes.Length];
+			ubytes.CopyTo (bytes, 0);
+			Array.Copy (tbytes, 0, bytes, ubytes.Length, tbytes.Length);
+			
+			var md5 = new HMACMD5 (ntlm_hash);
+			var ntlmv2_hash = md5.ComputeHash (bytes);
+			Utils.HexDump ("NTLM V2 HASH", ntlmv2_hash);
+
+			var ntlmv2_md5 = new HMACMD5 (ntlmv2_hash);
+
+			Utils.HexDump (type3.NT);
+			using (var br = new BinaryReader (new MemoryStream (type3.NT))) {
+				var hash = br.ReadBytes (16);
+				Utils.HexDump (hash);
+
+				if (br.ReadInt32 () != 0x0101)
+					throw new InvalidDataException ();
+				if (br.ReadInt32 () != 0)
+					throw new InvalidDataException ();
+
+				timestamp = br.ReadInt64 ();
+				var ticks = timestamp + 504911232000000000;
+				Console.WriteLine ("TIMESTAMP: {0} {1}", timestamp, new DateTime (ticks));
+
+				nonce = br.ReadBytes (8);
+				Utils.HexDump ("NONCE", nonce);
+
+				br.ReadInt32 ();
+
+				var pos = br.BaseStream.Position;
+
+				while (true) {
+					var type = br.ReadInt16 ();
+					var length = br.ReadInt16 ();
+					Console.WriteLine ("NAMES BLOB: {0:x} {1:x}", type, length);
+					if (type == 0)
+						break;
+					var contents = br.ReadBytes (length);
+					Utils.HexDump (contents);
+				}
+
+				namesBlob = new byte [br.BaseStream.Position - pos];
+				Array.Copy (type3.NT, pos, namesBlob, 0, namesBlob.Length);
+
+				var blob = new byte [type3.NT.Length - 16];
+				Array.Copy (type3.NT, 16, blob, 0, blob.Length);
+
+				Utils.HexDump ("TYPE 2 CHALLENGE", type2.Nonce);
+
+				var buffer = new byte [type2.Nonce.Length + blob.Length];
+				type2.Nonce.CopyTo (buffer, 0);
+				blob.CopyTo (buffer, type2.Nonce.Length);
+
+				Utils.HexDump (blob);
+
+				var test = ntlmv2_md5.ComputeHash (buffer);
+				Utils.HexDump ("THE HASH", test);
+				var ok = Utils.Compare (hash, test);
+				Console.WriteLine (ok);
+
+				Console.WriteLine ();
+				Console.WriteLine ("==========");
+			}
+			
 		}
 
 		public Authorization PreAuthenticate (WebRequest request, ICredentials credentials)
@@ -108,7 +205,7 @@ namespace ProvconFaust.TestAuthentication {
 
 			pipe = Process.Start (psi);
 
-			Console.WriteLine (pipe.Id);
+			// Console.WriteLine (pipe.Id);
 			// Console.ReadLine ();
 
 			pipe.StandardInput.WriteLine ("SF NTLMSSP_NEGOTIATE_56");
