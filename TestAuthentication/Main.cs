@@ -39,10 +39,10 @@ namespace ProvconFaust.TestAuthentication
 			// Decode_Type2 (type2_message);
 			// Decode_Type3 (type3_message);
 
-			// Setup (new Uri ("http://192.168.16.101:8888/"));
+			Setup (new Uri ("http://192.168.16.101:8888/"));
 			Test ();
 
-			Compute_Type3 ();
+			// Compute_Type3 ();
 		}
 
 		// Host: PROVCON-FAUST
@@ -159,9 +159,24 @@ namespace ProvconFaust.TestAuthentication
 			cc.Add (proxy_uri, "Digest", digest_cred);
 
 			var proxy = new WebProxy (proxy_uri, false);
-			proxy.Credentials = cc;
+			// proxy.Credentials = cc;
 
 			WebRequest.DefaultWebProxy = proxy;
+
+			IAuthenticationModule ntlm = null;
+
+			var modules = AuthenticationManager.RegisteredModules;
+			while (modules.MoveNext ()) {
+				var module = (IAuthenticationModule)modules.Current;
+				if (module.AuthenticationType == "NTLM") {
+					ntlm = module;
+					break;
+				}
+			}
+			if (ntlm == null)
+				throw new InvalidOperationException ();
+
+			AuthenticationManager.Register (new MyNtlmClient (ntlm));
 		}
 
 		static void Test ()
@@ -174,8 +189,9 @@ namespace ProvconFaust.TestAuthentication
 			req.Timeout = -1;
 
 			var cc = new CredentialCache ();
-			cc.Add (uri, "NTLM", new NetworkCredential ("test", "yeknom"));
-			req.Credentials = cc;
+			var cred = new NetworkCredential ("test", "yeknom");
+			cc.Add (uri, "NTLM", cred);
+			req.Credentials = cred;
 
 			var res = (HttpWebResponse)req.GetResponse ();
 			Console.WriteLine (res.StatusCode);
