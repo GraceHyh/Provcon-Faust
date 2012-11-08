@@ -167,7 +167,7 @@ namespace ProvconFaust.TestAuthentication
 			var proxy = new WebProxy (proxy_uri, false);
 			// proxy.Credentials = cc;
 
-			// WebRequest.DefaultWebProxy = proxy;
+			WebRequest.DefaultWebProxy = proxy;
 
 			IAuthenticationModule ntlm = null;
 
@@ -182,7 +182,7 @@ namespace ProvconFaust.TestAuthentication
 			if (ntlm == null)
 				throw new InvalidOperationException ();
 
-			AuthenticationManager.Register (new MyNtlmClient (ntlm));
+			// AuthenticationManager.Register (new MyNtlmClient (ntlm));
 		}
 
 		static void Test ()

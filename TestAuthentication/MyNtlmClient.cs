@@ -33,6 +33,8 @@ using Mono.Security.Protocol.Ntlm;
 
 namespace ProvconFaust.TestAuthentication {
 
+#if MY_NTLM_CLIENT
+
 	public class MyNtlmClient : IAuthenticationModule {
 
 		IAuthenticationModule ntlm;
@@ -238,5 +240,6 @@ namespace ProvconFaust.TestAuthentication {
 			Console.WriteLine (result);
 		}
 	}
+#endif
 }
 
