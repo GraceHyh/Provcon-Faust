@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Text;
 using System.Globalization;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -168,20 +169,31 @@ namespace ProvconFaust.SimpleWebServer {
 					var text = new string (buffer);
 					Server.Log ("CONTENTS: |{0}|", text);
 					return text;
-				} else {
+				}
+
+				var sb = new StringBuilder ();
+
+				while (true) {
 					var chunk = reader.ReadLine ();
 					Server.Log ("CHUNK: {0}", chunk);
 					var length = Int32.Parse (chunk, NumberStyles.HexNumber);
-					string text = string.Empty;
-					if (length > 0) {
-						var buffer = new char [length];
-						reader.Read (buffer, 0, length);
-						text = new string (buffer);
-						Server.Log ("CONTENTS: |{0}|", text);
+
+					if (length == 0) {
 						reader.ReadLine ();
+						return sb.ToString ();
 					}
-					reader.ReadLine ();
-					return text;
+
+					var buffer = new char [length];
+					int ret = reader.Read (buffer, 0, length);
+					if (ret != length)
+						throw new WebException ("Failed to read chunk");
+					var text = new string (buffer);
+					Server.Log ("CHUNK CONTENTS: |{0}|", text);
+					sb.Append (text);
+					if (reader.Peek () == 13)
+						reader.Read ();
+					if (reader.Peek () == 10)
+						reader.Read ();
 				}
 			}
 

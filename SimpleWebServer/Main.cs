@@ -38,8 +38,12 @@ namespace ProvconFaust.SimpleWebServer {
 
 			var main = new MainClass ("127.0.0.1", 8000);
 			main.Start ();
-			main.Post (main.RedirectUri);
-			main.Post (main.RedirectContinueUri);
+			main.Post (main.RootUri, false);
+			main.Post (main.RedirectUri, false);
+			main.Post (main.RedirectContinueUri, false);
+			main.Post (main.RootUri, true);
+			main.Post (main.RedirectUri, true);
+			main.Post (main.RedirectContinueUri, true);
 			main.Stop ();
 		}
 
@@ -138,15 +142,15 @@ namespace ProvconFaust.SimpleWebServer {
 			response.Send ();
 		}
 		
-		public void Post (string uri)
+		public void Post (string uri, bool chunked)
 		{
 			var req = (HttpWebRequest)HttpWebRequest.Create (uri);
 			req.ProtocolVersion = HttpVersion.Version11;
 			req.AllowAutoRedirect = true;
 			req.ContentType = "application/x-www-form-urlencoded";
 			req.Method = "POST";
-			req.SendChunked = true;
-			req.AllowWriteStreamBuffering = false;
+			req.SendChunked = chunked;
+			// req.AllowWriteStreamBuffering = false;
 			
 			var body = "body=Client Data";
 			
@@ -162,6 +166,8 @@ namespace ProvconFaust.SimpleWebServer {
 			using (var reader = new StreamReader (res.GetResponseStream ())) {
 				var text = reader.ReadToEnd ();
 				Console.WriteLine (text);
+				if (text.Trim () != "TEST")
+					throw new WebException ("Got unexpected response.");
 			}
 		}
 
