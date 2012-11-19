@@ -38,6 +38,7 @@ namespace WsdlImport {
 
 		const string HttpUri = "http://tempuri.org/TestHttp/";
 		const string HttpsUri = "https://tempuri.org/TestHttps/";
+		const string NetTcpUri = "net-tcp://tempuri.org:8000/TestNetTcp/";
 
 		public static MetadataSet GetBasicHttpMetadata ()
 		{
@@ -61,6 +62,20 @@ namespace WsdlImport {
 			exporter.ExportEndpoint (new ServiceEndpoint (
 				cd, new BasicHttpsBinding (), new EndpointAddress (HttpsUri)));
 			
+			var doc = exporter.GetGeneratedMetadata ();
+			return doc;
+		}
+
+		public static MetadataSet GetNetTcpMetadata ()
+		{
+			var exporter = new WsdlExporter ();
+
+			var cd = new ContractDescription ("MyContract");
+
+			exporter.ExportEndpoint (new ServiceEndpoint (
+				cd, new NetTcpBinding (SecurityMode.None, false),
+				new EndpointAddress (NetTcpUri)));
+
 			var doc = exporter.GetGeneratedMetadata ();
 			return doc;
 		}
@@ -94,7 +109,8 @@ namespace WsdlImport {
 		public static MetadataSet LoadFromResource (string name)
 		{
 			var asm = Assembly.GetExecutingAssembly ();
-			using (var stream = asm.GetManifestResourceStream (name)) {
+			var resname = "WsdlImport.Resources." + name;
+			using (var stream = asm.GetManifestResourceStream (resname)) {
 				var reader = new XmlTextReader (stream);
 				return MetadataSet.ReadFrom (reader);
 			}
@@ -110,6 +126,11 @@ namespace WsdlImport {
 			return LoadFromResource ("https.xml");
 		}
 
+		public static MetadataSet LoadNetTcpMetadata ()
+		{
+			return LoadFromResource ("net-tcp.xml");
+		}
+
 		internal static void SaveMetadata ()
 		{
 			var basicHttp = GetBasicHttpMetadata ();
@@ -117,6 +138,9 @@ namespace WsdlImport {
 			
 			var basicHttps = GetBasicHttpsMetadata ();
 			Utils.Save ("https.xml", basicHttps);
+
+			var netTcp = GetNetTcpMetadata ();
+			Utils.Save ("net-tcp.xml", netTcp);
 			
 			Console.WriteLine ("Metadata saved.");
 		}

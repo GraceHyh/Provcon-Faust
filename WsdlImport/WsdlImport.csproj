@@ -55,5 +55,6 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\http.xml" />
     <EmbeddedResource Include="Resources\https.xml" />
+    <EmbeddedResource Include="Resources\net-tcp.xml" />
   </ItemGroup>
 </Project>

@@ -58,6 +58,7 @@ namespace WsdlImport {
 			var test = new Test ();
 			test.BasicHttpBinding ();
 			test.BasicHttpsBinding ();
+			test.NetTcpBinding ();
 		}
 	}
 }
