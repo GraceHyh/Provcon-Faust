@@ -161,5 +161,48 @@ namespace WsdlImport {
 			
 			return new WsdlImporter (doc, policyExtensions, wsdlExtensions);
 		}
+
+		public static IMetadataProvider EmbeddedResourceProvider = new _EmbeddedResourceProvider ();
+		public static IMetadataProvider DefaultMetadataProvider = new _DefaultMetadataProvider ();
+
+		public static IImporterProvider DefaultImporter = new _DefaultImporter ();
+		public static IImporterProvider CustomImporter = new _CustomImporter ();
+
+		class _EmbeddedResourceProvider : IMetadataProvider {
+			public MetadataSet Get (string name)
+			{
+				return Utils.LoadFromResource (name);
+			}
+		}
+
+		class _DefaultMetadataProvider : IMetadataProvider {
+			public MetadataSet Get (string name)
+			{
+				switch (name) {
+				case "html.xml":
+					return Utils.GetBasicHttpMetadata ();
+				case "https.xml":
+					return Utils.GetBasicHttpsMetadata ();
+				case "net-tcp.xml":
+					return Utils.GetNetTcpMetadata ();
+				default:
+					throw new ArgumentException ("No such metadata.");
+				}
+			}
+		}
+
+		class _DefaultImporter : IImporterProvider {
+			public WsdlImporter GetImporter (MetadataSet doc)
+			{
+				return new WsdlImporter (doc);
+			}
+		}
+
+		class _CustomImporter : IImporterProvider {
+			public WsdlImporter GetImporter (MetadataSet doc)
+			{
+				return Utils.GetCustomImporter (doc);
+			}
+		}
 	}
 }

@@ -44,20 +44,25 @@ namespace WsdlImport {
 
 		const string WspNamespace = "http://schemas.xmlsoap.org/ws/2004/09/policy";
 
-		[Test]
-		public void BasicHttpBinding ()
-		{
-			var doc = Utils.LoadBasicHttpMetadata ();
-			var importer = new WsdlImporter (doc);
-			BasicHttpBinding (doc, importer);
+		public IMetadataProvider MetadataProvider {
+			get;
+			set;
 		}
 
-		[Test]
-		public void BasicHttpBinding_CustomImporter ()
+		public IImporterProvider ImporterProvider {
+			get;
+			set;
+		}
+
+		public Test ()
+			: this (Utils.EmbeddedResourceProvider, Utils.DefaultImporter)
 		{
-			var doc = Utils.LoadBasicHttpMetadata ();
-			var importer = Utils.GetCustomImporter (doc);
-			BasicHttpBinding (doc, importer);
+		}
+
+		public Test (IMetadataProvider metadata, IImporterProvider importer)
+		{
+			MetadataProvider = metadata;
+			ImporterProvider = importer;
 		}
 
 		void CheckSoapBinding (object extension, string transport, string label)
@@ -119,9 +124,12 @@ namespace WsdlImport {
 			Assert.That (endpoint.Address.Headers.Count, Is.EqualTo (0), label + "i");
 		}
 
-		public void BasicHttpBinding (MetadataSet doc, WsdlImporter importer)
+		[Test]
+		public void BasicHttpBinding ()
 		{
+			var doc = MetadataProvider.Get ("http.xml");
 			var sd = (WS.ServiceDescription)doc.MetadataSections [0].Metadata;
+
 			Assert.That (sd.Bindings.Count, Is.EqualTo (1), "#1");
 
 			var binding = sd.Bindings [0];
@@ -130,6 +138,8 @@ namespace WsdlImport {
 			Assert.That (binding.Extensions.Count, Is.EqualTo (1), "#2c");
 
 			CheckSoapBinding (binding.Extensions [0], WS.SoapBinding.HttpTransport, "#3");
+
+			var importer = ImporterProvider.GetImporter (doc);
 
 			var bindings = importer.ImportAllBindings ();
 			Assert.That (bindings, Is.Not.Null, "#4a");
@@ -147,21 +157,7 @@ namespace WsdlImport {
 		[Test]
 		public void BasicHttpsBinding ()
 		{
-			var doc = Utils.LoadBasicHttpsMetadata ();
-			var importer = new WsdlImporter (doc);
-			BasicHttpsBinding (doc, importer);
-		}
-
-		[Test]
-		public void BasicHttpsBinding_CustomImporter ()
-		{
-			var doc = Utils.LoadBasicHttpsMetadata ();
-			var importer = Utils.GetCustomImporter (doc);
-			BasicHttpsBinding (doc, importer);
-		}
-
-		public void BasicHttpsBinding (MetadataSet doc, WsdlImporter importer)
-		{
+			var doc = MetadataProvider.Get ("https.xml");
 			var sd = (WS.ServiceDescription)doc.MetadataSections [0].Metadata;
 
 			Assert.That (sd.Extensions, Is.Not.Null, "#1");
@@ -189,6 +185,8 @@ namespace WsdlImport {
 			}
 
 			CheckSoapBinding (soap, WS.SoapBinding.HttpTransport, "#3");
+
+			var importer = ImporterProvider.GetImporter (doc);
 
 			var bindings = importer.ImportAllBindings ();
 			Assert.That (bindings, Is.Not.Null, "#4a");
@@ -249,21 +247,7 @@ namespace WsdlImport {
 		[Test]
 		public void NetTcpBinding ()
 		{
-			var doc = Utils.LoadNetTcpMetadata ();
-			var importer = new WsdlImporter (doc);
-			NetTcpBinding (doc, importer);
-		}
-
-		[Test]
-		public void NetTcpBinding_CustomImporter ()
-		{
-			var doc = Utils.LoadNetTcpMetadata ();
-			var importer = Utils.GetCustomImporter (doc);
-			NetTcpBinding (doc, importer);
-		}
-
-		public void NetTcpBinding (MetadataSet doc, WsdlImporter importer)
-		{
+			var doc = MetadataProvider.Get ("net-tcp.xml");
 			var sd = (WS.ServiceDescription)doc.MetadataSections [0].Metadata;
 			
 			Assert.That (sd.Extensions, Is.Not.Null, "#1");
@@ -291,6 +275,8 @@ namespace WsdlImport {
 			}
 			
 			CheckSoapBinding (soap, "http://schemas.microsoft.com/soap/tcp", "#3");
+
+			var importer = ImporterProvider.GetImporter (doc);
 			
 			var bindings = importer.ImportAllBindings ();
 			Assert.That (bindings, Is.Not.Null, "#4a");

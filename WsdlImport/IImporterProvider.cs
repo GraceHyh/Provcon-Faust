@@ -1,5 +1,5 @@
 //
-// Main.cs
+// ITestContext.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -23,55 +23,13 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
 using System;
-using System.CodeDom;
-using System.CodeDom.Compiler;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.ServiceModel;
-using System.ServiceModel.Channels;
-using System.ServiceModel.Configuration;
 using System.ServiceModel.Description;
-using System.ServiceModel.Dispatcher;
-using System.Collections.ObjectModel;
-using System.Configuration;
-using System.Xml;
-using System.Xml.Schema;
-using System.Xml.Serialization;
-using System.Web.Services;
-using System.Web.Services.Discovery;
-
-using System.Collections.Generic;
-using System.Runtime.Serialization;
-
 using WS = System.Web.Services.Description;
-
-using NUnit.Framework;
 
 namespace WsdlImport {
 
-	class Program {
-		static void Main (string[] args)
-		{
-			if (Environment.OSVersion.Platform == PlatformID.Win32NT) {
-				// Make sure the tested behavior is correct.
-				TestDefault ();
-			}
-
-			var test = new Test (Utils.EmbeddedResourceProvider, Utils.CustomImporter);
-			test.BasicHttpBinding ();
-			test.NetTcpBinding ();
-			test.BasicHttpsBinding ();
-		}
-
-		static void TestDefault ()
-		{
-			var test = new Test (Utils.EmbeddedResourceProvider, Utils.DefaultImporter);
-			test.BasicHttpBinding ();
-			test.BasicHttpsBinding ();
-			test.NetTcpBinding ();
-		}
+	public interface IImporterProvider {
+		WsdlImporter GetImporter (MetadataSet doc);
 	}
 }
