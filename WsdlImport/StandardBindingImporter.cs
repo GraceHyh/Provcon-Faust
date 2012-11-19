@@ -33,6 +33,7 @@ using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 
 using WS = System.Web.Services.Description;
+using QName = System.Xml.XmlQualifiedName;
 
 namespace WsdlImport {
 
@@ -50,28 +51,71 @@ namespace WsdlImport {
 			Console.WriteLine ("IMPORT CONTRACT");
 		}
 
-		public void ImportEndpoint (WsdlImporter importer, WsdlEndpointConversionContext endpointContext)
+		WS.Port LookupPort (WsdlImporter importer, QName name)
 		{
-			var binding = (CustomBinding)endpointContext.Endpoint.Binding;
-			Console.WriteLine ("IMPORT ENDPOINT: {0} {1} {2} {3} {4}",
-			                   binding.Elements.Count, binding.MessageVersion,
-			                   binding.Name, binding.Namespace, binding.Scheme);
+			foreach (WS.ServiceDescription doc in importer.WsdlDocuments) {
+				foreach (WS.Service service in doc.Services) {
+					foreach (WS.Port port in service.Ports) {
+						if (!name.Namespace.Equals (port.Binding.Namespace))
+							continue;
+						if (!name.Name.Equals (port.Binding.Name))
+							continue;
+						return port;
+					}
+				}
+			}
 
-			if (ImportBasicHttp (endpointContext.WsdlBinding, endpointContext.Endpoint))
-				return;
-			if (ImportNetTcp (endpointContext.WsdlBinding, endpointContext.Endpoint))
-				return;
-
-			// FIXME: Support other binding types.
-			Console.WriteLine ("FAILED TO IMPORT ENDPOINT");
+			return null;
 		}
 
-		bool ImportBasicHttp (WS.Binding binding, ServiceEndpoint endpoint)
+		public void ImportEndpoint (WsdlImporter importer, WsdlEndpointConversionContext context)
+		{
+			var endpoint = context.Endpoint;
+			var binding = context.Endpoint.Binding;
+
+			var qname = new QName (binding.Name, binding.Namespace);
+
+			Console.WriteLine ("IMPORT ENDPOINT: {0} {1} {2} {3}",
+			                   binding, binding.Scheme, qname, context.WsdlPort != null);
+
+			if (context.Endpoint.Binding is CustomBinding) {
+				if (!DoImportBinding (context))
+					return;
+				Console.WriteLine ("Successfully imported binding.");
+			}
+
+			// Only import the binding, not the endpoint.
+			if (context.WsdlPort == null)
+				return;
+
+			if (!DoImportEndpoint (context))
+				return;
+
+			Console.WriteLine ("Successfully imported endpoint.");
+		}
+
+		bool DoImportBinding (WsdlEndpointConversionContext context)
+		{
+			if (ImportBasicHttpBinding (context))
+				return true;
+			return false;
+		}
+
+		bool DoImportEndpoint (WsdlEndpointConversionContext context)
+		{
+			if (ImportBasicHttpEndpoint (context))
+				return true;
+			return false;
+		}
+
+		bool ImportBasicHttpBinding (WsdlEndpointConversionContext context)
 		{
 			WS.SoapBinding soap = null;
-			foreach (var extension in binding.Extensions) {
-				if (extension is WS.SoapBinding) {
-					soap = (WS.SoapBinding)extension;
+
+			foreach (var extension in context.WsdlBinding.Extensions) {
+				var check = extension as WS.SoapBinding;
+				if (check != null) {
+					soap = check;
 					break;
 				}
 			}
@@ -88,10 +132,34 @@ namespace WsdlImport {
 
 			var http = new BasicHttpBinding ();
 
-			http.Name = endpoint.Binding.Name;
-			http.Namespace = endpoint.Binding.Namespace;
+			http.Name = context.Endpoint.Binding.Name;
+			http.Namespace = context.Endpoint.Binding.Namespace;
 
-			endpoint.Binding = http;
+			context.Endpoint.Binding = http;
+			return true;
+		}
+
+		bool ImportBasicHttpEndpoint (WsdlEndpointConversionContext context)
+		{
+			var http = context.Endpoint.Binding as BasicHttpBinding;
+			if (http == null)
+				return false;
+
+			WS.SoapAddressBinding address = null;
+			foreach (var extension in context.WsdlPort.Extensions) {
+				var check = extension as WS.SoapAddressBinding;
+				if (check != null) {
+					address = check;
+					break;
+				}
+			}
+
+			if (address == null)
+				return false;
+
+			context.Endpoint.Address = new EndpointAddress (address.Location);
+			context.Endpoint.ListenUri = new Uri (address.Location);
+			context.Endpoint.ListenUriMode = ListenUriMode.Explicit;
 			return true;
 		}
 

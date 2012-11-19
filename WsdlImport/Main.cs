@@ -56,12 +56,14 @@ namespace WsdlImport {
 		static void Main (string[] args)
 		{
 			var test = new Test ();
-			test.BasicHttpBinding ();
-			test.BasicHttpsBinding ();
-			test.NetTcpBinding ();
+			if (Environment.OSVersion.Platform == PlatformID.Win32NT) {
+				test.BasicHttpBinding ();
+				test.BasicHttpsBinding ();
+				test.NetTcpBinding ();
+			}
 
 			test.BasicHttpBinding_CustomImporter ();
-			test.NetTcpBinding_CustomImporter ();
+			// test.NetTcpBinding_CustomImporter ();
 		}
 	}
 }
