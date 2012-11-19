@@ -106,6 +106,19 @@ namespace WsdlImport {
 			Assert.That (transportElement.TransferMode, Is.EqualTo (TransferMode.Buffered), label + "p");
 		}
 
+		void CheckEndpoint (ServiceEndpoint endpoint, string uri, string label)
+		{
+			Assert.That (endpoint.ListenUri, Is.EqualTo (new Uri (uri)), label + "a");
+			Assert.That (endpoint.ListenUriMode, Is.EqualTo (ListenUriMode.Explicit), label + "b");
+			Assert.That (endpoint.Contract, Is.Not.Null, "c");
+			Assert.That (endpoint.Contract.Name, Is.EqualTo ("MyContract"), "d");
+			Assert.That (endpoint.Address, Is.Not.Null, "e");
+			Assert.That (endpoint.Address.Uri, Is.EqualTo (new Uri (uri)), label + "f");
+			Assert.That (endpoint.Address.Identity, Is.Null, label + "g");
+			Assert.That (endpoint.Address.Headers, Is.Not.Null, label + "h");
+			Assert.That (endpoint.Address.Headers.Count, Is.EqualTo (0), label + "i");
+		}
+
 		public void BasicHttpBinding (MetadataSet doc, WsdlImporter importer)
 		{
 			var sd = (WS.ServiceDescription)doc.MetadataSections [0].Metadata;
@@ -123,6 +136,12 @@ namespace WsdlImport {
 			Assert.That (bindings.Count, Is.EqualTo (1), "#4b");
 
 			CheckBasicHttpBinding (bindings [0], "http", BasicHttpSecurityMode.None, "#5");
+
+			var endpoints = importer.ImportAllEndpoints ();
+			Assert.That (endpoints, Is.Not.Null, "#6");
+			Assert.That (endpoints.Count, Is.EqualTo (1), "#6a");
+
+			CheckEndpoint (endpoints [0], Utils.HttpUri, "#7");
 		}
 
 		[Test]
@@ -173,6 +192,12 @@ namespace WsdlImport {
 
 			Assert.That (xml.NamespaceURI, Is.EqualTo (WspNamespace), "#6a");
 			Assert.That (xml.LocalName, Is.EqualTo ("PolicyReference"), "#6b");
+
+			var endpoints = importer.ImportAllEndpoints ();
+			Assert.That (endpoints, Is.Not.Null, "#7");
+			Assert.That (endpoints.Count, Is.EqualTo (1), "#7a");
+			
+			CheckEndpoint (endpoints [0], Utils.HttpsUri, "#8");
 		}
 
 		void CheckNetTcpBinding (Binding binding, SecurityMode security, string label)
@@ -269,7 +294,12 @@ namespace WsdlImport {
 			
 			Assert.That (xml.NamespaceURI, Is.EqualTo (WspNamespace), "#6a");
 			Assert.That (xml.LocalName, Is.EqualTo ("PolicyReference"), "#6b");
-		}
 
+			var endpoints = importer.ImportAllEndpoints ();
+			Assert.That (endpoints, Is.Not.Null, "#7");
+			Assert.That (endpoints.Count, Is.EqualTo (1), "#7a");
+			
+			CheckEndpoint (endpoints [0], Utils.NetTcpUri, "#8");
+		}
 	}
 }

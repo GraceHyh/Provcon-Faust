@@ -37,9 +37,9 @@ namespace WsdlImport {
 
 	public static class Utils {
 
-		const string HttpUri = "http://tempuri.org/TestHttp/";
-		const string HttpsUri = "https://tempuri.org/TestHttps/";
-		const string NetTcpUri = "net-tcp://tempuri.org:8000/TestNetTcp/";
+		internal const string HttpUri = "http://tempuri.org/TestHttp/";
+		internal const string HttpsUri = "https://tempuri.org/TestHttps/";
+		internal const string NetTcpUri = "net-tcp://tempuri.org:8000/TestNetTcp/";
 
 		public static MetadataSet GetBasicHttpMetadata ()
 		{
