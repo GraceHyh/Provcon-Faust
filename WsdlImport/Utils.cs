@@ -148,13 +148,16 @@ namespace WsdlImport {
 
 		internal static WsdlImporter GetCustomImporter (MetadataSet doc)
 		{
+			var transport = new TransportBindingElementImporter ();
+
 			// Don't use any of .NET's default importers, only our own.
 			var wsdlExtensions = new List<IWsdlImportExtension> ();
-			wsdlExtensions.Add (new TransportBindingElementImporter ());
+			wsdlExtensions.Add (transport);
 			wsdlExtensions.Add (new StandardBindingImporter ());
 
 			// Don't use any of .NET's default policy importers.
 			var policyExtensions = new List<IPolicyImportExtension> ();
+			policyExtensions.Add (transport);
 			
 			return new WsdlImporter (doc, policyExtensions, wsdlExtensions);
 		}

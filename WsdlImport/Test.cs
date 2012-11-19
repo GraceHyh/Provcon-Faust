@@ -151,7 +151,15 @@ namespace WsdlImport {
 			var importer = new WsdlImporter (doc);
 			BasicHttpsBinding (doc, importer);
 		}
-		
+
+		[Test]
+		public void BasicHttpsBinding_CustomImporter ()
+		{
+			var doc = Utils.LoadBasicHttpsMetadata ();
+			var importer = Utils.GetCustomImporter (doc);
+			BasicHttpsBinding (doc, importer);
+		}
+
 		public void BasicHttpsBinding (MetadataSet doc, WsdlImporter importer)
 		{
 			var sd = (WS.ServiceDescription)doc.MetadataSections [0].Metadata;

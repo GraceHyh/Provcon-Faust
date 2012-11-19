@@ -97,6 +97,10 @@ namespace WsdlImport {
 
 		bool ImportBasicHttpBinding (WsdlEndpointConversionContext context)
 		{
+			var custom = context.Endpoint.Binding as CustomBinding;
+			if (custom == null)
+				return false;
+			
 			WS.SoapBinding soap = null;
 
 			foreach (var extension in context.WsdlBinding.Extensions) {
@@ -117,7 +121,23 @@ namespace WsdlImport {
 			// Ok, we have a match.
 			Console.WriteLine ("Found http binding!");
 
-			var http = new BasicHttpBinding ();
+			TransportBindingElement transportElement = null;
+
+			foreach (var element in custom.Elements) {
+				var check = element as TransportBindingElement;
+				if (check != null) {
+					transportElement = check;
+					break;
+				}
+			}
+
+			BasicHttpBinding http;
+
+			if (transportElement is HttpsTransportBindingElement) {
+				Console.WriteLine ("Found HttpsTransportBindingElement");
+				http = new BasicHttpBinding (BasicHttpSecurityMode.Transport);
+			} else
+				http = new BasicHttpBinding ();
 
 			http.Name = context.Endpoint.Binding.Name;
 			http.Namespace = context.Endpoint.Binding.Namespace;

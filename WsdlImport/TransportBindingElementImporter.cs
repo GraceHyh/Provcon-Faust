@@ -37,7 +37,7 @@ using QName = System.Xml.XmlQualifiedName;
 
 namespace WsdlImport {
 
-	public class TransportBindingElementImporter : IWsdlImportExtension {
+	public class TransportBindingElementImporter : IWsdlImportExtension, IPolicyImportExtension {
 		#region IWsdlImportExtension implementation
 
 		public void BeforeImport (WS.ServiceDescriptionCollection wsdlDocuments, XmlSchemaSet xmlSchemas,
@@ -126,6 +126,51 @@ namespace WsdlImport {
 			context.Endpoint.ListenUri = new Uri (address.Location);
 			context.Endpoint.ListenUriMode = ListenUriMode.Explicit;
 			return true;
+		}
+
+		#endregion
+
+		#region IPolicyImportExtension implementation
+
+		const string SecurityPolicyNS = "http://schemas.xmlsoap.org/ws/2005/07/securitypolicy";
+		const string PolicyNS = "http://schemas.xmlsoap.org/ws/2004/09/policy";
+
+		public void ImportPolicy (MetadataImporter importer, PolicyConversionContext context)
+		{
+			Console.WriteLine ("TRANSPORT IMPORT POLICY");
+			var assertions = context.GetBindingAssertions ();
+			Console.WriteLine (assertions.Count);
+
+			var transport = assertions.Find ("TransportBinding", SecurityPolicyNS);
+			if (transport == null)
+				return;
+
+			assertions.Remove (transport);
+			Console.WriteLine ("GOT TRANSPORT POLICY: {0}", transport.InnerXml);
+
+			HandleTransportBinding (context, transport);
+		}
+
+		void HandleTransportBinding (PolicyConversionContext context, XmlElement element)
+		{
+			var tokenList = element.GetElementsByTagName ("TransportToken", SecurityPolicyNS);
+			if (tokenList.Count != 1)
+				return;
+
+			var token = (XmlElement)tokenList [0];
+			Console.WriteLine ("TOKEN: {0}", token.InnerXml);
+
+			var httpsList = token.GetElementsByTagName ("HttpsToken", SecurityPolicyNS);
+			if (httpsList.Count != 1)
+				return;
+
+			var https = (XmlElement)httpsList [0];
+			Console.WriteLine ("HTTPS: {0}", https.OuterXml);
+
+			var transport = new HttpsTransportBindingElement ();
+			context.BindingElements.Add (transport);
+
+			Console.WriteLine ("Got HttpsTransportBindingElement!");
 		}
 
 		#endregion
