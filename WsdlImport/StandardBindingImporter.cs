@@ -43,12 +43,12 @@ namespace WsdlImport {
 		public void BeforeImport (WS.ServiceDescriptionCollection wsdlDocuments, XmlSchemaSet xmlSchemas,
 		                          ICollection<XmlElement> policy)
 		{
-			Console.WriteLine ("BEFORE IMPORT");
+			Console.WriteLine ("STANDARD BEFORE IMPORT");
 		}
 
 		public void ImportContract (WsdlImporter importer, WsdlContractConversionContext contractContext)
 		{
-			Console.WriteLine ("IMPORT CONTRACT");
+			Console.WriteLine ("STANDARD IMPORT CONTRACT");
 		}
 
 		WS.Port LookupPort (WsdlImporter importer, QName name)
@@ -75,35 +75,20 @@ namespace WsdlImport {
 
 			var qname = new QName (binding.Name, binding.Namespace);
 
-			Console.WriteLine ("IMPORT ENDPOINT: {0} {1} {2} {3}",
+			Console.WriteLine ("STANDARD IMPORT ENDPOINT: {0} {1} {2} {3}",
 			                   binding, binding.Scheme, qname, context.WsdlPort != null);
 
-			if (context.Endpoint.Binding is CustomBinding) {
-				if (!DoImportBinding (context))
-					return;
+			if (!(binding is CustomBinding))
+				return;
+
+			if (DoImportBinding (context)) {
 				Console.WriteLine ("Successfully imported binding.");
 			}
-
-			// Only import the binding, not the endpoint.
-			if (context.WsdlPort == null)
-				return;
-
-			if (!DoImportEndpoint (context))
-				return;
-
-			Console.WriteLine ("Successfully imported endpoint.");
 		}
 
 		bool DoImportBinding (WsdlEndpointConversionContext context)
 		{
 			if (ImportBasicHttpBinding (context))
-				return true;
-			return false;
-		}
-
-		bool DoImportEndpoint (WsdlEndpointConversionContext context)
-		{
-			if (ImportBasicHttpEndpoint (context))
 				return true;
 			return false;
 		}
@@ -136,30 +121,6 @@ namespace WsdlImport {
 			http.Namespace = context.Endpoint.Binding.Namespace;
 
 			context.Endpoint.Binding = http;
-			return true;
-		}
-
-		bool ImportBasicHttpEndpoint (WsdlEndpointConversionContext context)
-		{
-			var http = context.Endpoint.Binding as BasicHttpBinding;
-			if (http == null)
-				return false;
-
-			WS.SoapAddressBinding address = null;
-			foreach (var extension in context.WsdlPort.Extensions) {
-				var check = extension as WS.SoapAddressBinding;
-				if (check != null) {
-					address = check;
-					break;
-				}
-			}
-
-			if (address == null)
-				return false;
-
-			context.Endpoint.Address = new EndpointAddress (address.Location);
-			context.Endpoint.ListenUri = new Uri (address.Location);
-			context.Endpoint.ListenUriMode = ListenUriMode.Explicit;
 			return true;
 		}
 
@@ -196,10 +157,6 @@ namespace WsdlImport {
 		}
 
 		#endregion
-
-		public StandardBindingImporter ()
-		{
-		}
 	}
 }
 

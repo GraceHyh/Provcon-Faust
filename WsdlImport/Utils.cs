@@ -150,6 +150,7 @@ namespace WsdlImport {
 		{
 			// Don't use any of .NET's default importers, only our own.
 			var wsdlExtensions = new List<IWsdlImportExtension> ();
+			wsdlExtensions.Add (new TransportBindingElementImporter ());
 			wsdlExtensions.Add (new StandardBindingImporter ());
 
 			// Don't use any of .NET's default policy importers.
