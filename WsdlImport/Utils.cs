@@ -27,6 +27,7 @@ using System;
 using System.IO;
 using System.Xml;
 using System.Reflection;
+using System.Collections.Generic;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
@@ -143,6 +144,18 @@ namespace WsdlImport {
 			Utils.Save ("net-tcp.xml", netTcp);
 			
 			Console.WriteLine ("Metadata saved.");
+		}
+
+		internal static WsdlImporter GetCustomImporter (MetadataSet doc)
+		{
+			// Don't use any of .NET's default importers, only our own.
+			var wsdlExtensions = new List<IWsdlImportExtension> ();
+			wsdlExtensions.Add (new StandardBindingImporter ());
+
+			// Don't use any of .NET's default policy importers.
+			var policyExtensions = new List<IPolicyImportExtension> ();
+			
+			return new WsdlImporter (doc, policyExtensions, wsdlExtensions);
 		}
 	}
 }

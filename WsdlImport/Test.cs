@@ -48,7 +48,16 @@ namespace WsdlImport {
 		public void BasicHttpBinding ()
 		{
 			var doc = Utils.LoadBasicHttpMetadata ();
-			BasicHttpBinding (doc);
+			var importer = new WsdlImporter (doc);
+			BasicHttpBinding (doc, importer);
+		}
+
+		[Test]
+		public void BasicHttpBinding_CustomImporter ()
+		{
+			var doc = Utils.LoadBasicHttpMetadata ();
+			var importer = Utils.GetCustomImporter (doc);
+			BasicHttpBinding (doc, importer);
 		}
 
 		void CheckSoapBinding (object extension, string transport, string label)
@@ -97,7 +106,7 @@ namespace WsdlImport {
 			Assert.That (transportElement.TransferMode, Is.EqualTo (TransferMode.Buffered), label + "p");
 		}
 
-		public void BasicHttpBinding (MetadataSet doc)
+		public void BasicHttpBinding (MetadataSet doc, WsdlImporter importer)
 		{
 			var sd = (WS.ServiceDescription)doc.MetadataSections [0].Metadata;
 			Assert.That (sd.Bindings.Count, Is.EqualTo (1), "#1");
@@ -108,8 +117,6 @@ namespace WsdlImport {
 			Assert.That (binding.Extensions.Count, Is.EqualTo (1), "#2c");
 
 			CheckSoapBinding (binding.Extensions [0], WS.SoapBinding.HttpTransport, "#3");
-
-			var importer = new WsdlImporter (doc);
 
 			var bindings = importer.ImportAllBindings ();
 			Assert.That (bindings, Is.Not.Null, "#4a");
@@ -122,10 +129,11 @@ namespace WsdlImport {
 		public void BasicHttpsBinding ()
 		{
 			var doc = Utils.LoadBasicHttpsMetadata ();
-			BasicHttpsBinding (doc);
+			var importer = new WsdlImporter (doc);
+			BasicHttpsBinding (doc, importer);
 		}
 		
-		public void BasicHttpsBinding (MetadataSet doc)
+		public void BasicHttpsBinding (MetadataSet doc, WsdlImporter importer)
 		{
 			var sd = (WS.ServiceDescription)doc.MetadataSections [0].Metadata;
 
@@ -155,8 +163,6 @@ namespace WsdlImport {
 
 			CheckSoapBinding (soap, WS.SoapBinding.HttpTransport, "#3");
 
-			var importer = new WsdlImporter (doc);
-			
 			var bindings = importer.ImportAllBindings ();
 			Assert.That (bindings, Is.Not.Null, "#4a");
 			Assert.That (bindings.Count, Is.EqualTo (1), "#4b");
@@ -211,10 +217,19 @@ namespace WsdlImport {
 		public void NetTcpBinding ()
 		{
 			var doc = Utils.LoadNetTcpMetadata ();
-			NetTcpBinding (doc);
+			var importer = new WsdlImporter (doc);
+			NetTcpBinding (doc, importer);
 		}
-		
-		public void NetTcpBinding (MetadataSet doc)
+
+		[Test]
+		public void NetTcpBinding_CustomImporter ()
+		{
+			var doc = Utils.LoadNetTcpMetadata ();
+			var importer = Utils.GetCustomImporter (doc);
+			NetTcpBinding (doc, importer);
+		}
+
+		public void NetTcpBinding (MetadataSet doc, WsdlImporter importer)
 		{
 			var sd = (WS.ServiceDescription)doc.MetadataSections [0].Metadata;
 			
@@ -243,8 +258,6 @@ namespace WsdlImport {
 			}
 			
 			CheckSoapBinding (soap, "http://schemas.microsoft.com/soap/tcp", "#3");
-			
-			var importer = new WsdlImporter (doc);
 			
 			var bindings = importer.ImportAllBindings ();
 			Assert.That (bindings, Is.Not.Null, "#4a");
