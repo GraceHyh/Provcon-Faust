@@ -90,6 +90,8 @@ namespace WsdlImport {
 		{
 			if (ImportBasicHttpBinding (context))
 				return true;
+			if (ImportNetTcpBinding (context))
+				return true;
 			return false;
 		}
 
@@ -126,10 +128,10 @@ namespace WsdlImport {
 
 		const string TcpTransport = "http://schemas.microsoft.com/soap/tcp";
 
-		bool ImportNetTcp (WS.Binding binding, ServiceEndpoint endpoint)
+		bool ImportNetTcpBinding (WsdlEndpointConversionContext context)
 		{
 			WS.Soap12Binding soap = null;
-			foreach (var extension in binding.Extensions) {
+			foreach (var extension in context.WsdlBinding.Extensions) {
 				Console.WriteLine (extension);
 				if (extension is WS.Soap12Binding) {
 					soap = (WS.Soap12Binding)extension;
@@ -149,10 +151,10 @@ namespace WsdlImport {
 
 			var netTcp = new NetTcpBinding (SecurityMode.None);
 
-			netTcp.Name = endpoint.Binding.Name;
-			netTcp.Namespace = endpoint.Binding.Namespace;
+			netTcp.Name = context.Endpoint.Binding.Name;
+			netTcp.Namespace = context.Endpoint.Binding.Namespace;
 
-			endpoint.Binding = netTcp;
+			context.Endpoint.Binding = netTcp;
 			return true;
 		}
 

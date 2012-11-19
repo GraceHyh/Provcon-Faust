@@ -63,7 +63,7 @@ namespace WsdlImport {
 			}
 
 			test.BasicHttpBinding_CustomImporter ();
-			// test.NetTcpBinding_CustomImporter ();
+			test.NetTcpBinding_CustomImporter ();
 		}
 	}
 }
