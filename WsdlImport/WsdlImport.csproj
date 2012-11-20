@@ -58,5 +58,9 @@
     <EmbeddedResource Include="Resources\https.xml" />
     <EmbeddedResource Include="Resources\net-tcp.xml" />
     <EmbeddedResource Include="Resources\https2.xml" />
+    <EmbeddedResource Include="Resources\http.config" />
+    <EmbeddedResource Include="Resources\https.config" />
+    <EmbeddedResource Include="Resources\https2.config" />
+    <EmbeddedResource Include="Resources\net-tcp.config" />
   </ItemGroup>
 </Project>
