@@ -66,14 +66,5 @@ namespace WsdlImport {
 			test.BasicHttpsBinding2 ();
 			test.NetTcpBinding ();
 		}
-
-		static void TestCustom ()
-		{
-			var test = new Test (Utils.EmbeddedResourceProvider, Utils.CustomImporter);
-			test.BasicHttpBinding ();
-			test.NetTcpBinding ();
-			test.BasicHttpsBinding ();
-			test.BasicHttpsBinding2 ();
-		}
 	}
 }

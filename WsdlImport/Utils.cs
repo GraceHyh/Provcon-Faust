@@ -169,27 +169,10 @@ namespace WsdlImport {
 			Console.WriteLine ("Metadata saved.");
 		}
 
-		internal static WsdlImporter GetCustomImporter (MetadataSet doc)
-		{
-			var transport = new TransportBindingElementImporter ();
-
-			// Don't use any of .NET's default importers, only our own.
-			var wsdlExtensions = new List<IWsdlImportExtension> ();
-			wsdlExtensions.Add (transport);
-			wsdlExtensions.Add (new StandardBindingImporter ());
-
-			// Don't use any of .NET's default policy importers.
-			var policyExtensions = new List<IPolicyImportExtension> ();
-			policyExtensions.Add (transport);
-			
-			return new WsdlImporter (doc, policyExtensions, wsdlExtensions);
-		}
-
 		public static IMetadataProvider EmbeddedResourceProvider = new _EmbeddedResourceProvider ();
 		public static IMetadataProvider DefaultMetadataProvider = new _DefaultMetadataProvider ();
 
 		public static IImporterProvider DefaultImporter = new _DefaultImporter ();
-		public static IImporterProvider CustomImporter = new _CustomImporter ();
 
 		class _EmbeddedResourceProvider : IMetadataProvider {
 			public MetadataSet Get (string name)
@@ -220,13 +203,6 @@ namespace WsdlImport {
 			public WsdlImporter GetImporter (MetadataSet doc)
 			{
 				return new WsdlImporter (doc);
-			}
-		}
-
-		class _CustomImporter : IImporterProvider {
-			public WsdlImporter GetImporter (MetadataSet doc)
-			{
-				return Utils.GetCustomImporter (doc);
 			}
 		}
 	}

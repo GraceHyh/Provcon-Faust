@@ -47,8 +47,6 @@
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Test.cs" />
     <Compile Include="Utils.cs" />
-    <Compile Include="StandardBindingImporter.cs" />
-    <Compile Include="TransportBindingElementImporter.cs" />
     <Compile Include="IMetadataProvider.cs" />
     <Compile Include="IImporterProvider.cs" />
   </ItemGroup>
