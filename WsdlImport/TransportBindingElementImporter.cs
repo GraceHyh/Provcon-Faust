@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 
 using System;
+using System.Net;
 using System.Xml;
 using System.Xml.Schema;
 using System.Collections.Generic;
@@ -134,43 +135,106 @@ namespace WsdlImport {
 
 		const string SecurityPolicyNS = "http://schemas.xmlsoap.org/ws/2005/07/securitypolicy";
 		const string PolicyNS = "http://schemas.xmlsoap.org/ws/2004/09/policy";
+		const string MimeSerializationNS = "http://schemas.xmlsoap.org/ws/2004/09/policy/optimizedmimeserialization";
+		const string HttpAuthNS = "http://schemas.microsoft.com/ws/06/2004/policy/http";
 
 		public void ImportPolicy (MetadataImporter importer, PolicyConversionContext context)
 		{
 			Console.WriteLine ("TRANSPORT IMPORT POLICY");
-			var assertions = context.GetBindingAssertions ();
-			Console.WriteLine (assertions.Count);
 
-			var transport = assertions.Find ("TransportBinding", SecurityPolicyNS);
-			if (transport == null)
-				return;
-
-			assertions.Remove (transport);
-			Console.WriteLine ("GOT TRANSPORT POLICY: {0}", transport.InnerXml);
-
-			HandleTransportBinding (context, transport);
+			try {
+				HandleTransportBinding (context);
+			} catch (Exception ex) {
+				Console.WriteLine ("POLICY IMPORT ERROR: {0}", ex);
+			}
 		}
 
-		void HandleTransportBinding (PolicyConversionContext context, XmlElement element)
+		static List<XmlElement> FindAssertionByNS (PolicyAssertionCollection collection, string ns)
 		{
-			var tokenList = element.GetElementsByTagName ("TransportToken", SecurityPolicyNS);
+			var list = new List<XmlElement> ();
+			foreach (var assertion in collection) {
+				if (assertion.NamespaceURI.Equals (ns))
+					list.Add (assertion);
+			}
+			return list;
+		}
+
+		bool HandleTransportBinding (PolicyConversionContext context)
+		{
+			var assertions = context.GetBindingAssertions ();
+			Console.WriteLine (assertions.Count);
+			
+			var transport = assertions.Find ("TransportBinding", SecurityPolicyNS);
+			if (transport == null)
+				return false;
+			
+			var tokenList = transport.GetElementsByTagName ("TransportToken", SecurityPolicyNS);
 			if (tokenList.Count != 1)
-				return;
+				return false;
 
 			var token = (XmlElement)tokenList [0];
 			Console.WriteLine ("TOKEN: {0}", token.InnerXml);
 
 			var httpsList = token.GetElementsByTagName ("HttpsToken", SecurityPolicyNS);
 			if (httpsList.Count != 1)
-				return;
+				return false;
 
 			var https = (XmlElement)httpsList [0];
 			Console.WriteLine ("HTTPS: {0}", https.OuterXml);
 
-			var transport = new HttpsTransportBindingElement ();
-			context.BindingElements.Add (transport);
+			var bindingElement = new HttpsTransportBindingElement ();
+			context.BindingElements.Add (bindingElement);
+
+			// MessageEncoding:
+			var wsoma = transport.GetElementsByTagName ("OptimizedMimeSerialization", MimeSerializationNS);
+			if (wsoma.Count > 0) {
+				Console.WriteLine ("TEST");
+			}
+
+			// Auth:
+			// binding.Security.Transport.ClientCredentialType = HttpClientCredentialType.Ntlm;
+			// <http:NtlmAuthentication xmlns:http="http://schemas.microsoft.com/ws/06/2004/policy/http" />
+
+			// Certificate:
+			// <sp:HttpsToken RequireClientCertificate="true" />
+
+			//  BasicHttpsSecurityMode.TransportWithMessageCredential adds:
+			//      <sp:SignedSupportingTokens xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+
+			var authSchemes = AuthenticationSchemes.None;
+
+			foreach (var assertion in assertions) {
+				if (!assertion.NamespaceURI.Equals (HttpAuthNS))
+					continue;
+			}
+
+			var authElements = FindAssertionByNS (assertions, HttpAuthNS);
+			foreach (XmlElement authElement in authElements) {
+				Console.WriteLine ("AUTH ELEMENT: {0} {1}", authElement.Name, authElement.OuterXml);
+				assertions.Remove (authElement);
+				switch (authElement.LocalName) {
+				case "BasicAuthentication":
+					authSchemes |= AuthenticationSchemes.Basic;
+					break;
+				case "NtlmAuthentication":
+					authSchemes |= AuthenticationSchemes.Ntlm;
+					break;
+				case "DigestAuthentication":
+					authSchemes |= AuthenticationSchemes.Digest;
+					break;
+				case "NegotiateAuthentication":
+					authSchemes |= AuthenticationSchemes.Negotiate;
+					break;
+				default:
+					Console.WriteLine ("UNKNOWN AUTH ELEMENT: {0}", authElement.OuterXml);
+					break;
+				}
+			}
+
+			bindingElement.AuthenticationScheme = authSchemes;
 
 			Console.WriteLine ("Got HttpsTransportBindingElement!");
+			return true;
 		}
 
 		#endregion

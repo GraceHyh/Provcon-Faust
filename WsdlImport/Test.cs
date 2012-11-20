@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 
 using System;
+using System.Net;
 using System.Xml;
 using System.Text;
 using System.Collections.Generic;
@@ -74,9 +75,10 @@ namespace WsdlImport {
 			Assert.That (soap.Required, Is.False, label + "c");
 		}
 
-		void CheckBasicHttpBinding (Binding binding, string scheme, BasicHttpSecurityMode security, string label)
+		void CheckBasicHttpBinding (Binding binding, string scheme, BasicHttpSecurityMode security,
+		                            bool useAuth, string label)
 		{
-			Assert.That (binding, Is.InstanceOfType (typeof (BasicHttpBinding)), label);
+			Assert.That (binding, Is.InstanceOfType (typeof(BasicHttpBinding)), label);
 			var basicHttp = (BasicHttpBinding)binding;
 			Assert.That (basicHttp.EnvelopeVersion, Is.EqualTo (EnvelopeVersion.Soap11), label + "a");
 			Assert.That (basicHttp.MessageVersion, Is.EqualTo (MessageVersion.Soap11), label + "b");
@@ -101,7 +103,7 @@ namespace WsdlImport {
 				else
 					Assert.Fail (label + "j");
 			}
-			
+
 			Assert.That (textElement, Is.Not.Null, label + "k");
 			Assert.That (transportElement, Is.Not.Null, label + "l");
 			
@@ -109,6 +111,12 @@ namespace WsdlImport {
 			Assert.That (transportElement.Realm, Is.Empty, label + "n");
 			Assert.That (transportElement.Scheme, Is.EqualTo (scheme), label + "o");
 			Assert.That (transportElement.TransferMode, Is.EqualTo (TransferMode.Buffered), label + "p");
+
+			var authScheme = useAuth ? AuthenticationSchemes.Ntlm : AuthenticationSchemes.Anonymous;
+			Assert.That (transportElement.AuthenticationScheme, Is.EqualTo (authScheme), label + "q");
+
+			var clientCred = useAuth ? HttpClientCredentialType.Ntlm : HttpClientCredentialType.None;
+			Assert.That (basicHttp.Security.Transport.ClientCredentialType, Is.EqualTo (clientCred), label + "r");
 		}
 
 		void CheckEndpoint (ServiceEndpoint endpoint, string uri, string label)
@@ -145,7 +153,7 @@ namespace WsdlImport {
 			Assert.That (bindings, Is.Not.Null, "#4a");
 			Assert.That (bindings.Count, Is.EqualTo (1), "#4b");
 
-			CheckBasicHttpBinding (bindings [0], "http", BasicHttpSecurityMode.None, "#5");
+			CheckBasicHttpBinding (bindings [0], "http", BasicHttpSecurityMode.None, false, "#5");
 
 			var endpoints = importer.ImportAllEndpoints ();
 			Assert.That (endpoints, Is.Not.Null, "#6");
@@ -158,6 +166,18 @@ namespace WsdlImport {
 		public void BasicHttpsBinding ()
 		{
 			var doc = MetadataProvider.Get ("https.xml");
+			BasicHttpsBinding (doc, BasicHttpSecurityMode.Transport, false);
+		}
+
+		[Test]
+		public void BasicHttpsBinding2 ()
+		{
+			var doc = MetadataProvider.Get ("https2.xml");
+			BasicHttpsBinding (doc, BasicHttpSecurityMode.Transport, true);
+		}
+
+		void BasicHttpsBinding (MetadataSet doc, BasicHttpSecurityMode security, bool useAuth)
+		{
 			var sd = (WS.ServiceDescription)doc.MetadataSections [0].Metadata;
 
 			Assert.That (sd.Extensions, Is.Not.Null, "#1");
@@ -192,7 +212,7 @@ namespace WsdlImport {
 			Assert.That (bindings, Is.Not.Null, "#4a");
 			Assert.That (bindings.Count, Is.EqualTo (1), "#4b");
 
-			CheckBasicHttpBinding (bindings [0], "https", BasicHttpSecurityMode.Transport, "#5");
+			CheckBasicHttpBinding (bindings [0], "https", security, useAuth, "#5");
 
 			Assert.That (xml, Is.Not.Null, "#6");
 

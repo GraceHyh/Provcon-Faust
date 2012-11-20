@@ -67,6 +67,26 @@ namespace WsdlImport {
 			return doc;
 		}
 
+		public static MetadataSet GetBasicHttpsMetadata2 ()
+		{
+			var exporter = new WsdlExporter ();
+			
+			var cd = new ContractDescription ("MyContract");
+
+			var binding = new BasicHttpsBinding ();
+			// binding.MessageEncoding = WSMessageEncoding.Mtom;
+			// binding.TransferMode = TransferMode.Streamed;
+
+			binding.Security.Transport.ClientCredentialType = HttpClientCredentialType.Ntlm;
+			// binding.Security.Message.ClientCredentialType = BasicHttpMessageCredentialType.UserName;
+
+			exporter.ExportEndpoint (new ServiceEndpoint (
+				cd, binding, new EndpointAddress (HttpsUri)));
+			
+			var doc = exporter.GetGeneratedMetadata ();
+			return doc;
+		}
+
 		public static MetadataSet GetNetTcpMetadata ()
 		{
 			var exporter = new WsdlExporter ();
@@ -80,7 +100,7 @@ namespace WsdlImport {
 			var doc = exporter.GetGeneratedMetadata ();
 			return doc;
 		}
-		
+
 		public static void Save (string filename, WS.ServiceDescription service)
 		{
 			using (var file = new StreamWriter (filename, false)) {
@@ -140,6 +160,9 @@ namespace WsdlImport {
 			var basicHttps = GetBasicHttpsMetadata ();
 			Utils.Save ("https.xml", basicHttps);
 
+			var basicHttps2 = GetBasicHttpsMetadata2 ();
+			Utils.Save ("https2.xml", basicHttps2);
+
 			var netTcp = GetNetTcpMetadata ();
 			Utils.Save ("net-tcp.xml", netTcp);
 			
@@ -183,6 +206,8 @@ namespace WsdlImport {
 					return Utils.GetBasicHttpMetadata ();
 				case "https.xml":
 					return Utils.GetBasicHttpsMetadata ();
+				case "https2.xml":
+					return Utils.GetBasicHttpsMetadata2 ();
 				case "net-tcp.xml":
 					return Utils.GetNetTcpMetadata ();
 				default:

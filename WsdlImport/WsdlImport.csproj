@@ -60,5 +60,6 @@
     <EmbeddedResource Include="Resources\http.xml" />
     <EmbeddedResource Include="Resources\https.xml" />
     <EmbeddedResource Include="Resources\net-tcp.xml" />
+    <EmbeddedResource Include="Resources\https2.xml" />
   </ItemGroup>
 </Project>

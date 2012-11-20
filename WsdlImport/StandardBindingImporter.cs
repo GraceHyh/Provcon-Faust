@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 
 using System;
+using System.Net;
 using System.Xml;
 using System.Xml.Schema;
 using System.Collections.Generic;
@@ -131,18 +132,57 @@ namespace WsdlImport {
 				}
 			}
 
-			BasicHttpBinding http;
+			BasicHttpBinding httpBinding;
+			AuthenticationSchemes authScheme;
 
-			if (transportElement is HttpsTransportBindingElement) {
-				Console.WriteLine ("Found HttpsTransportBindingElement");
-				http = new BasicHttpBinding (BasicHttpSecurityMode.Transport);
-			} else
-				http = new BasicHttpBinding ();
+			/*
+			 * FIXME: Maybe make the BasicHttpBinding use the transport element
+			 * that we created with the TransportBindingElementImporter ?
+			 * 
+			 * There seems to be no public API to do that, so maybe add a private .ctor ?
+			 * 
+			 */
 
-			http.Name = context.Endpoint.Binding.Name;
-			http.Namespace = context.Endpoint.Binding.Namespace;
+			var httpsTransport = transportElement as HttpsTransportBindingElement;
+			var httpTransport = transportElement as HttpTransportBindingElement;
 
-			context.Endpoint.Binding = http;
+			if (httpsTransport != null) {
+				httpBinding = new BasicHttpBinding (BasicHttpSecurityMode.Transport);
+				authScheme = httpsTransport.AuthenticationScheme;
+			} else if (httpTransport != null) {
+				httpBinding = new BasicHttpBinding ();
+				authScheme = httpTransport.AuthenticationScheme;
+			} else {
+				httpBinding = new BasicHttpBinding ();
+				authScheme = AuthenticationSchemes.Anonymous;
+			}
+
+			httpBinding.Name = context.Endpoint.Binding.Name;
+			httpBinding.Namespace = context.Endpoint.Binding.Namespace;
+
+			switch (authScheme) {
+			case AuthenticationSchemes.None:
+			case AuthenticationSchemes.Anonymous:
+				httpBinding.Security.Transport.ClientCredentialType = HttpClientCredentialType.None;
+				break;
+			case AuthenticationSchemes.Basic:
+				httpBinding.Security.Transport.ClientCredentialType = HttpClientCredentialType.Basic;
+				break;
+			case AuthenticationSchemes.Digest:
+				httpBinding.Security.Transport.ClientCredentialType = HttpClientCredentialType.Digest;
+				break;
+			case AuthenticationSchemes.Ntlm:
+				httpBinding.Security.Transport.ClientCredentialType = HttpClientCredentialType.Ntlm;
+				break;
+			case AuthenticationSchemes.Negotiate:
+				httpBinding.Security.Transport.ClientCredentialType = HttpClientCredentialType.Windows;
+				break;
+			default:
+				Console.WriteLine ("Invalid auth scheme: {0}", authScheme);
+				return false;
+			}
+
+			context.Endpoint.Binding = httpBinding;
 			return true;
 		}
 
