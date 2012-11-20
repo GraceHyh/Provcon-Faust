@@ -27,10 +27,12 @@ using System;
 using System.IO;
 using System.Xml;
 using System.Reflection;
+using System.Configuration;
 using System.Collections.Generic;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
+using System.ServiceModel.Configuration;
 using WS = System.Web.Services.Description;
 
 namespace WsdlImport {
@@ -195,6 +197,134 @@ namespace WsdlImport {
 					throw new ArgumentException ("No such metadata.");
 				}
 			}
+		}
+
+		internal static string GetConfigElementName (Binding binding)
+		{
+			if (binding is BasicHttpBinding)
+				return "basicHttpBinding";
+			else if (binding is BasicHttpsBinding)
+				return "basicHttpsBinding";
+			else if (binding is NetTcpBinding)
+				return "netTcpBinding";
+			else if (binding is CustomBinding)
+				return "customBinding";
+			else
+				return null;
+		}
+
+		static IBindingConfigurationElement CreateConfigElement (Binding binding, string bindingName)
+		{
+			var name = binding.Name;
+
+			switch (bindingName) {
+			case "basicHttpBinding":
+				return new BasicHttpBindingElement (name);
+			case "basicHttpsBinding":
+				return new BasicHttpsBindingElement (name);
+			case "netTcpBinding":
+				return new NetTcpBindingElement (name);
+			case "customBinding":
+				return new CustomBindingElement (name);
+			default:
+				throw new InvalidOperationException ();
+			}
+		}
+
+		static BindingCollectionElement CreateCollectionElement (
+			string bindingName, IBindingConfigurationElement element)
+		{
+			switch (bindingName) {
+			case "basicHttpBinding": {
+				var http = new BasicHttpBindingCollectionElement ();
+				http.Bindings.Add ((BasicHttpBindingElement)element);
+				return http;
+			}
+			case "basicHttpsBinding": {
+				var https = new BasicHttpsBindingCollectionElement ();
+				https.Bindings.Add ((BasicHttpsBindingElement)element);
+				return https;
+			}
+			case "netTcpBinding": {
+				var netTcp = new NetTcpBindingCollectionElement ();
+				netTcp.Bindings.Add ((NetTcpBindingElement)element);
+				return netTcp;
+			}
+			case "customBinding": {
+				var custom = new CustomBindingCollectionElement ();
+				custom.Bindings.Add ((CustomBindingElement)element);
+				return custom;
+			}
+			default:
+				throw new InvalidOperationException ();
+			}
+		}
+
+		static void CreateConfig_NET (Binding binding, string filename)
+		{
+			if (File.Exists (filename))
+				File.Delete (filename);
+			
+			var fileMap = new ExeConfigurationFileMap ();
+			fileMap.ExeConfigFilename = filename;
+			var config = ConfigurationManager.OpenMappedExeConfiguration (
+				fileMap, ConfigurationUserLevel.None);
+
+			var generator = new ServiceContractGenerator (config);
+
+			string sectionName, configName;
+			generator.GenerateBinding (binding, out sectionName, out configName);
+
+			Console.WriteLine ("CONFIG: {0} {1} {2}", binding, sectionName, configName);
+
+			config.Save ();
+		}
+
+		public static void CreateConfig (Binding binding, string filename)
+		{
+			if (Environment.OSVersion.Platform == PlatformID.Win32NT) {
+				// Use the real API on Windows.
+				CreateConfig_NET (binding, filename);
+				return;
+			}
+
+			// The reflection stuff below uses private Mono APIs.
+
+			var configName = GetConfigElementName (binding);
+			if (configName == null)
+				throw new InvalidOperationException ();
+			
+			var element = CreateConfigElement (binding, configName);
+			if (element == null)
+				return;
+
+			var init = element.GetType ().GetMethod (
+				"InitializeFrom", BindingFlags.Instance | BindingFlags.NonPublic);
+			init.Invoke (element, new object[] { binding });
+
+			var collectionElement = CreateCollectionElement (configName, element);
+
+			// FIXME: Mono bug
+			filename = Path.GetFullPath (filename);
+
+			if (File.Exists (filename))
+				File.Delete (filename);
+
+			var fileMap = new ExeConfigurationFileMap ();
+			fileMap.ExeConfigFilename = filename;
+			var config = ConfigurationManager.OpenMappedExeConfiguration (
+				fileMap, ConfigurationUserLevel.None);
+
+			Console.WriteLine ("CREATE CONFIG: {0} {1}", config, binding);
+
+			var section = (BindingsSection)config.GetSection ("system.serviceModel/bindings");
+
+			var method = section.GetType ().GetMethod (
+				"set_Item", BindingFlags.Instance | BindingFlags.NonPublic, null,
+				new Type [] { typeof (string), typeof (object) }, null);
+			method.Invoke (section, new object[] { configName, collectionElement });
+
+			config.Save ();
 		}
 	}
 }

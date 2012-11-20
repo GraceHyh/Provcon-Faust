@@ -154,23 +154,27 @@ namespace WsdlImport {
 			Assert.That (endpoints.Count, Is.EqualTo (1), "#6a");
 
 			CheckEndpoint (endpoints [0], Utils.HttpUri, "#7");
+
+			Utils.CreateConfig (bindings [0], "http.config");
 		}
 
 		[Test]
 		public void BasicHttpsBinding ()
 		{
 			var doc = MetadataProvider.Get ("https.xml");
-			BasicHttpsBinding (doc, BasicHttpSecurityMode.Transport, false);
+			var binding = BasicHttpsBinding (doc, BasicHttpSecurityMode.Transport, false);
+			Utils.CreateConfig (binding, "https.config");
 		}
 
 		[Test]
 		public void BasicHttpsBinding2 ()
 		{
 			var doc = MetadataProvider.Get ("https2.xml");
-			BasicHttpsBinding (doc, BasicHttpSecurityMode.Transport, true);
+			var binding = BasicHttpsBinding (doc, BasicHttpSecurityMode.Transport, true);
+			Utils.CreateConfig (binding, "https2.config");
 		}
 
-		void BasicHttpsBinding (MetadataSet doc, BasicHttpSecurityMode security, bool useAuth)
+		Binding BasicHttpsBinding (MetadataSet doc, BasicHttpSecurityMode security, bool useAuth)
 		{
 			var sd = (WS.ServiceDescription)doc.MetadataSections [0].Metadata;
 
@@ -218,6 +222,8 @@ namespace WsdlImport {
 			Assert.That (endpoints.Count, Is.EqualTo (1), "#7a");
 			
 			CheckEndpoint (endpoints [0], Utils.HttpsUri, "#8");
+
+			return bindings [0];
 		}
 
 		void CheckNetTcpBinding (Binding binding, SecurityMode security, string label)
@@ -308,6 +314,8 @@ namespace WsdlImport {
 			Assert.That (endpoints.Count, Is.EqualTo (1), "#7a");
 			
 			CheckEndpoint (endpoints [0], Utils.NetTcpUri, "#8");
+
+			Utils.CreateConfig (bindings [0], "net-tcp.config");
 		}
 	}
 }
