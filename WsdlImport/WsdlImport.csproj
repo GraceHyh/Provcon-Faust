@@ -48,6 +48,7 @@
     <Compile Include="Test.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="IMetadataProvider.cs" />
+    <Compile Include="TestLabel.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

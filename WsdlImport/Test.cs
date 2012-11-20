@@ -60,31 +60,36 @@ namespace WsdlImport {
 			MetadataProvider = metadata;
 		}
 
-		void CheckSoapBinding (object extension, string transport, string label)
+		void CheckSoapBinding (object extension, string transport, TestLabel label)
 		{
-			Assert.That (extension, Is.InstanceOfType (typeof (WS.SoapBinding)), label);
+			label.EnterScope ("soap");
+			Assert.That (extension, Is.InstanceOfType (typeof (WS.SoapBinding)), label.Get ());
 			var soap = (WS.SoapBinding)extension;
-			Assert.That (soap.Style, Is.EqualTo (WS.SoapBindingStyle.Document), label + "a");
-			Assert.That (soap.Transport, Is.EqualTo (transport), label + "b");
-			Assert.That (soap.Required, Is.False, label + "c");
+			Assert.That (soap.Style, Is.EqualTo (WS.SoapBindingStyle.Document), label.Get ());
+			Assert.That (soap.Transport, Is.EqualTo (transport), label.Get ());
+			Assert.That (soap.Required, Is.False, label.Get ());
+			label.LeaveScope ();
 		}
 
 		void CheckBasicHttpBinding (Binding binding, string scheme, BasicHttpSecurityMode security,
-		                            bool useAuth, string label)
+		                            bool useAuth, TestLabel label)
 		{
-			Assert.That (binding, Is.InstanceOfType (typeof(BasicHttpBinding)), label);
+			label.EnterScope ("http");
+			Assert.That (binding, Is.InstanceOfType (typeof(BasicHttpBinding)), label.Get ());
 			var basicHttp = (BasicHttpBinding)binding;
-			Assert.That (basicHttp.EnvelopeVersion, Is.EqualTo (EnvelopeVersion.Soap11), label + "a");
-			Assert.That (basicHttp.MessageVersion, Is.EqualTo (MessageVersion.Soap11), label + "b");
-			Assert.That (basicHttp.Scheme, Is.EqualTo (scheme), label + "c");
-			Assert.That (basicHttp.TransferMode, Is.EqualTo (TransferMode.Buffered), label + "d");
-			Assert.That (basicHttp.MessageEncoding, Is.EqualTo (WSMessageEncoding.Text), label + "e");
-			Assert.That (basicHttp.Security, Is.Not.Null, label + "f");
-			Assert.That (basicHttp.Security.Mode, Is.EqualTo (security), label + "g");
+			Assert.That (basicHttp.EnvelopeVersion, Is.EqualTo (EnvelopeVersion.Soap11), label.Get ());
+			Assert.That (basicHttp.MessageVersion, Is.EqualTo (MessageVersion.Soap11), label.Get ());
+			Assert.That (basicHttp.Scheme, Is.EqualTo (scheme), label.Get ());
+			Assert.That (basicHttp.TransferMode, Is.EqualTo (TransferMode.Buffered), label.Get ());
+			Assert.That (basicHttp.MessageEncoding, Is.EqualTo (WSMessageEncoding.Text), label.Get ());
+			Assert.That (basicHttp.Security, Is.Not.Null, label.Get ());
+			Assert.That (basicHttp.Security.Mode, Is.EqualTo (security), label.Get ());
+
+			label.EnterScope ("elements");
 
 			var elements = basicHttp.CreateBindingElements ();
-			Assert.That (elements, Is.Not.Null, label + "h");
-			Assert.That (elements.Count, Is.EqualTo (2), label + "i");
+			Assert.That (elements, Is.Not.Null, label.Get ());
+			Assert.That (elements.Count, Is.EqualTo (2), label.Get ());
 			
 			TextMessageEncodingBindingElement textElement = null;
 			HttpTransportBindingElement transportElement = null;
@@ -95,74 +100,107 @@ namespace WsdlImport {
 				else if (element is HttpTransportBindingElement)
 					transportElement = (HttpTransportBindingElement)element;
 				else
-					Assert.Fail (label + "j");
+					Assert.Fail (label.Get ());
 			}
 
-			Assert.That (textElement, Is.Not.Null, label + "k");
-			Assert.That (transportElement, Is.Not.Null, label + "l");
-			
-			Assert.That (textElement.WriteEncoding, Is.InstanceOfType (typeof(UTF8Encoding)), label + "m");
-			Assert.That (transportElement.Realm, Is.Empty, label + "n");
-			Assert.That (transportElement.Scheme, Is.EqualTo (scheme), label + "o");
-			Assert.That (transportElement.TransferMode, Is.EqualTo (TransferMode.Buffered), label + "p");
+			label.EnterScope ("text");
+			Assert.That (textElement, Is.Not.Null, label.Get ());
+			Assert.That (textElement.WriteEncoding, Is.InstanceOfType (typeof(UTF8Encoding)), label.Get ());
+			label.LeaveScope ();
 
+			label.EnterScope ("transport");
+			Assert.That (transportElement, Is.Not.Null, label.Get ());
+			
+			Assert.That (transportElement.Realm, Is.Empty, label.Get ());
+			Assert.That (transportElement.Scheme, Is.EqualTo (scheme), label.Get ());
+			Assert.That (transportElement.TransferMode, Is.EqualTo (TransferMode.Buffered), label.Get ());
+
+			label.EnterScope ("auth");
 			var authScheme = useAuth ? AuthenticationSchemes.Ntlm : AuthenticationSchemes.Anonymous;
-			Assert.That (transportElement.AuthenticationScheme, Is.EqualTo (authScheme), label + "q");
+			Assert.That (transportElement.AuthenticationScheme, Is.EqualTo (authScheme), label.Get ());
 
 			var clientCred = useAuth ? HttpClientCredentialType.Ntlm : HttpClientCredentialType.None;
-			Assert.That (basicHttp.Security.Transport.ClientCredentialType, Is.EqualTo (clientCred), label + "r");
+			Assert.That (basicHttp.Security.Transport.ClientCredentialType, Is.EqualTo (clientCred), label.Get ());
+			label.LeaveScope (); // auth
+			label.LeaveScope (); // transport
+			label.LeaveScope (); // elements
+			label.LeaveScope (); // http
 		}
 
-		void CheckEndpoint (ServiceEndpoint endpoint, string uri, string label)
+		void CheckEndpoint (ServiceEndpoint endpoint, string uri, TestLabel label)
 		{
-			Assert.That (endpoint.ListenUri, Is.EqualTo (new Uri (uri)), label + "a");
-			Assert.That (endpoint.ListenUriMode, Is.EqualTo (ListenUriMode.Explicit), label + "b");
-			Assert.That (endpoint.Contract, Is.Not.Null, "c");
-			Assert.That (endpoint.Contract.Name, Is.EqualTo ("MyContract"), "d");
-			Assert.That (endpoint.Address, Is.Not.Null, "e");
-			Assert.That (endpoint.Address.Uri, Is.EqualTo (new Uri (uri)), label + "f");
-			Assert.That (endpoint.Address.Identity, Is.Null, label + "g");
-			Assert.That (endpoint.Address.Headers, Is.Not.Null, label + "h");
-			Assert.That (endpoint.Address.Headers.Count, Is.EqualTo (0), label + "i");
+			label.EnterScope ("endpoint");
+			Assert.That (endpoint.ListenUri, Is.EqualTo (new Uri (uri)), label.Get ());
+			Assert.That (endpoint.ListenUriMode, Is.EqualTo (ListenUriMode.Explicit), label.Get ());
+			Assert.That (endpoint.Contract, Is.Not.Null, label.Get ());
+			Assert.That (endpoint.Contract.Name, Is.EqualTo ("MyContract"), label.Get ());
+			Assert.That (endpoint.Address, Is.Not.Null, label.Get ());
+			Assert.That (endpoint.Address.Uri, Is.EqualTo (new Uri (uri)), label.Get ());
+			Assert.That (endpoint.Address.Identity, Is.Null, label.Get ());
+			Assert.That (endpoint.Address.Headers, Is.Not.Null, label.Get ());
+			Assert.That (endpoint.Address.Headers.Count, Is.EqualTo (0), label.Get ());
+			label.LeaveScope ();
 		}
 
 		[Test]
 		public void BasicHttpBinding ()
 		{
 			var doc = MetadataProvider.Get ("http.xml");
+
+			var label = new TestLabel ("BasicHttpBinding");
+			BasicHttpBinding (doc, label);
+		}
+
+		public void BasicHttpBinding (MetadataSet doc, TestLabel label)
+		{
+			label.EnterScope ("basicHttpBinding");
+
 			var sd = (WS.ServiceDescription)doc.MetadataSections [0].Metadata;
 
-			Assert.That (sd.Bindings.Count, Is.EqualTo (1), "#1");
+			label.EnterScope ("wsdl");
+			label.EnterScope ("bindings");
+			Assert.That (sd.Bindings.Count, Is.EqualTo (1), label.Get ());
 
 			var binding = sd.Bindings [0];
-			Assert.That (binding.ExtensibleAttributes, Is.Null, "#2a");
-			Assert.That (binding.Extensions, Is.Not.Null, "#2b");
-			Assert.That (binding.Extensions.Count, Is.EqualTo (1), "#2c");
+			Assert.That (binding.ExtensibleAttributes, Is.Null, label.Get ());
+			Assert.That (binding.Extensions, Is.Not.Null, label.Get ());
+			Assert.That (binding.Extensions.Count, Is.EqualTo (1), label.Get ());
+			label.LeaveScope ();
 
-			CheckSoapBinding (binding.Extensions [0], WS.SoapBinding.HttpTransport, "#3");
+			CheckSoapBinding (binding.Extensions [0], WS.SoapBinding.HttpTransport, label);
+			label.LeaveScope ();
 
 			var importer = new WsdlImporter (doc);
 
 			var bindings = importer.ImportAllBindings ();
-			Assert.That (bindings, Is.Not.Null, "#4a");
-			Assert.That (bindings.Count, Is.EqualTo (1), "#4b");
 
-			CheckBasicHttpBinding (bindings [0], "http", BasicHttpSecurityMode.None, false, "#5");
+			label.EnterScope ("bindings");
+			Assert.That (bindings, Is.Not.Null, label.Get ());
+			Assert.That (bindings.Count, Is.EqualTo (1), label.Get ());
+
+			CheckBasicHttpBinding (bindings [0], "http", BasicHttpSecurityMode.None, false, label);
+			label.LeaveScope ();
 
 			var endpoints = importer.ImportAllEndpoints ();
-			Assert.That (endpoints, Is.Not.Null, "#6");
-			Assert.That (endpoints.Count, Is.EqualTo (1), "#6a");
 
-			CheckEndpoint (endpoints [0], Utils.HttpUri, "#7");
+			label.EnterScope ("endpoints");
+			Assert.That (endpoints, Is.Not.Null, label.Get ());
+			Assert.That (endpoints.Count, Is.EqualTo (1), label.Get ());
+
+			CheckEndpoint (endpoints [0], Utils.HttpUri, label);
+			label.LeaveScope ();
 
 			Utils.CreateConfig (bindings [0], "http.config");
+
+			label.LeaveScope ();
 		}
 
 		[Test]
 		public void BasicHttpsBinding ()
 		{
 			var doc = MetadataProvider.Get ("https.xml");
-			var binding = BasicHttpsBinding (doc, BasicHttpSecurityMode.Transport, false);
+			var label = new TestLabel ("BasicHttpsBinding");
+			var binding = BasicHttpsBinding (doc, BasicHttpSecurityMode.Transport, false, label);
 			Utils.CreateConfig (binding, "https.config");
 		}
 
@@ -170,27 +208,37 @@ namespace WsdlImport {
 		public void BasicHttpsBinding2 ()
 		{
 			var doc = MetadataProvider.Get ("https2.xml");
-			var binding = BasicHttpsBinding (doc, BasicHttpSecurityMode.Transport, true);
+			var label = new TestLabel ("BasicHttpsBinding2");
+			var binding = BasicHttpsBinding (doc, BasicHttpSecurityMode.Transport, true, label);
 			Utils.CreateConfig (binding, "https2.config");
 		}
 
-		Binding BasicHttpsBinding (MetadataSet doc, BasicHttpSecurityMode security, bool useAuth)
+		Binding BasicHttpsBinding (MetadataSet doc, BasicHttpSecurityMode security,
+		                           bool useAuth, TestLabel label)
 		{
+			label.EnterScope ("basicHttpsBinding");
+
 			var sd = (WS.ServiceDescription)doc.MetadataSections [0].Metadata;
 
-			Assert.That (sd.Extensions, Is.Not.Null, "#1");
-			Assert.That (sd.Extensions.Count, Is.EqualTo (1), "#1a");
-			Assert.That (sd.Extensions [0], Is.InstanceOfType (typeof (XmlElement)), "#1b");
+			label.EnterScope ("wsdl");
 
+			Assert.That (sd.Extensions, Is.Not.Null, label.Get ());
+			Assert.That (sd.Extensions.Count, Is.EqualTo (1), label.Get ());
+			Assert.That (sd.Extensions [0], Is.InstanceOfType (typeof (XmlElement)), label.Get ());
+
+			label.EnterScope ("extensions");
 			var extension = (XmlElement)sd.Extensions [0];
-			Assert.That (extension.NamespaceURI, Is.EqualTo (WspNamespace), "#1c");
-			Assert.That (extension.LocalName, Is.EqualTo ("Policy"), "#1d");
+			Assert.That (extension.NamespaceURI, Is.EqualTo (WspNamespace), label.Get ());
+			Assert.That (extension.LocalName, Is.EqualTo ("Policy"), label.Get ());
+			label.LeaveScope ();
 
-			Assert.That (sd.Bindings.Count, Is.EqualTo (1), "#2");
+			label.EnterScope ("bindings");
+			Assert.That (sd.Bindings.Count, Is.EqualTo (1), label.Get ());
 			var binding = sd.Bindings [0];
-			Assert.That (binding.ExtensibleAttributes, Is.Null, "#2a");
-			Assert.That (binding.Extensions, Is.Not.Null, "#2b");
-			Assert.That (binding.Extensions.Count, Is.EqualTo (2), "#2c");
+			Assert.That (binding.ExtensibleAttributes, Is.Null, label.Get ());
+			Assert.That (binding.Extensions, Is.Not.Null, label.Get ());
+			Assert.That (binding.Extensions.Count, Is.EqualTo (2), label.Get ());
+			label.LeaveScope ();
 
 			WS.SoapBinding soap = null;
 			XmlElement xml = null;
@@ -202,44 +250,57 @@ namespace WsdlImport {
 					xml = (XmlElement)ext;
 			}
 
-			CheckSoapBinding (soap, WS.SoapBinding.HttpTransport, "#3");
+			CheckSoapBinding (soap, WS.SoapBinding.HttpTransport, label);
+
+			label.EnterScope ("policy-xml");
+
+			Assert.That (xml, Is.Not.Null, label.Get ());
+			
+			Assert.That (xml.NamespaceURI, Is.EqualTo (WspNamespace), label.Get ());
+			Assert.That (xml.LocalName, Is.EqualTo ("PolicyReference"), label.Get ());
+
+			label.LeaveScope ();
+			label.LeaveScope (); // wsdl
 
 			var importer = new WsdlImporter (doc);
 
+			label.EnterScope ("bindings");
 			var bindings = importer.ImportAllBindings ();
-			Assert.That (bindings, Is.Not.Null, "#4a");
-			Assert.That (bindings.Count, Is.EqualTo (1), "#4b");
+			Assert.That (bindings, Is.Not.Null, label.Get ());
+			Assert.That (bindings.Count, Is.EqualTo (1), label.Get ());
 
-			CheckBasicHttpBinding (bindings [0], "https", security, useAuth, "#5");
+			CheckBasicHttpBinding (bindings [0], "https", security, useAuth, label);
+			label.LeaveScope ();
 
-			Assert.That (xml, Is.Not.Null, "#6");
-
-			Assert.That (xml.NamespaceURI, Is.EqualTo (WspNamespace), "#6a");
-			Assert.That (xml.LocalName, Is.EqualTo ("PolicyReference"), "#6b");
-
+			label.EnterScope ("endpoints");
 			var endpoints = importer.ImportAllEndpoints ();
-			Assert.That (endpoints, Is.Not.Null, "#7");
-			Assert.That (endpoints.Count, Is.EqualTo (1), "#7a");
+			Assert.That (endpoints, Is.Not.Null, label.Get ());
+			Assert.That (endpoints.Count, Is.EqualTo (1), label.Get ());
 			
-			CheckEndpoint (endpoints [0], Utils.HttpsUri, "#8");
+			CheckEndpoint (endpoints [0], Utils.HttpsUri, label);
+			label.LeaveScope ();
 
+			label.LeaveScope ();
 			return bindings [0];
 		}
 
-		void CheckNetTcpBinding (Binding binding, SecurityMode security, string label)
+		void CheckNetTcpBinding (Binding binding, SecurityMode security, TestLabel label)
 		{
-			Assert.That (binding, Is.InstanceOfType (typeof (NetTcpBinding)), label);
+			label.EnterScope ("net-tcp");
+			Assert.That (binding, Is.InstanceOfType (typeof (NetTcpBinding)), label.Get ());
 			var netTcp = (NetTcpBinding)binding;
-			Assert.That (netTcp.EnvelopeVersion, Is.EqualTo (EnvelopeVersion.Soap12), label + "a");
-			Assert.That (netTcp.MessageVersion, Is.EqualTo (MessageVersion.Soap12WSAddressing10), label + "b");
-			Assert.That (netTcp.Scheme, Is.EqualTo ("net.tcp"), label + "c");
-			Assert.That (netTcp.TransferMode, Is.EqualTo (TransferMode.Buffered), label + "d");
-			Assert.That (netTcp.Security, Is.Not.Null, label + "e");
-			Assert.That (netTcp.Security.Mode, Is.EqualTo (security), label + "f");
+			Assert.That (netTcp.EnvelopeVersion, Is.EqualTo (EnvelopeVersion.Soap12), label.Get ());
+			Assert.That (netTcp.MessageVersion, Is.EqualTo (MessageVersion.Soap12WSAddressing10), label.Get ());
+			Assert.That (netTcp.Scheme, Is.EqualTo ("net.tcp"), label.Get ());
+			Assert.That (netTcp.TransferMode, Is.EqualTo (TransferMode.Buffered), label.Get ());
+			Assert.That (netTcp.Security, Is.Not.Null, label.Get ());
+			Assert.That (netTcp.Security.Mode, Is.EqualTo (security), label.Get ());
+
+			label.EnterScope ("elements");
 			
 			var elements = netTcp.CreateBindingElements ();
-			Assert.That (elements, Is.Not.Null, label + "h");
-			Assert.That (elements.Count, Is.EqualTo (3), label + "i");
+			Assert.That (elements, Is.Not.Null, label.Get ());
+			Assert.That (elements.Count, Is.EqualTo (3), label.Get ());
 			
 			TcpTransportBindingElement transportElement = null;
 			TransactionFlowBindingElement transactionFlowElement = null;
@@ -253,36 +314,59 @@ namespace WsdlImport {
 				else if (element is BinaryMessageEncodingBindingElement)
 					encodingElement = (BinaryMessageEncodingBindingElement)element;
 				else
-					Assert.Fail (label + "j");
+					Assert.Fail (label.Get ());
 			}
-			
-			Assert.That (encodingElement, Is.Not.Null, label + "k");
-			Assert.That (transportElement, Is.Not.Null, label + "l");
+
+			label.EnterScope ("encoding");
+			Assert.That (encodingElement, Is.Not.Null, label.Get ());
+			label.LeaveScope ();
+
+			label.EnterScope ("transaction");
 			Assert.That (transactionFlowElement, Is.Not.Null, label + "m");
-			
-			Assert.That (transportElement.Scheme, Is.EqualTo ("net.tcp"), label + "o");
-			Assert.That (transportElement.TransferMode, Is.EqualTo (TransferMode.Buffered), label + "p");
+			label.LeaveScope ();
+
+			label.EnterScope ("transport");
+			Assert.That (transportElement, Is.Not.Null, label.Get ());
+
+			Assert.That (transportElement.Scheme, Is.EqualTo ("net.tcp"), label.Get ());
+			Assert.That (transportElement.TransferMode, Is.EqualTo (TransferMode.Buffered), label.Get ());
+			label.LeaveScope (); // transport
+			label.LeaveScope (); // elements
+			label.LeaveScope (); // net-tcp
 		}
 
 		[Test]
 		public void NetTcpBinding ()
 		{
 			var doc = MetadataProvider.Get ("net-tcp.xml");
+			var label = new TestLabel ("NetTcpBinding");
+			NetTcpBinding (doc, label);
+		}
+
+		public void NetTcpBinding (MetadataSet doc, TestLabel label)
+		{
+			label.EnterScope ("netTcpBinding");
+
 			var sd = (WS.ServiceDescription)doc.MetadataSections [0].Metadata;
-			
-			Assert.That (sd.Extensions, Is.Not.Null, "#1");
-			Assert.That (sd.Extensions.Count, Is.EqualTo (1), "#1a");
-			Assert.That (sd.Extensions [0], Is.InstanceOfType (typeof (XmlElement)), "#1b");
+
+			label.EnterScope ("wsdl");
+
+			label.EnterScope ("extensions");
+			Assert.That (sd.Extensions, Is.Not.Null, label.Get ());
+			Assert.That (sd.Extensions.Count, Is.EqualTo (1), label.Get ());
+			Assert.That (sd.Extensions [0], Is.InstanceOfType (typeof (XmlElement)), label.Get ());
 			
 			var extension = (XmlElement)sd.Extensions [0];
-			Assert.That (extension.NamespaceURI, Is.EqualTo (WspNamespace), "#1c");
-			Assert.That (extension.LocalName, Is.EqualTo ("Policy"), "#1d");
-			
-			Assert.That (sd.Bindings.Count, Is.EqualTo (1), "#2");
+			Assert.That (extension.NamespaceURI, Is.EqualTo (WspNamespace), label.Get ());
+			Assert.That (extension.LocalName, Is.EqualTo ("Policy"), label.Get ());
+			label.LeaveScope ();
+
+			label.EnterScope ("bindings");
+			Assert.That (sd.Bindings.Count, Is.EqualTo (1), label.Get ());
 			var binding = sd.Bindings [0];
-			Assert.That (binding.ExtensibleAttributes, Is.Null, "#2a");
-			Assert.That (binding.Extensions, Is.Not.Null, "#2b");
-			Assert.That (binding.Extensions.Count, Is.EqualTo (2), "#2c");
+			Assert.That (binding.ExtensibleAttributes, Is.Null, label.Get ());
+			Assert.That (binding.Extensions, Is.Not.Null, label.Get ());
+			Assert.That (binding.Extensions.Count, Is.EqualTo (2), label.Get ());
 			
 			WS.SoapBinding soap = null;
 			XmlElement xml = null;
@@ -294,28 +378,37 @@ namespace WsdlImport {
 					xml = (XmlElement)ext;
 			}
 			
-			CheckSoapBinding (soap, "http://schemas.microsoft.com/soap/tcp", "#3");
+			CheckSoapBinding (soap, "http://schemas.microsoft.com/soap/tcp", label);
+
+			label.EnterScope ("policy-xml");
+			Assert.That (xml, Is.Not.Null, label.Get ());
+			
+			Assert.That (xml.NamespaceURI, Is.EqualTo (WspNamespace), label.Get ());
+			Assert.That (xml.LocalName, Is.EqualTo ("PolicyReference"), label.Get ());
+			label.LeaveScope ();
+
+			label.LeaveScope (); // wsdl
 
 			var importer = new WsdlImporter (doc);
-			
-			var bindings = importer.ImportAllBindings ();
-			Assert.That (bindings, Is.Not.Null, "#4a");
-			Assert.That (bindings.Count, Is.EqualTo (1), "#4b");
-			
-			CheckNetTcpBinding (bindings [0], SecurityMode.None, "#5");
-			
-			Assert.That (xml, Is.Not.Null, "#6");
-			
-			Assert.That (xml.NamespaceURI, Is.EqualTo (WspNamespace), "#6a");
-			Assert.That (xml.LocalName, Is.EqualTo ("PolicyReference"), "#6b");
 
-			var endpoints = importer.ImportAllEndpoints ();
-			Assert.That (endpoints, Is.Not.Null, "#7");
-			Assert.That (endpoints.Count, Is.EqualTo (1), "#7a");
+			label.EnterScope ("bindings");
+			var bindings = importer.ImportAllBindings ();
+			Assert.That (bindings, Is.Not.Null, label.Get ());
+			Assert.That (bindings.Count, Is.EqualTo (1), label.Get ());
 			
-			CheckEndpoint (endpoints [0], Utils.NetTcpUri, "#8");
+			CheckNetTcpBinding (bindings [0], SecurityMode.None, label);
+			label.LeaveScope ();
+			
+			var endpoints = importer.ImportAllEndpoints ();
+			Assert.That (endpoints, Is.Not.Null, label.Get ());
+			Assert.That (endpoints.Count, Is.EqualTo (1), label.Get ());
+			
+			CheckEndpoint (endpoints [0], Utils.NetTcpUri, label);
+			label.LeaveScope ();
 
 			Utils.CreateConfig (bindings [0], "net-tcp.config");
+
+			label.LeaveScope ();
 		}
 	}
 }
