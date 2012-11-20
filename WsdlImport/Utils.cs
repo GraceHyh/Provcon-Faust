@@ -172,8 +172,6 @@ namespace WsdlImport {
 		public static IMetadataProvider EmbeddedResourceProvider = new _EmbeddedResourceProvider ();
 		public static IMetadataProvider DefaultMetadataProvider = new _DefaultMetadataProvider ();
 
-		public static IImporterProvider DefaultImporter = new _DefaultImporter ();
-
 		class _EmbeddedResourceProvider : IMetadataProvider {
 			public MetadataSet Get (string name)
 			{
@@ -196,13 +194,6 @@ namespace WsdlImport {
 				default:
 					throw new ArgumentException ("No such metadata.");
 				}
-			}
-		}
-
-		class _DefaultImporter : IImporterProvider {
-			public WsdlImporter GetImporter (MetadataSet doc)
-			{
-				return new WsdlImporter (doc);
 			}
 		}
 	}

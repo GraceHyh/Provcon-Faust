@@ -60,7 +60,7 @@ namespace WsdlImport {
 
 		static void TestDefault ()
 		{
-			var test = new Test (Utils.EmbeddedResourceProvider, Utils.DefaultImporter);
+			var test = new Test (Utils.EmbeddedResourceProvider);
 			test.BasicHttpBinding ();
 			test.BasicHttpsBinding ();
 			test.BasicHttpsBinding2 ();

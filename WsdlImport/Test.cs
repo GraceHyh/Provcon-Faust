@@ -50,20 +50,14 @@ namespace WsdlImport {
 			set;
 		}
 
-		public IImporterProvider ImporterProvider {
-			get;
-			set;
-		}
-
 		public Test ()
-			: this (Utils.EmbeddedResourceProvider, Utils.DefaultImporter)
+			: this (Utils.EmbeddedResourceProvider)
 		{
 		}
 
-		public Test (IMetadataProvider metadata, IImporterProvider importer)
+		public Test (IMetadataProvider metadata)
 		{
 			MetadataProvider = metadata;
-			ImporterProvider = importer;
 		}
 
 		void CheckSoapBinding (object extension, string transport, string label)
@@ -147,7 +141,7 @@ namespace WsdlImport {
 
 			CheckSoapBinding (binding.Extensions [0], WS.SoapBinding.HttpTransport, "#3");
 
-			var importer = ImporterProvider.GetImporter (doc);
+			var importer = new WsdlImporter (doc);
 
 			var bindings = importer.ImportAllBindings ();
 			Assert.That (bindings, Is.Not.Null, "#4a");
@@ -206,7 +200,7 @@ namespace WsdlImport {
 
 			CheckSoapBinding (soap, WS.SoapBinding.HttpTransport, "#3");
 
-			var importer = ImporterProvider.GetImporter (doc);
+			var importer = new WsdlImporter (doc);
 
 			var bindings = importer.ImportAllBindings ();
 			Assert.That (bindings, Is.Not.Null, "#4a");
@@ -296,7 +290,7 @@ namespace WsdlImport {
 			
 			CheckSoapBinding (soap, "http://schemas.microsoft.com/soap/tcp", "#3");
 
-			var importer = ImporterProvider.GetImporter (doc);
+			var importer = new WsdlImporter (doc);
 			
 			var bindings = importer.ImportAllBindings ();
 			Assert.That (bindings, Is.Not.Null, "#4a");
