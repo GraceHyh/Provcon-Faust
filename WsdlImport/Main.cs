@@ -55,33 +55,25 @@ namespace WsdlImport {
 	class Program {
 		static void Main (string[] args)
 		{
-			Export ();
-			if (Environment.OSVersion.Platform == PlatformID.Win32NT) {
-				// Make sure the tested behavior is correct.
-				TestDefault ();
-				// return;
-			}
-
-			var test = new Test (Utils.EmbeddedResourceProvider, Utils.CustomImporter);
-			test.BasicHttpBinding ();
-			test.NetTcpBinding ();
-			test.BasicHttpsBinding ();
-			test.BasicHttpsBinding2 ();
-		}
-
-		static void Export ()
-		{
-			var doc = Utils.GetBasicHttpsMetadata2 ();
-			Utils.Save ("https2.xml", doc);
+			TestDefault ();
 		}
 
 		static void TestDefault ()
 		{
 			var test = new Test (Utils.EmbeddedResourceProvider, Utils.DefaultImporter);
-			// test.BasicHttpBinding ();
+			test.BasicHttpBinding ();
 			test.BasicHttpsBinding ();
 			test.BasicHttpsBinding2 ();
-			// test.NetTcpBinding ();
+			test.NetTcpBinding ();
+		}
+
+		static void TestCustom ()
+		{
+			var test = new Test (Utils.EmbeddedResourceProvider, Utils.CustomImporter);
+			test.BasicHttpBinding ();
+			test.NetTcpBinding ();
+			test.BasicHttpsBinding ();
+			test.BasicHttpsBinding2 ();
 		}
 	}
 }
