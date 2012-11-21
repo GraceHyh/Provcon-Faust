@@ -47,6 +47,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 using WS = System.Web.Services.Description;
+using MT = MonoTests.System.ServiceModel;
 
 using NUnit.Framework;
 
@@ -56,6 +57,7 @@ namespace WsdlImport {
 		static void Main (string[] args)
 		{
 			TestDefault ();
+			MonoTests ();
 		}
 
 		static void TestDefault ()
@@ -70,6 +72,20 @@ namespace WsdlImport {
 			test.BasicHttpBinding_ImportEndpoints ();
 			test.BasicHttpBinding_Error ();
 			test.BasicHttpBinding_Error2 ();
+		}
+
+		static void MonoTests ()
+		{
+			var path = Assembly.GetExecutingAssembly ().Location;
+			Environment.CurrentDirectory = Path.GetDirectoryName (path);
+
+			var http = new MT.BasicHttpBindingTest ();
+			http.ApplyConfiguration ();
+			http.Elements_MessageEncodingBindingElement ();
+			http.Elements_TransportBindingElement ();
+
+			var importer = new MT.Description.WsdlImporterTest ();
+			importer.BindingsTest ();
 		}
 	}
 }
