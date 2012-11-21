@@ -45,6 +45,7 @@ namespace TestWCF.Client
 		{
 			Setup();
 			TestService();
+			TestException();
 			TestRestService(new Uri("http://provcon-faust/TestWCF/RestService/MyRestService.svc/"));
 			TestRestService(new Uri("https://provcon-faust/TestWCF/RestService/MyRestService.svc/"));
 			Console.WriteLine("Done!");
@@ -58,8 +59,8 @@ namespace TestWCF.Client
 
 		static void Setup()
 		{
-			ServicePointManager.ServerCertificateValidationCallback = Validator;
-			WebRequest.DefaultWebProxy = new WebProxy("192.168.16.104", 3128);
+			// ServicePointManager.ServerCertificateValidationCallback = Validator;
+			// WebRequest.DefaultWebProxy = new WebProxy("192.168.16.104", 3128);
 		}
 
 		static void TestService()
@@ -68,6 +69,31 @@ namespace TestWCF.Client
 			var hello = client.Hello();
 			Console.WriteLine(hello);
 			client.Close();
+		}
+
+		static void TestException()
+		{
+			var client = new MyServiceClient();
+			try
+			{
+				try
+				{
+					client.TestError();
+					Console.WriteLine("DID NOT GET EXCEPTION FROM SERVER!");
+					return;
+				}
+				catch (FaultException<MyException> error)
+				{
+					Console.WriteLine("GOT ERROR: {0}", error.Detail.Message);
+				}
+
+				var hello = client.Hello();
+				Console.WriteLine("GOT HELLO RESPONSE: {0}", hello);
+			}
+			finally
+			{
+				client.Close();
+			}
 		}
 
 		static void TestRestService(Uri uri)

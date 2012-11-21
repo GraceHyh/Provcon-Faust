@@ -21,6 +21,7 @@
     <MetadataSource Address="http://provcon-faust/TestWCF/Service/MyService.svc" Protocol="http" SourceId="1" />
   </MetadataSources>
   <Metadata>
+    <MetadataFile FileName="MyService2.xsd" MetadataType="Schema" ID="adf5f0bb-db09-4058-9eef-d362c76057c2" SourceId="1" SourceUrl="http://provcon-faust/TestWCF/Service/MyService.svc?xsd=xsd2" />
     <MetadataFile FileName="MyService.disco" MetadataType="Disco" ID="bdf89011-e844-4f07-b80e-f5ff28ff2c2f" SourceId="1" SourceUrl="http://provcon-faust/TestWCF/Service/MyService.svc?disco" />
     <MetadataFile FileName="MyService.xsd" MetadataType="Schema" ID="e8fc68da-dd99-4c0c-b78c-98c4bfdc0009" SourceId="1" SourceUrl="http://provcon-faust/TestWCF/Service/MyService.svc?xsd=xsd0" />
     <MetadataFile FileName="MyService.wsdl" MetadataType="Wsdl" ID="c30b2caa-6314-4bc1-ba3c-e77b3657d339" SourceId="1" SourceUrl="http://provcon-faust/TestWCF/Service/MyService.svc?wsdl" />

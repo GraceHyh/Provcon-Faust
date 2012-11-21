@@ -38,5 +38,18 @@ namespace TestWCF
 	{
 		[OperationContract]
 		string Hello();
+
+		[FaultContract (typeof (MyException))]
+		[OperationContract]
+		void TestError();
+	}
+
+	[DataContract]
+	public class MyException
+	{
+		[DataMember]
+		public string Message {
+			get; set;
+		}
 	}
 }
