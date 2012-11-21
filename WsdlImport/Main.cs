@@ -67,6 +67,7 @@ namespace WsdlImport {
 			test.NetTcpBinding ();
 			test.BasicHttpBinding_ImportBinding ();
 			test.BasicHttpBinding_ImportEndpoint ();
+			test.BasicHttpBinding_ImportEndpoints ();
 			test.BasicHttpBinding_Error ();
 			test.BasicHttpBinding_Error2 ();
 		}

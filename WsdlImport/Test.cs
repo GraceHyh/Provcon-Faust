@@ -553,7 +553,7 @@ namespace WsdlImport {
 			label.LeaveScope ();
 			
 			label.EnterScope ("single");
-			
+
 			try {
 				importer.ImportEndpoint (service.Ports [0]);
 				Assert.Fail (label.Get ());
@@ -589,6 +589,54 @@ namespace WsdlImport {
 			Assert.That (endpoints2, Is.Not.Null, label.Get ());
 			Assert.That (endpoints2.Count, Is.EqualTo (0), label.Get ());
 
+			label.LeaveScope ();
+		}
+
+		[Test]
+		public void BasicHttpBinding_ImportEndpoints ()
+		{
+			var label = new TestLabel ("BasicHttpBinding_ImportEndpoints");
+			
+			var doc = MetadataProvider.Get ("http.xml");
+			var sd = (WS.ServiceDescription)doc.MetadataSections [0].Metadata;
+			
+			label.EnterScope ("wsdl");
+			Assert.That (sd.Bindings, Is.Not.Null, label.Get ());
+			Assert.That (sd.Bindings.Count, Is.EqualTo (1), label.Get ());
+			var binding = sd.Bindings [0];
+
+			Assert.That (sd.Services, Is.Not.Null, label.Get ());
+			Assert.That (sd.Services.Count, Is.EqualTo (1), label.Get ());
+			var service = sd.Services [0];
+
+			Assert.That (service.Ports, Is.Not.Null, label.Get ());
+			Assert.That (service.Ports.Count, Is.EqualTo (1), label.Get ());
+			var port = service.Ports [0];
+
+			Assert.That (sd.PortTypes, Is.Not.Null, label.Get ());
+			Assert.That (sd.PortTypes.Count, Is.EqualTo (1), label.Get ());
+			var portType = sd.PortTypes [0];
+
+			label.LeaveScope ();
+			
+			var importer = new WsdlImporter (doc);
+
+			label.EnterScope ("by-service");
+			var byService = importer.ImportEndpoints (service);
+			Assert.That (byService, Is.Not.Null, label.Get ());
+			Assert.That (byService.Count, Is.EqualTo (1), label.Get ());
+			label.LeaveScope ();
+
+			label.EnterScope ("by-binding");
+			var byBinding = importer.ImportEndpoints (binding);
+			Assert.That (byBinding, Is.Not.Null, label.Get ());
+			Assert.That (byBinding.Count, Is.EqualTo (1), label.Get ());
+			label.LeaveScope ();
+
+			label.EnterScope ("by-port-type");
+			var byPortType = importer.ImportEndpoints (portType);
+			Assert.That (byPortType, Is.Not.Null, label.Get ());
+			Assert.That (byPortType.Count, Is.EqualTo (1), label.Get ());
 			label.LeaveScope ();
 		}
 	}
