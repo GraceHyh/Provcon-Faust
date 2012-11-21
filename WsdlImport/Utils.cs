@@ -55,7 +55,8 @@ namespace WsdlImport {
 			var doc = exporter.GetGeneratedMetadata ();
 			return doc;
 		}
-		
+
+#if NET_4_5
 		public static MetadataSet GetBasicHttpsMetadata ()
 		{
 			var exporter = new WsdlExporter ();
@@ -88,6 +89,7 @@ namespace WsdlImport {
 			var doc = exporter.GetGeneratedMetadata ();
 			return doc;
 		}
+#endif
 
 		public static MetadataSet GetNetTcpMetadata ()
 		{
@@ -158,12 +160,14 @@ namespace WsdlImport {
 		{
 			var basicHttp = GetBasicHttpMetadata ();
 			Utils.Save ("http.xml", basicHttp);
-			
+
+#if NET_4_5
 			var basicHttps = GetBasicHttpsMetadata ();
 			Utils.Save ("https.xml", basicHttps);
 
 			var basicHttps2 = GetBasicHttpsMetadata2 ();
 			Utils.Save ("https2.xml", basicHttps2);
+#endif
 
 			var netTcp = GetNetTcpMetadata ();
 			Utils.Save ("net-tcp.xml", netTcp);
@@ -187,10 +191,12 @@ namespace WsdlImport {
 				switch (name) {
 				case "html.xml":
 					return Utils.GetBasicHttpMetadata ();
+#if NET_4_5
 				case "https.xml":
 					return Utils.GetBasicHttpsMetadata ();
 				case "https2.xml":
 					return Utils.GetBasicHttpsMetadata2 ();
+#endif
 				case "net-tcp.xml":
 					return Utils.GetNetTcpMetadata ();
 				default:
@@ -203,8 +209,10 @@ namespace WsdlImport {
 		{
 			if (binding is BasicHttpBinding)
 				return "basicHttpBinding";
+#if NET_4_5
 			else if (binding is BasicHttpsBinding)
 				return "basicHttpsBinding";
+#endif
 			else if (binding is NetTcpBinding)
 				return "netTcpBinding";
 			else if (binding is CustomBinding)
@@ -220,8 +228,10 @@ namespace WsdlImport {
 			switch (bindingName) {
 			case "basicHttpBinding":
 				return new BasicHttpBindingElement (name);
+#if NET_4_5
 			case "basicHttpsBinding":
 				return new BasicHttpsBindingElement (name);
+#endif
 			case "netTcpBinding":
 				return new NetTcpBindingElement (name);
 			case "customBinding":
@@ -240,11 +250,13 @@ namespace WsdlImport {
 				http.Bindings.Add ((BasicHttpBindingElement)element);
 				return http;
 			}
+#if NET_4_5
 			case "basicHttpsBinding": {
 				var https = new BasicHttpsBindingCollectionElement ();
 				https.Bindings.Add ((BasicHttpsBindingElement)element);
 				return https;
 			}
+#endif
 			case "netTcpBinding": {
 				var netTcp = new NetTcpBindingCollectionElement ();
 				netTcp.Bindings.Add ((NetTcpBindingElement)element);

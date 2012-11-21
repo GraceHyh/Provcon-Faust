@@ -56,8 +56,8 @@ namespace WsdlImport {
 	class Program {
 		static void Main (string[] args)
 		{
-			TestDefault ();
 			MonoTests ();
+			TestDefault ();
 		}
 
 		static void TestDefault ()
@@ -86,6 +86,8 @@ namespace WsdlImport {
 
 			var importer = new MT.Description.WsdlImporterTest ();
 			importer.BindingsTest ();
+
+			Console.WriteLine ("Mono tests passed.");
 		}
 	}
 }
