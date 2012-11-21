@@ -429,6 +429,28 @@ namespace WsdlImport {
 			Assert.That (binding, Is.Not.Null, label.Get ());
 		}
 
+		[Test]
+		public void BasicHttpBinding_ImportEndpoint ()
+		{
+			var label = new TestLabel ("BasicHttpBinding_ImportEndpoint");
+			
+			var doc = MetadataProvider.Get ("http.xml");
+			var sd = (WS.ServiceDescription)doc.MetadataSections [0].Metadata;
+
+			label.EnterScope ("wsdl");
+			Assert.That (sd.Services, Is.Not.Null, label.Get ());
+			Assert.That (sd.Services.Count, Is.EqualTo (1), label.Get ());
+
+			var service = sd.Services [0];
+			Assert.That (service.Ports, Is.Not.Null, label.Get ());
+			Assert.That (service.Ports.Count, Is.EqualTo (1), label.Get ());
+			label.LeaveScope ();
+
+			var importer = new WsdlImporter (doc);
+
+			var port = importer.ImportEndpoint (service.Ports [0]);
+			Assert.That (port, Is.Not.Null, label.Get ());
+		}
 
 		[Test]
 		public void BasicHttpBinding_Error ()
@@ -492,6 +514,80 @@ namespace WsdlImport {
 			var bindings2 = importer.ImportAllBindings ();
 			Assert.That (bindings2, Is.Not.Null, label.Get ());
 			Assert.That (bindings2.Count, Is.EqualTo (0), label.Get ());
+
+			label.LeaveScope ();
+		}
+
+		[Test]
+		public void BasicHttpBinding_Error2 ()
+		{
+			var label = new TestLabel ("BasicHttpBinding_Error2");
+			
+			var doc = MetadataProvider.Get ("http-error.xml");
+			var sd = (WS.ServiceDescription)doc.MetadataSections [0].Metadata;
+
+			label.EnterScope ("wsdl");
+			Assert.That (sd.Services, Is.Not.Null, label.Get ());
+			Assert.That (sd.Services.Count, Is.EqualTo (1), label.Get ());
+			
+			var service = sd.Services [0];
+			Assert.That (service.Ports, Is.Not.Null, label.Get ());
+			Assert.That (service.Ports.Count, Is.EqualTo (1), label.Get ());
+			label.LeaveScope ();
+			
+			var importer = new WsdlImporter (doc);
+			
+			label.EnterScope ("all");
+			
+			var endpoints = importer.ImportAllEndpoints ();
+			Assert.That (endpoints, Is.Not.Null, label.Get ());
+			Assert.That (endpoints.Count, Is.EqualTo (0), label.Get ());
+			
+			label.EnterScope ("errors");
+			Assert.That (importer.Errors, Is.Not.Null, label.Get ());
+			Assert.That (importer.Errors.Count, Is.EqualTo (2), label.Get ());
+
+			Assert.That (importer.Errors [0].IsWarning, Is.False, label.Get ());
+			Assert.That (importer.Errors [1].IsWarning, Is.False, label.Get ());
+			label.LeaveScope ();
+			label.LeaveScope ();
+			
+			label.EnterScope ("single");
+			
+			try {
+				importer.ImportEndpoint (service.Ports [0]);
+				Assert.Fail (label.Get ());
+			} catch {
+				;
+			}
+			
+			Assert.That (importer.Errors.Count, Is.EqualTo (2), label.Get ());
+			
+			label.LeaveScope ();
+			
+			label.EnterScope ("single-first");
+			
+			var importer2 = new WsdlImporter (doc);
+			
+			try {
+				importer2.ImportEndpoint (service.Ports [0]);
+				Assert.Fail (label.Get ());
+			} catch {
+				;
+			}
+			
+			Assert.That (importer2.Errors.Count, Is.EqualTo (2), label.Get ());
+			
+			try {
+				importer2.ImportEndpoint (service.Ports [0]);
+				Assert.Fail (label.Get ());
+			} catch {
+				;
+			}
+			
+			var endpoints2 = importer.ImportAllEndpoints ();
+			Assert.That (endpoints2, Is.Not.Null, label.Get ());
+			Assert.That (endpoints2.Count, Is.EqualTo (0), label.Get ());
 
 			label.LeaveScope ();
 		}
