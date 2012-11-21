@@ -63,5 +63,6 @@
     <EmbeddedResource Include="Resources\https.config" />
     <EmbeddedResource Include="Resources\https2.config" />
     <EmbeddedResource Include="Resources\net-tcp.config" />
+    <EmbeddedResource Include="Resources\http-error.xml" />
   </ItemGroup>
 </Project>

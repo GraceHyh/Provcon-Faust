@@ -410,5 +410,90 @@ namespace WsdlImport {
 
 			label.LeaveScope ();
 		}
+
+		[Test]
+		public void BasicHttpBinding_ImportBinding ()
+		{
+			var label = new TestLabel ("BasicHttpBinding_ImportBinding");
+			
+			var doc = MetadataProvider.Get ("http.xml");
+			var sd = (WS.ServiceDescription)doc.MetadataSections [0].Metadata;
+			var wsdlBinding = sd.Bindings [0];
+			
+			var importer = new WsdlImporter (doc);
+			
+			Assert.That (sd.Bindings, Is.Not.Null, label.Get ());
+			Assert.That (sd.Bindings.Count, Is.EqualTo (1), label.Get ());
+			
+			var binding = importer.ImportBinding (wsdlBinding);
+			Assert.That (binding, Is.Not.Null, label.Get ());
+		}
+
+
+		[Test]
+		public void BasicHttpBinding_Error ()
+		{
+			var label = new TestLabel ("BasicHttpBinding_Error");
+			
+			var doc = MetadataProvider.Get ("http-error.xml");
+			var sd = (WS.ServiceDescription)doc.MetadataSections [0].Metadata;
+			var wsdlBinding = sd.Bindings [0];
+
+			var importer = new WsdlImporter (doc);
+
+			label.EnterScope ("all");
+
+			var bindings = importer.ImportAllBindings ();
+			Assert.That (bindings, Is.Not.Null, label.Get ());
+			Assert.That (bindings.Count, Is.EqualTo (0), label.Get ());
+
+			label.EnterScope ("errors");
+			Assert.That (importer.Errors, Is.Not.Null, label.Get ());
+			Assert.That (importer.Errors.Count, Is.EqualTo (1), label.Get ());
+
+			var error = importer.Errors [0];
+			Assert.That (error.IsWarning, Is.False, label.Get ());
+			label.LeaveScope ();
+			label.LeaveScope ();
+
+			label.EnterScope ("single");
+
+			try {
+				importer.ImportBinding (wsdlBinding);
+				Assert.Fail (label.Get ());
+			} catch {
+				;
+			}
+
+			Assert.That (importer.Errors.Count, Is.EqualTo (1), label.Get ());
+
+			label.LeaveScope ();
+
+			label.EnterScope ("single-first");
+
+			var importer2 = new WsdlImporter (doc);
+
+			try {
+				importer2.ImportBinding (wsdlBinding);
+				Assert.Fail (label.Get ());
+			} catch {
+				;
+			}
+
+			Assert.That (importer2.Errors.Count, Is.EqualTo (1), label.Get ());
+
+			try {
+				importer2.ImportBinding (wsdlBinding);
+				Assert.Fail (label.Get ());
+			} catch {
+				;
+			}
+
+			var bindings2 = importer.ImportAllBindings ();
+			Assert.That (bindings2, Is.Not.Null, label.Get ());
+			Assert.That (bindings2.Count, Is.EqualTo (0), label.Get ());
+
+			label.LeaveScope ();
+		}
 	}
 }
