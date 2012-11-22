@@ -67,9 +67,19 @@ namespace WsdlImport {
 		{
 			var test = new Test (Utils.EmbeddedResourceProvider);
 			test.BasicHttpBinding ();
+			test.BasicHttpBinding2 ();
+			test.BasicHttpBinding3 ();
+			test.BasicHttpBinding4 ();
+			test.BasicHttpBinding5 ();
+			test.BasicHttpBinding6 ();
 			test.BasicHttpsBinding ();
 			test.BasicHttpsBinding2 ();
+			test.BasicHttpsBinding3 ();
+			test.BasicHttpsBinding4 ();
 			test.NetTcpBinding ();
+			test.NetTcpBinding2 ();
+			test.NetTcpBinding3 ();
+			test.NetTcpBinding4 ();
 			test.BasicHttpBinding_ImportBinding ();
 			test.BasicHttpBinding_ImportEndpoint ();
 			test.BasicHttpBinding_ImportEndpoints ();

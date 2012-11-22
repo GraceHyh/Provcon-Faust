@@ -466,15 +466,17 @@ namespace WsdlImport {
 			return bindings [0];
 		}
 
-		void CheckNetTcpBinding (Binding binding, SecurityMode security, TestLabel label)
+		void CheckNetTcpBinding (Binding binding, SecurityMode security,
+		                         bool reliableSession, TransferMode transferMode,
+		                         TestLabel label)
 		{
 			label.EnterScope ("net-tcp");
-			Assert.That (binding, Is.InstanceOfType (typeof (NetTcpBinding)), label.Get ());
+			Assert.That (binding, Is.InstanceOfType (typeof(NetTcpBinding)), label.Get ());
 			var netTcp = (NetTcpBinding)binding;
 			Assert.That (netTcp.EnvelopeVersion, Is.EqualTo (EnvelopeVersion.Soap12), label.Get ());
 			Assert.That (netTcp.MessageVersion, Is.EqualTo (MessageVersion.Soap12WSAddressing10), label.Get ());
 			Assert.That (netTcp.Scheme, Is.EqualTo ("net.tcp"), label.Get ());
-			Assert.That (netTcp.TransferMode, Is.EqualTo (TransferMode.Buffered), label.Get ());
+			Assert.That (netTcp.TransferMode, Is.EqualTo (transferMode), label.Get ());
 			Assert.That (netTcp.Security, Is.Not.Null, label.Get ());
 			Assert.That (netTcp.Security.Mode, Is.EqualTo (security), label.Get ());
 
@@ -482,11 +484,12 @@ namespace WsdlImport {
 			
 			var elements = netTcp.CreateBindingElements ();
 			Assert.That (elements, Is.Not.Null, label.Get ());
-			Assert.That (elements.Count, Is.EqualTo (3), label.Get ());
-			
+
 			TcpTransportBindingElement transportElement = null;
 			TransactionFlowBindingElement transactionFlowElement = null;
 			BinaryMessageEncodingBindingElement encodingElement = null;
+			WindowsStreamSecurityBindingElement windowsStreamElement = null;
+			ReliableSessionBindingElement reliableSessionElement = null;
 			
 			foreach (var element in elements) {
 				if (element is TcpTransportBindingElement)
@@ -495,9 +498,30 @@ namespace WsdlImport {
 					transactionFlowElement = (TransactionFlowBindingElement)element;
 				else if (element is BinaryMessageEncodingBindingElement)
 					encodingElement = (BinaryMessageEncodingBindingElement)element;
+				else if (element is WindowsStreamSecurityBindingElement)
+					windowsStreamElement = (WindowsStreamSecurityBindingElement)element;
+				else if (element is ReliableSessionBindingElement)
+					reliableSessionElement = (ReliableSessionBindingElement)element;
 				else
-					Assert.Fail (label.Get ());
+					Assert.Fail (string.Format (
+						"Unknown element `{0}'.", element.GetType ()), label.Get ());
 			}
+
+			label.EnterScope ("windows-stream");
+			if (security == SecurityMode.Transport) {
+				Assert.That (windowsStreamElement, Is.Not.Null, label.Get ());
+			} else {
+				Assert.That (windowsStreamElement, Is.Null, label.Get ());
+			}
+			label.LeaveScope ();
+
+			label.EnterScope ("reliable-session");
+			if (reliableSession) {
+				Assert.That (reliableSessionElement, Is.Not.Null, label.Get ());
+			} else {
+				Assert.That (reliableSessionElement, Is.Null, label.Get ());
+			}
+			label.LeaveScope ();
 
 			label.EnterScope ("encoding");
 			Assert.That (encodingElement, Is.Not.Null, label.Get ());
@@ -511,7 +535,7 @@ namespace WsdlImport {
 			Assert.That (transportElement, Is.Not.Null, label.Get ());
 
 			Assert.That (transportElement.Scheme, Is.EqualTo ("net.tcp"), label.Get ());
-			Assert.That (transportElement.TransferMode, Is.EqualTo (TransferMode.Buffered), label.Get ());
+			Assert.That (transportElement.TransferMode, Is.EqualTo (transferMode), label.Get ());
 			label.LeaveScope (); // transport
 			label.LeaveScope (); // elements
 			label.LeaveScope (); // net-tcp
@@ -522,10 +546,43 @@ namespace WsdlImport {
 		{
 			var doc = MetadataProvider.Get ("net-tcp.xml");
 			var label = new TestLabel ("NetTcpBinding");
-			NetTcpBinding (doc, label);
+			NetTcpBinding (
+				doc, SecurityMode.None, false, TransferMode.Buffered, label);
 		}
 
-		public void NetTcpBinding (MetadataSet doc, TestLabel label)
+		[Test]
+		public void NetTcpBinding2 ()
+		{
+			var doc = MetadataProvider.Get ("net-tcp2.xml");
+			var label = new TestLabel ("NetTcpBinding2");
+			NetTcpBinding (
+				doc, SecurityMode.Transport, false,
+				TransferMode.Buffered, label);
+		}
+
+		[Test]
+		public void NetTcpBinding3 ()
+		{
+			var doc = MetadataProvider.Get ("net-tcp3.xml");
+			var label = new TestLabel ("NetTcpBinding3");
+			NetTcpBinding (
+				doc, SecurityMode.None, true,
+				TransferMode.Buffered, label);
+		}
+		
+		[Test]
+		public void NetTcpBinding4 ()
+		{
+			var doc = MetadataProvider.Get ("net-tcp4.xml");
+			var label = new TestLabel ("NetTcpBinding4");
+			NetTcpBinding (
+				doc, SecurityMode.None, false,
+				TransferMode.Streamed, label);
+		}
+		
+		public void NetTcpBinding (MetadataSet doc, SecurityMode security,
+		                           bool reliableSession, TransferMode transferMode,
+		                           TestLabel label)
 		{
 			label.EnterScope ("netTcpBinding");
 
@@ -536,7 +593,7 @@ namespace WsdlImport {
 			label.EnterScope ("extensions");
 			Assert.That (sd.Extensions, Is.Not.Null, label.Get ());
 			Assert.That (sd.Extensions.Count, Is.EqualTo (1), label.Get ());
-			Assert.That (sd.Extensions [0], Is.InstanceOfType (typeof (XmlElement)), label.Get ());
+			Assert.That (sd.Extensions [0], Is.InstanceOfType (typeof(XmlElement)), label.Get ());
 			
 			var extension = (XmlElement)sd.Extensions [0];
 			Assert.That (extension.NamespaceURI, Is.EqualTo (WspNamespace), label.Get ());
@@ -549,7 +606,7 @@ namespace WsdlImport {
 			Assert.That (binding.ExtensibleAttributes, Is.Null, label.Get ());
 			Assert.That (binding.Extensions, Is.Not.Null, label.Get ());
 			Assert.That (binding.Extensions.Count, Is.EqualTo (2), label.Get ());
-			
+
 			WS.SoapBinding soap = null;
 			XmlElement xml = null;
 			
@@ -578,7 +635,9 @@ namespace WsdlImport {
 			Assert.That (bindings, Is.Not.Null, label.Get ());
 			Assert.That (bindings.Count, Is.EqualTo (1), label.Get ());
 			
-			CheckNetTcpBinding (bindings [0], SecurityMode.None, label);
+			CheckNetTcpBinding (
+				bindings [0], security, reliableSession,
+				transferMode, label);
 			label.LeaveScope ();
 			
 			var endpoints = importer.ImportAllEndpoints ();
