@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -16,7 +16,7 @@
     <DebugType>full</DebugType>
     <Optimize>False</Optimize>
     <OutputPath>bin\</OutputPath>
-    <DefineConstants>DEBUG; NET_4_5</DefineConstants>
+    <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>False</ConsolePause>
@@ -48,17 +48,9 @@
     <Compile Include="Utils.cs" />
     <Compile Include="IMetadataProvider.cs" />
     <Compile Include="TestLabel.cs" />
-    <Compile Include="..\..\mono\mcs\class\System.ServiceModel\Test\System.ServiceModel\BasicHttpBindingTest.cs">
-      <Link>Test\System.ServiceModel\BasicHttpBindingTest.cs</Link>
-    </Compile>
-    <Compile Include="..\..\mono\mcs\class\System.ServiceModel\Test\System.ServiceModel.Description\WsdlImporterTest.cs">
-      <Link>Test\System.ServiceModel.Description\WsdlImporterTest.cs</Link>
-    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <ItemGroup>
-    <Folder Include="Resources\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <EmbeddedResource Include="Resources\http.xml" />
     <EmbeddedResource Include="Resources\https.xml" />
@@ -79,125 +71,5 @@
     <EmbeddedResource Include="Resources\net-tcp4.xml" />
     <EmbeddedResource Include="Resources\http5.xml" />
     <EmbeddedResource Include="Resources\http6.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\mono\mcs\class\System.ServiceModel\Test\config\basicHttpBinding">
-      <Link>Test\config\basicHttpBinding</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\mono\mcs\class\System.ServiceModel\Test\config\basicHttpBinding.config">
-      <Link>Test\config\basicHttpBinding.config</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\mono\mcs\class\System.ServiceModel\Test\config\client.endpoint">
-      <Link>Test\config\client.endpoint</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\mono\mcs\class\System.ServiceModel\Test\config\client.endpoint.config">
-      <Link>Test\config\client.endpoint.config</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\mono\mcs\class\System.ServiceModel\Test\config\client.metadata">
-      <Link>Test\config\client.metadata</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\mono\mcs\class\System.ServiceModel\Test\config\client.metadata.config">
-      <Link>Test\config\client.metadata.config</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\mono\mcs\class\System.ServiceModel\Test\config\customBinding">
-      <Link>Test\config\customBinding</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\mono\mcs\class\System.ServiceModel\Test\config\customBinding.config">
-      <Link>Test\config\customBinding.config</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\mono\mcs\class\System.ServiceModel\Test\config\empty">
-      <Link>Test\config\empty</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\mono\mcs\class\System.ServiceModel\Test\config\empty.config">
-      <Link>Test\config\empty.config</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\mono\mcs\class\System.ServiceModel\Test\config\endpointBehaviors">
-      <Link>Test\config\endpointBehaviors</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\mono\mcs\class\System.ServiceModel\Test\config\endpointBehaviors.config">
-      <Link>Test\config\endpointBehaviors.config</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\mono\mcs\class\System.ServiceModel\Test\config\extensions">
-      <Link>Test\config\extensions</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\mono\mcs\class\System.ServiceModel\Test\config\extensions.config">
-      <Link>Test\config\extensions.config</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\mono\mcs\class\System.ServiceModel\Test\config\netTcpBinding">
-      <Link>Test\config\netTcpBinding</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\mono\mcs\class\System.ServiceModel\Test\config\netTcpBinding.config">
-      <Link>Test\config\netTcpBinding.config</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\mono\mcs\class\System.ServiceModel\Test\config\service">
-      <Link>Test\config\service</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\mono\mcs\class\System.ServiceModel\Test\config\service.config">
-      <Link>Test\config\service.config</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\mono\mcs\class\System.ServiceModel\Test\config\serviceBehaviors">
-      <Link>Test\config\serviceBehaviors</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\mono\mcs\class\System.ServiceModel\Test\config\serviceBehaviors.config">
-      <Link>Test\config\serviceBehaviors.config</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\mono\mcs\class\System.ServiceModel\Test\config\test1">
-      <Link>Test\config\test1</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\mono\mcs\class\System.ServiceModel\Test\config\test1.config">
-      <Link>Test\config\test1.config</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\mono\mcs\class\System.ServiceModel\Test\config\userBinding">
-      <Link>Test\config\userBinding</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\mono\mcs\class\System.ServiceModel\Test\config\userBinding.config">
-      <Link>Test\config\userBinding.config</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\mono\mcs\class\System.ServiceModel\Test\config\wsHttpBinding">
-      <Link>Test\config\wsHttpBinding</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\mono\mcs\class\System.ServiceModel\Test\config\wsHttpBinding.config">
-      <Link>Test\config\wsHttpBinding.config</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\mono\mcs\class\System.ServiceModel\Test\System.ServiceModel.Description\dump.xml">
-      <Link>Test\System.ServiceModel.Description\dump.xml</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\mono\mcs\class\System.ServiceModel\Test\XmlFiles\670945.wsdl">
-      <Link>Test\XmlFiles\670945.wsdl</Link>
-      <Gettext-ScanForTranslations>False</Gettext-ScanForTranslations>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\mono\mcs\class\System.ServiceModel\Test\XmlFiles\one.xml">
-      <Link>Test\XmlFiles\one.xml</Link>
-      <Gettext-ScanForTranslations>False</Gettext-ScanForTranslations>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 </Project>
