@@ -72,7 +72,8 @@ namespace WsdlImport {
 		}
 
 		void CheckBasicHttpBinding (Binding binding, string scheme, BasicHttpSecurityMode security,
-		                            WSMessageEncoding encoding, bool useAuth, TestLabel label)
+		                            WSMessageEncoding encoding, HttpClientCredentialType clientCred,
+		                            AuthenticationSchemes authScheme, TestLabel label)
 		{
 			label.EnterScope ("http");
 
@@ -88,8 +89,6 @@ namespace WsdlImport {
 				Assert.That (basicHttp.MessageEncoding, Is.EqualTo (encoding), label.Get ());
 				Assert.That (basicHttp.Security, Is.Not.Null, label.Get ());
 				Assert.That (basicHttp.Security.Mode, Is.EqualTo (security), label.Get ());
-
-				var clientCred = useAuth ? HttpClientCredentialType.Ntlm : HttpClientCredentialType.None;
 				Assert.That (basicHttp.Security.Transport.ClientCredentialType, Is.EqualTo (clientCred), label.Get ());
 			}
 
@@ -166,7 +165,6 @@ namespace WsdlImport {
 			Assert.That (transportElement.TransferMode, Is.EqualTo (TransferMode.Buffered), label.Get ());
 
 			label.EnterScope ("auth");
-			var authScheme = useAuth ? AuthenticationSchemes.Ntlm : AuthenticationSchemes.Anonymous;
 			Assert.That (transportElement.AuthenticationScheme, Is.EqualTo (authScheme), label.Get ());
 			label.LeaveScope (); // auth
 			label.LeaveScope (); // transport
@@ -234,6 +232,15 @@ namespace WsdlImport {
 			BasicHttpBinding (doc, WSMessageEncoding.Mtom, label);
 		}
 
+		[Test]
+		public void BasicHttpBinding6 ()
+		{
+			var doc = MetadataProvider.Get ("http6.xml");
+			
+			var label = new TestLabel ("BasicHttpBinding6");
+			BasicHttpBinding (doc, WSMessageEncoding.Text, label);
+		}
+		
 		public void BasicHttpBinding (MetadataSet doc, WSMessageEncoding encoding,
 		                              TestLabel label)
 		{
@@ -319,7 +326,10 @@ namespace WsdlImport {
 			else
 				scheme = "http";
 
-			CheckBasicHttpBinding (bindings [0], scheme, security, encoding, false, label);
+			CheckBasicHttpBinding (
+				bindings [0], scheme, security, encoding,
+				HttpClientCredentialType.None, AuthenticationSchemes.Anonymous,
+				label);
 			label.LeaveScope ();
 
 			var endpoints = importer.ImportAllEndpoints ();
@@ -343,7 +353,8 @@ namespace WsdlImport {
 			var label = new TestLabel ("BasicHttpsBinding");
 			var binding = BasicHttpsBinding (
 				doc, BasicHttpSecurityMode.Transport, WSMessageEncoding.Text,
-				false, label);
+				HttpClientCredentialType.None, AuthenticationSchemes.Anonymous,
+				label);
 			Utils.CreateConfig (binding, "https.config");
 		}
 
@@ -354,12 +365,36 @@ namespace WsdlImport {
 			var label = new TestLabel ("BasicHttpsBinding2");
 			var binding = BasicHttpsBinding (
 				doc, BasicHttpSecurityMode.Transport, WSMessageEncoding.Text,
-				true, label);
+				HttpClientCredentialType.Ntlm, AuthenticationSchemes.Ntlm,
+				label);
 			Utils.CreateConfig (binding, "https2.config");
 		}
 
+		[Test]
+		public void BasicHttpsBinding3 ()
+		{
+			var doc = MetadataProvider.Get ("https3.xml");
+			var label = new TestLabel ("BasicHttpsBinding3");
+			BasicHttpsBinding (
+				doc, BasicHttpSecurityMode.Transport, WSMessageEncoding.Text,
+				HttpClientCredentialType.Certificate, AuthenticationSchemes.Anonymous,
+				label);
+		}
+
+		[Test]
+		public void BasicHttpsBinding4 ()
+		{
+			var doc = MetadataProvider.Get ("https4.xml");
+			var label = new TestLabel ("BasicHttpsBinding4");
+			BasicHttpsBinding (
+				doc, BasicHttpSecurityMode.TransportWithMessageCredential,
+				WSMessageEncoding.Text, HttpClientCredentialType.None,
+				AuthenticationSchemes.Anonymous, label);
+		}
+		
 		Binding BasicHttpsBinding (MetadataSet doc, BasicHttpSecurityMode security,
-		                           WSMessageEncoding encoding, bool useAuth, TestLabel label)
+		                           WSMessageEncoding encoding, HttpClientCredentialType clientCred,
+		                           AuthenticationSchemes authScheme, TestLabel label)
 		{
 			label.EnterScope ("basicHttpsBinding");
 
@@ -414,7 +449,9 @@ namespace WsdlImport {
 			Assert.That (bindings, Is.Not.Null, label.Get ());
 			Assert.That (bindings.Count, Is.EqualTo (1), label.Get ());
 
-			CheckBasicHttpBinding (bindings [0], "https", security, encoding, useAuth, label);
+			CheckBasicHttpBinding (
+				bindings [0], "https", security, encoding,
+				clientCred, authScheme, label);
 			label.LeaveScope ();
 
 			label.EnterScope ("endpoints");
