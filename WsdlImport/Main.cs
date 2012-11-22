@@ -56,6 +56,9 @@ namespace WsdlImport {
 	class Program {
 		static void Main (string[] args)
 		{
+			if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+				Utils.SaveMetadata ();
+
 			MonoTests ();
 			TestDefault ();
 		}
