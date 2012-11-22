@@ -83,11 +83,6 @@ namespace WsdlImport {
 			http.ApplyConfiguration ();
 			http.Elements_MessageEncodingBindingElement ();
 			http.Elements_TransportBindingElement ();
-
-			// var importer = new MT.Description.WsdlImporterTest ();
-			// importer.BindingsTest ();
-
-			Console.WriteLine ("Mono tests passed.");
 		}
 	}
 }
