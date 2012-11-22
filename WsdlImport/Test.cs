@@ -72,40 +72,90 @@ namespace WsdlImport {
 		}
 
 		void CheckBasicHttpBinding (Binding binding, string scheme, BasicHttpSecurityMode security,
-		                            bool useAuth, TestLabel label)
+		                            WSMessageEncoding encoding, bool useAuth, TestLabel label)
 		{
 			label.EnterScope ("http");
-			Assert.That (binding, Is.InstanceOfType (typeof(BasicHttpBinding)), label.Get ());
-			var basicHttp = (BasicHttpBinding)binding;
-			Assert.That (basicHttp.EnvelopeVersion, Is.EqualTo (EnvelopeVersion.Soap11), label.Get ());
-			Assert.That (basicHttp.MessageVersion, Is.EqualTo (MessageVersion.Soap11), label.Get ());
-			Assert.That (basicHttp.Scheme, Is.EqualTo (scheme), label.Get ());
-			Assert.That (basicHttp.TransferMode, Is.EqualTo (TransferMode.Buffered), label.Get ());
-			Assert.That (basicHttp.MessageEncoding, Is.EqualTo (WSMessageEncoding.Text), label.Get ());
-			Assert.That (basicHttp.Security, Is.Not.Null, label.Get ());
-			Assert.That (basicHttp.Security.Mode, Is.EqualTo (security), label.Get ());
+
+			if (security == BasicHttpSecurityMode.Message) {
+				Assert.That (binding, Is.InstanceOfType (typeof(CustomBinding)), label.Get ());
+			} else {
+				Assert.That (binding, Is.InstanceOfType (typeof(BasicHttpBinding)), label.Get ());
+				var basicHttp = (BasicHttpBinding)binding;
+				Assert.That (basicHttp.EnvelopeVersion, Is.EqualTo (EnvelopeVersion.Soap11), label.Get ());
+				Assert.That (basicHttp.MessageVersion, Is.EqualTo (MessageVersion.Soap11), label.Get ());
+				Assert.That (basicHttp.Scheme, Is.EqualTo (scheme), label.Get ());
+				Assert.That (basicHttp.TransferMode, Is.EqualTo (TransferMode.Buffered), label.Get ());
+				Assert.That (basicHttp.MessageEncoding, Is.EqualTo (encoding), label.Get ());
+				Assert.That (basicHttp.Security, Is.Not.Null, label.Get ());
+				Assert.That (basicHttp.Security.Mode, Is.EqualTo (security), label.Get ());
+
+				var clientCred = useAuth ? HttpClientCredentialType.Ntlm : HttpClientCredentialType.None;
+				Assert.That (basicHttp.Security.Transport.ClientCredentialType, Is.EqualTo (clientCred), label.Get ());
+			}
 
 			label.EnterScope ("elements");
 
-			var elements = basicHttp.CreateBindingElements ();
+			var elements = binding.CreateBindingElements ();
 			Assert.That (elements, Is.Not.Null, label.Get ());
-			Assert.That (elements.Count, Is.EqualTo (2), label.Get ());
+			if ((security == BasicHttpSecurityMode.Message) ||
+				(security == BasicHttpSecurityMode.TransportWithMessageCredential))
+				Assert.That (elements.Count, Is.EqualTo (3), label.Get ());
+			else
+				Assert.That (elements.Count, Is.EqualTo (2), label.Get ());
 			
 			TextMessageEncodingBindingElement textElement = null;
+			TransportSecurityBindingElement securityElement = null;
 			HttpTransportBindingElement transportElement = null;
+			AsymmetricSecurityBindingElement asymmSecurityElement = null;
+			MtomMessageEncodingBindingElement mtomElement = null;
 			
 			foreach (var element in elements) {
 				if (element is TextMessageEncodingBindingElement)
 					textElement = (TextMessageEncodingBindingElement)element;
 				else if (element is HttpTransportBindingElement)
 					transportElement = (HttpTransportBindingElement)element;
+				else if (element is TransportSecurityBindingElement)
+					securityElement = (TransportSecurityBindingElement)element;
+				else if (element is AsymmetricSecurityBindingElement)
+					asymmSecurityElement = (AsymmetricSecurityBindingElement)element;
+				else if (element is MtomMessageEncodingBindingElement)
+					mtomElement = (MtomMessageEncodingBindingElement)element;
 				else
-					Assert.Fail (label.Get ());
+					Assert.Fail (string.Format (
+						"Unknown element: {0}", element.GetType ()), label.Get ());
 			}
 
 			label.EnterScope ("text");
-			Assert.That (textElement, Is.Not.Null, label.Get ());
-			Assert.That (textElement.WriteEncoding, Is.InstanceOfType (typeof(UTF8Encoding)), label.Get ());
+			if (encoding == WSMessageEncoding.Text) {
+				Assert.That (textElement, Is.Not.Null, label.Get ());
+				Assert.That (textElement.WriteEncoding, Is.InstanceOfType (typeof(UTF8Encoding)), label.Get ());
+			} else {
+				Assert.That (textElement, Is.Null, label.Get ());
+			}
+			label.LeaveScope ();
+
+			label.EnterScope ("mtom");
+			if (encoding == WSMessageEncoding.Mtom) {
+				Assert.That (mtomElement, Is.Not.Null, label.Get ());
+			} else {
+				Assert.That (mtomElement, Is.Null, label.Get ());
+			}
+			label.LeaveScope ();
+
+			label.EnterScope ("security");
+			if (security == BasicHttpSecurityMode.TransportWithMessageCredential) {
+				Assert.That (securityElement, Is.Not.Null, label.Get ());
+			} else {
+				Assert.That (securityElement, Is.Null, label.Get ());
+			}
+			label.LeaveScope ();
+
+			label.EnterScope ("asymmetric");
+			if (security == BasicHttpSecurityMode.Message) {
+				Assert.That (asymmSecurityElement, Is.Not.Null, label.Get ());
+			} else {
+				Assert.That (asymmSecurityElement, Is.Null, label.Get ());
+			}
 			label.LeaveScope ();
 
 			label.EnterScope ("transport");
@@ -118,9 +168,6 @@ namespace WsdlImport {
 			label.EnterScope ("auth");
 			var authScheme = useAuth ? AuthenticationSchemes.Ntlm : AuthenticationSchemes.Anonymous;
 			Assert.That (transportElement.AuthenticationScheme, Is.EqualTo (authScheme), label.Get ());
-
-			var clientCred = useAuth ? HttpClientCredentialType.Ntlm : HttpClientCredentialType.None;
-			Assert.That (basicHttp.Security.Transport.ClientCredentialType, Is.EqualTo (clientCred), label.Get ());
 			label.LeaveScope (); // auth
 			label.LeaveScope (); // transport
 			label.LeaveScope (); // elements
@@ -148,10 +195,59 @@ namespace WsdlImport {
 			var doc = MetadataProvider.Get ("http.xml");
 
 			var label = new TestLabel ("BasicHttpBinding");
-			BasicHttpBinding (doc, label);
+			BasicHttpBinding (doc, BasicHttpSecurityMode.None, label);
 		}
 
-		public void BasicHttpBinding (MetadataSet doc, TestLabel label)
+		[Test]
+		public void BasicHttpBinding2 ()
+		{
+			var doc = MetadataProvider.Get ("http2.xml");
+			
+			var label = new TestLabel ("BasicHttpBinding2");
+			BasicHttpBinding (doc, BasicHttpSecurityMode.Transport, label);
+		}
+
+		[Test]
+		public void BasicHttpBinding3 ()
+		{
+			var doc = MetadataProvider.Get ("http3.xml");
+			
+			var label = new TestLabel ("BasicHttpBinding3");
+			BasicHttpBinding (doc, BasicHttpSecurityMode.Message, label);
+		}
+
+		[Test]
+		public void BasicHttpBinding4 ()
+		{
+			var doc = MetadataProvider.Get ("http4.xml");
+			
+			var label = new TestLabel ("BasicHttpBinding4");
+			BasicHttpBinding (doc, BasicHttpSecurityMode.TransportWithMessageCredential, label);
+		}
+
+		[Test]
+		public void BasicHttpBinding5 ()
+		{
+			var doc = MetadataProvider.Get ("http5.xml");
+			
+			var label = new TestLabel ("BasicHttpBinding5");
+			BasicHttpBinding (doc, WSMessageEncoding.Mtom, label);
+		}
+
+		public void BasicHttpBinding (MetadataSet doc, WSMessageEncoding encoding,
+		                              TestLabel label)
+		{
+			BasicHttpBinding (doc, BasicHttpSecurityMode.None, encoding, label);
+		}
+
+		public void BasicHttpBinding (MetadataSet doc, BasicHttpSecurityMode security,
+		                              TestLabel label)
+		{
+			BasicHttpBinding (doc, security, WSMessageEncoding.Text, label);
+		}
+		
+		void BasicHttpBinding (MetadataSet doc, BasicHttpSecurityMode security,
+		                       WSMessageEncoding encoding, TestLabel label)
 		{
 			label.EnterScope ("basicHttpBinding");
 
@@ -164,11 +260,49 @@ namespace WsdlImport {
 			var binding = sd.Bindings [0];
 			Assert.That (binding.ExtensibleAttributes, Is.Null, label.Get ());
 			Assert.That (binding.Extensions, Is.Not.Null, label.Get ());
-			Assert.That (binding.Extensions.Count, Is.EqualTo (1), label.Get ());
+
+			switch (security) {
+			case BasicHttpSecurityMode.None:
+				if (encoding == WSMessageEncoding.Mtom)
+					Assert.That (binding.Extensions.Count, Is.EqualTo (2), label.Get ());
+				else
+					Assert.That (binding.Extensions.Count, Is.EqualTo (1), label.Get ());
+				break;
+			case BasicHttpSecurityMode.Message:
+			case BasicHttpSecurityMode.Transport:
+			case BasicHttpSecurityMode.TransportWithMessageCredential:
+				if (encoding == WSMessageEncoding.Mtom)
+					throw new InvalidOperationException ();
+				Assert.That (binding.Extensions.Count, Is.EqualTo (2), label.Get ());
+				break;
+			default:
+				throw new InvalidOperationException ();
+			}
 			label.LeaveScope ();
 
-			CheckSoapBinding (binding.Extensions [0], WS.SoapBinding.HttpTransport, label);
+			WS.SoapBinding soap = null;
+			XmlElement xml = null;
+
+			foreach (var ext in binding.Extensions) {
+				if (ext is WS.SoapBinding)
+					soap = (WS.SoapBinding)ext;
+				else if (ext is XmlElement)
+					xml = (XmlElement)ext;
+			}
+
+			CheckSoapBinding (soap, WS.SoapBinding.HttpTransport, label);
 			label.LeaveScope ();
+
+			if (security != BasicHttpSecurityMode.None) {
+				label.EnterScope ("policy-xml");
+				
+				Assert.That (xml, Is.Not.Null, label.Get ());
+				
+				Assert.That (xml.NamespaceURI, Is.EqualTo (WspNamespace), label.Get ());
+				Assert.That (xml.LocalName, Is.EqualTo ("PolicyReference"), label.Get ());
+				
+				label.LeaveScope ();
+			}
 
 			var importer = new WsdlImporter (doc);
 
@@ -178,7 +312,14 @@ namespace WsdlImport {
 			Assert.That (bindings, Is.Not.Null, label.Get ());
 			Assert.That (bindings.Count, Is.EqualTo (1), label.Get ());
 
-			CheckBasicHttpBinding (bindings [0], "http", BasicHttpSecurityMode.None, false, label);
+			string scheme;
+			if ((security == BasicHttpSecurityMode.Transport) ||
+			    (security == BasicHttpSecurityMode.TransportWithMessageCredential))
+				scheme = "https";
+			else
+				scheme = "http";
+
+			CheckBasicHttpBinding (bindings [0], scheme, security, encoding, false, label);
 			label.LeaveScope ();
 
 			var endpoints = importer.ImportAllEndpoints ();
@@ -200,7 +341,9 @@ namespace WsdlImport {
 		{
 			var doc = MetadataProvider.Get ("https.xml");
 			var label = new TestLabel ("BasicHttpsBinding");
-			var binding = BasicHttpsBinding (doc, BasicHttpSecurityMode.Transport, false, label);
+			var binding = BasicHttpsBinding (
+				doc, BasicHttpSecurityMode.Transport, WSMessageEncoding.Text,
+				false, label);
 			Utils.CreateConfig (binding, "https.config");
 		}
 
@@ -209,12 +352,14 @@ namespace WsdlImport {
 		{
 			var doc = MetadataProvider.Get ("https2.xml");
 			var label = new TestLabel ("BasicHttpsBinding2");
-			var binding = BasicHttpsBinding (doc, BasicHttpSecurityMode.Transport, true, label);
+			var binding = BasicHttpsBinding (
+				doc, BasicHttpSecurityMode.Transport, WSMessageEncoding.Text,
+				true, label);
 			Utils.CreateConfig (binding, "https2.config");
 		}
 
 		Binding BasicHttpsBinding (MetadataSet doc, BasicHttpSecurityMode security,
-		                           bool useAuth, TestLabel label)
+		                           WSMessageEncoding encoding, bool useAuth, TestLabel label)
 		{
 			label.EnterScope ("basicHttpsBinding");
 
@@ -269,7 +414,7 @@ namespace WsdlImport {
 			Assert.That (bindings, Is.Not.Null, label.Get ());
 			Assert.That (bindings.Count, Is.EqualTo (1), label.Get ());
 
-			CheckBasicHttpBinding (bindings [0], "https", security, useAuth, label);
+			CheckBasicHttpBinding (bindings [0], "https", security, encoding, useAuth, label);
 			label.LeaveScope ();
 
 			label.EnterScope ("endpoints");

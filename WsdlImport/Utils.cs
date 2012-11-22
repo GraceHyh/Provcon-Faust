@@ -71,8 +71,41 @@ namespace WsdlImport {
 			var doc = exporter.GetGeneratedMetadata ();
 			return doc;
 		}
-		
+
 		public static MetadataSet GetBasicHttpMetadata3 ()
+		{
+			var exporter = new WsdlExporter ();
+			
+			var cd = new ContractDescription ("MyContract");
+			
+			var binding = new BasicHttpBinding ();
+			binding.Security.Mode = BasicHttpSecurityMode.Message;
+			binding.Security.Message.ClientCredentialType = BasicHttpMessageCredentialType.Certificate;
+			
+			exporter.ExportEndpoint (new ServiceEndpoint (
+				cd, binding, new EndpointAddress (HttpUri)));
+			
+			var doc = exporter.GetGeneratedMetadata ();
+			return doc;
+		}
+
+		public static MetadataSet GetBasicHttpMetadata4 ()
+		{
+			var exporter = new WsdlExporter ();
+			
+			var cd = new ContractDescription ("MyContract");
+			
+			var binding = new BasicHttpBinding ();
+			binding.Security.Mode = BasicHttpSecurityMode.TransportWithMessageCredential;
+			
+			exporter.ExportEndpoint (new ServiceEndpoint (
+				cd, binding, new EndpointAddress (HttpUri)));
+			
+			var doc = exporter.GetGeneratedMetadata ();
+			return doc;
+		}
+
+		public static MetadataSet GetBasicHttpMetadata5 ()
 		{
 			var exporter = new WsdlExporter ();
 			
@@ -88,7 +121,7 @@ namespace WsdlImport {
 			return doc;
 		}
 		
-		public static MetadataSet GetBasicHttpMetadata4 ()
+		public static MetadataSet GetBasicHttpMetadata6 ()
 		{
 			var exporter = new WsdlExporter ();
 			
@@ -268,6 +301,8 @@ namespace WsdlImport {
 			Utils.Save ("http2.xml", GetBasicHttpMetadata2 ());
 			Utils.Save ("http3.xml", GetBasicHttpMetadata3 ());
 			Utils.Save ("http4.xml", GetBasicHttpMetadata4 ());
+			Utils.Save ("http5.xml", GetBasicHttpMetadata5 ());
+			Utils.Save ("http6.xml", GetBasicHttpMetadata6 ());
 
 #if NET_4_5
 			Utils.Save ("https.xml", GetBasicHttpsMetadata ());
@@ -306,6 +341,10 @@ namespace WsdlImport {
 					return Utils.GetBasicHttpMetadata3 ();
 				case "http4.xml":
 					return Utils.GetBasicHttpMetadata4 ();
+				case "http5.xml":
+					return Utils.GetBasicHttpMetadata5 ();
+				case "http6.xml":
+					return Utils.GetBasicHttpMetadata6 ();
 #if NET_4_5
 				case "https.xml":
 					return Utils.GetBasicHttpsMetadata ();

@@ -77,6 +77,8 @@
     <EmbeddedResource Include="Resources\net-tcp2.xml" />
     <EmbeddedResource Include="Resources\net-tcp3.xml" />
     <EmbeddedResource Include="Resources\net-tcp4.xml" />
+    <EmbeddedResource Include="Resources\http5.xml" />
+    <EmbeddedResource Include="Resources\http6.xml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\mono\mcs\class\System.ServiceModel\Test\config\basicHttpBinding">
