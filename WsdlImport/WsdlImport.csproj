@@ -71,6 +71,12 @@
     <EmbeddedResource Include="Resources\http-error.xml" />
     <EmbeddedResource Include="Resources\https3.xml" />
     <EmbeddedResource Include="Resources\https4.xml" />
+    <EmbeddedResource Include="Resources\http2.xml" />
+    <EmbeddedResource Include="Resources\http3.xml" />
+    <EmbeddedResource Include="Resources\http4.xml" />
+    <EmbeddedResource Include="Resources\net-tcp2.xml" />
+    <EmbeddedResource Include="Resources\net-tcp3.xml" />
+    <EmbeddedResource Include="Resources\net-tcp4.xml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\mono\mcs\class\System.ServiceModel\Test\config\basicHttpBinding">

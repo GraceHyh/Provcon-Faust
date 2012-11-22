@@ -56,6 +56,54 @@ namespace WsdlImport {
 			return doc;
 		}
 
+		public static MetadataSet GetBasicHttpMetadata2 ()
+		{
+			var exporter = new WsdlExporter ();
+			
+			var cd = new ContractDescription ("MyContract");
+
+			var binding = new BasicHttpBinding ();
+			binding.Security.Mode = BasicHttpSecurityMode.Transport;
+			
+			exporter.ExportEndpoint (new ServiceEndpoint (
+				cd, binding, new EndpointAddress (HttpUri)));
+			
+			var doc = exporter.GetGeneratedMetadata ();
+			return doc;
+		}
+		
+		public static MetadataSet GetBasicHttpMetadata3 ()
+		{
+			var exporter = new WsdlExporter ();
+			
+			var cd = new ContractDescription ("MyContract");
+			
+			var binding = new BasicHttpBinding ();
+			binding.MessageEncoding = WSMessageEncoding.Mtom;
+
+			exporter.ExportEndpoint (new ServiceEndpoint (
+				cd, binding, new EndpointAddress (HttpUri)));
+			
+			var doc = exporter.GetGeneratedMetadata ();
+			return doc;
+		}
+		
+		public static MetadataSet GetBasicHttpMetadata4 ()
+		{
+			var exporter = new WsdlExporter ();
+			
+			var cd = new ContractDescription ("MyContract");
+			
+			var binding = new BasicHttpBinding ();
+			binding.TransferMode = TransferMode.Streamed;
+			
+			exporter.ExportEndpoint (new ServiceEndpoint (
+				cd, binding, new EndpointAddress (HttpUri)));
+			
+			var doc = exporter.GetGeneratedMetadata ();
+			return doc;
+		}
+		
 #if NET_4_5
 		public static MetadataSet GetBasicHttpsMetadata ()
 		{
@@ -117,7 +165,6 @@ namespace WsdlImport {
 			var doc = exporter.GetGeneratedMetadata ();
 			return doc;
 		}
-
 #endif
 
 		public static MetadataSet GetNetTcpMetadata ()
@@ -134,6 +181,51 @@ namespace WsdlImport {
 			return doc;
 		}
 
+		public static MetadataSet GetNetTcpMetadata2 ()
+		{
+			var exporter = new WsdlExporter ();
+			
+			var cd = new ContractDescription ("MyContract");
+			
+			exporter.ExportEndpoint (new ServiceEndpoint (
+				cd, new NetTcpBinding (SecurityMode.Transport, false),
+				new EndpointAddress (NetTcpUri)));
+			
+			var doc = exporter.GetGeneratedMetadata ();
+			return doc;
+		}
+
+		public static MetadataSet GetNetTcpMetadata3 ()
+		{
+			var exporter = new WsdlExporter ();
+			
+			var cd = new ContractDescription ("MyContract");
+
+			var binding = new NetTcpBinding (SecurityMode.None, true);
+			
+			exporter.ExportEndpoint (new ServiceEndpoint (
+				cd, binding, new EndpointAddress (NetTcpUri)));
+			
+			var doc = exporter.GetGeneratedMetadata ();
+			return doc;
+		}
+		
+		public static MetadataSet GetNetTcpMetadata4 ()
+		{
+			var exporter = new WsdlExporter ();
+			
+			var cd = new ContractDescription ("MyContract");
+			
+			var binding = new NetTcpBinding (SecurityMode.None, false);
+			binding.TransferMode = TransferMode.Streamed;
+			
+			exporter.ExportEndpoint (new ServiceEndpoint (
+				cd, binding, new EndpointAddress (NetTcpUri)));
+			
+			var doc = exporter.GetGeneratedMetadata ();
+			return doc;
+		}
+		
 		public static void Save (string filename, WS.ServiceDescription service)
 		{
 			using (var file = new StreamWriter (filename, false)) {
@@ -170,24 +262,12 @@ namespace WsdlImport {
 			}
 		}
 
-		public static MetadataSet LoadBasicHttpMetadata ()
-		{
-			return LoadFromResource ("http.xml");
-		}
-
-		public static MetadataSet LoadBasicHttpsMetadata ()
-		{
-			return LoadFromResource ("https.xml");
-		}
-
-		public static MetadataSet LoadNetTcpMetadata ()
-		{
-			return LoadFromResource ("net-tcp.xml");
-		}
-
 		internal static void SaveMetadata ()
 		{
 			Utils.Save ("http.xml", GetBasicHttpMetadata ());
+			Utils.Save ("http2.xml", GetBasicHttpMetadata2 ());
+			Utils.Save ("http3.xml", GetBasicHttpMetadata3 ());
+			Utils.Save ("http4.xml", GetBasicHttpMetadata4 ());
 
 #if NET_4_5
 			Utils.Save ("https.xml", GetBasicHttpsMetadata ());
@@ -197,7 +277,10 @@ namespace WsdlImport {
 #endif
 
 			Utils.Save ("net-tcp.xml", GetNetTcpMetadata ());
-			
+			Utils.Save ("net-tcp2.xml", GetNetTcpMetadata2 ());
+			Utils.Save ("net-tcp3.xml", GetNetTcpMetadata3 ());
+			Utils.Save ("net-tcp4.xml", GetNetTcpMetadata4 ());
+
 			Console.WriteLine ("Metadata saved.");
 		}
 
@@ -215,8 +298,14 @@ namespace WsdlImport {
 			public MetadataSet Get (string name)
 			{
 				switch (name) {
-				case "html.xml":
+				case "http.xml":
 					return Utils.GetBasicHttpMetadata ();
+				case "http2.xml":
+					return Utils.GetBasicHttpMetadata2 ();
+				case "http3.xml":
+					return Utils.GetBasicHttpMetadata3 ();
+				case "http4.xml":
+					return Utils.GetBasicHttpMetadata4 ();
 #if NET_4_5
 				case "https.xml":
 					return Utils.GetBasicHttpsMetadata ();
@@ -229,6 +318,12 @@ namespace WsdlImport {
 #endif
 				case "net-tcp.xml":
 					return Utils.GetNetTcpMetadata ();
+				case "net-tcp2.xml":
+					return Utils.GetNetTcpMetadata2 ();
+				case "net-tcp3.xml":
+					return Utils.GetNetTcpMetadata3 ();
+				case "net-tcp4.xml":
+					return Utils.GetNetTcpMetadata4 ();
 				default:
 					throw new ArgumentException ("No such metadata.");
 				}
