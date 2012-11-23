@@ -415,6 +415,7 @@ namespace WsdlImport {
 			ReliableSessionBindingElement reliableSessionElement = null;
 			
 			foreach (var element in elements) {
+				Console.WriteLine ("NET TCP ELEMENT: {0}", element);
 				if (element is TcpTransportBindingElement)
 					transportElement = (TcpTransportBindingElement)element;
 				else if (element is TransactionFlowBindingElement)

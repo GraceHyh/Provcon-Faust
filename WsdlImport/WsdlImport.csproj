@@ -57,7 +57,6 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\http.xml" />
     <EmbeddedResource Include="Resources\https.xml" />
-    <EmbeddedResource Include="Resources\net-tcp.xml" />
     <EmbeddedResource Include="Resources\https2.xml" />
     <EmbeddedResource Include="Resources\http.config" />
     <EmbeddedResource Include="Resources\https.config" />
@@ -69,9 +68,11 @@
     <EmbeddedResource Include="Resources\http2.xml" />
     <EmbeddedResource Include="Resources\http3.xml" />
     <EmbeddedResource Include="Resources\http4.xml" />
-    <EmbeddedResource Include="Resources\net-tcp2.xml" />
     <EmbeddedResource Include="Resources\net-tcp3.xml" />
     <EmbeddedResource Include="Resources\net-tcp4.xml" />
     <EmbeddedResource Include="Resources\http5.xml" />
+    <EmbeddedResource Include="Resources\NetTcp.xml" />
+    <EmbeddedResource Include="Resources\NetTcp_TransferMode.xml" />
+    <EmbeddedResource Include="Resources\NetTcp_TransportSecurity.xml" />
   </ItemGroup>
 </Project>

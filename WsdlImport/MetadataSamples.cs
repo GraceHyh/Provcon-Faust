@@ -205,8 +205,8 @@ namespace WsdlImport {
 			return doc;
 		}
 		
-		[MetadataSample ("net-tcp2")]
-		public static MetadataSet GetNetTcpMetadata2 ()
+		[MetadataSample]
+		public static MetadataSet NetTcp_TransportSecurity ()
 		{
 			var exporter = new WsdlExporter ();
 			
@@ -245,7 +245,7 @@ namespace WsdlImport {
 			
 			var binding = new NetTcpBinding (SecurityMode.None, false);
 			binding.TransferMode = TransferMode.Streamed;
-			
+
 			exporter.ExportEndpoint (new ServiceEndpoint (
 				cd, binding, new EndpointAddress (NetTcpUri)));
 			

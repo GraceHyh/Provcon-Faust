@@ -133,18 +133,29 @@ namespace WsdlImport {
 		}
 		
 		[Test]
-		public void NetTcpBinding ()
+		public void NetTcp ()
 		{
-			var doc = MetadataProvider.Get ("net-tcp.xml");
-			var label = new TestLabel ("NetTcpBinding");
+			var doc = MetadataProvider.Get ("NetTcp");
+			var label = new TestLabel ("NetTcp");
 			NetTcpBinding (
 				doc, SecurityMode.None, false, TransferMode.Buffered, label);
 		}
-		
+
 		[Test]
-		public void NetTcpBinding2 ()
+		public void NetTcp_TransferMode ()
 		{
-			var doc = MetadataProvider.Get ("net-tcp2.xml");
+			var doc = MetadataProvider.Get ("NetTcp_TransferMode");
+
+			var label = new TestLabel ("NetTcp_TransferMode");
+			NetTcpBinding (
+				doc, SecurityMode.None, false,
+				TransferMode.Streamed, label);
+		}
+
+		[Test]
+		public void NetTcp_TransportSecurity ()
+		{
+			var doc = MetadataProvider.Get ("NetTcp_TransportSecurity");
 			var label = new TestLabel ("NetTcpBinding2");
 			NetTcpBinding (
 				doc, SecurityMode.Transport, false,
@@ -160,17 +171,7 @@ namespace WsdlImport {
 				doc, SecurityMode.None, true,
 				TransferMode.Buffered, label);
 		}
-		
-		[Test]
-		public void NetTcpBinding4 ()
-		{
-			var doc = MetadataProvider.Get ("net-tcp4.xml");
-			var label = new TestLabel ("NetTcpBinding4");
-			NetTcpBinding (
-				doc, SecurityMode.None, false,
-				TransferMode.Streamed, label);
-		}
-		
+
 
 	}
 

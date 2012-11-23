@@ -68,8 +68,13 @@ namespace WsdlImport {
 		public static MetadataSet LoadFromResource (string name)
 		{
 			var asm = Assembly.GetExecutingAssembly ();
+			if (!name.EndsWith (".xml"))
+				name = name + ".xml";
 			var resname = "WsdlImport.Resources." + name;
 			using (var stream = asm.GetManifestResourceStream (resname)) {
+				if (stream == null)
+					throw new InvalidOperationException (string.Format (
+						"No such resource: {0}", name));
 				var reader = new XmlTextReader (stream);
 				return MetadataSet.ReadFrom (reader);
 			}
