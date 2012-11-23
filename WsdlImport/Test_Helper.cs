@@ -395,26 +395,30 @@ namespace WsdlImport {
 		                         TestLabel label)
 		{
 			label.EnterScope ("net-tcp");
-			Assert.That (binding, Is.InstanceOfType (typeof(NetTcpBinding)), label.Get ());
-			var netTcp = (NetTcpBinding)binding;
-			Assert.That (netTcp.EnvelopeVersion, Is.EqualTo (EnvelopeVersion.Soap12), label.Get ());
-			Assert.That (netTcp.MessageVersion, Is.EqualTo (MessageVersion.Soap12WSAddressing10), label.Get ());
-			Assert.That (netTcp.Scheme, Is.EqualTo ("net.tcp"), label.Get ());
-			Assert.That (netTcp.TransferMode, Is.EqualTo (transferMode), label.Get ());
+			if (security == SecurityMode.Message) {
+				Assert.That (binding, Is.InstanceOfType (typeof(CustomBinding)), label.Get ());
+			} else {
+				Assert.That (binding, Is.InstanceOfType (typeof(NetTcpBinding)), label.Get ());
+				var netTcp = (NetTcpBinding)binding;
+				Assert.That (netTcp.EnvelopeVersion, Is.EqualTo (EnvelopeVersion.Soap12), label.Get ());
+				Assert.That (netTcp.MessageVersion, Is.EqualTo (MessageVersion.Soap12WSAddressing10), label.Get ());
+				Assert.That (netTcp.Scheme, Is.EqualTo ("net.tcp"), label.Get ());
+				Assert.That (netTcp.TransferMode, Is.EqualTo (transferMode), label.Get ());
 
-			label.EnterScope ("security");
-			Assert.That (netTcp.Security, Is.Not.Null, label.Get ());
-			Assert.That (netTcp.Security.Mode, Is.EqualTo (security), label.Get ());
+				label.EnterScope ("security");
+				Assert.That (netTcp.Security, Is.Not.Null, label.Get ());
+				Assert.That (netTcp.Security.Mode, Is.EqualTo (security), label.Get ());
 
-			if (security == SecurityMode.Transport) {
-				Assert.That (netTcp.Security.Transport, Is.Not.Null, label.Get ());
-				Assert.That (netTcp.Security.Transport.ProtectionLevel, Is.EqualTo (ProtectionLevel.EncryptAndSign), label.Get ());
+				if (security == SecurityMode.Transport) {
+					Assert.That (netTcp.Security.Transport, Is.Not.Null, label.Get ());
+					Assert.That (netTcp.Security.Transport.ProtectionLevel, Is.EqualTo (ProtectionLevel.EncryptAndSign), label.Get ());
+				}
+				label.LeaveScope ();
 			}
-			label.LeaveScope ();
 
 			label.EnterScope ("elements");
 			
-			var elements = netTcp.CreateBindingElements ();
+			var elements = binding.CreateBindingElements ();
 			Assert.That (elements, Is.Not.Null, label.Get ());
 
 			TcpTransportBindingElement transportElement = null;
@@ -422,9 +426,11 @@ namespace WsdlImport {
 			BinaryMessageEncodingBindingElement encodingElement = null;
 			WindowsStreamSecurityBindingElement windowsStreamElement = null;
 			ReliableSessionBindingElement reliableSessionElement = null;
+			TransportSecurityBindingElement transportSecurityElement = null;
+			SslStreamSecurityBindingElement sslStreamElement = null;
+			SymmetricSecurityBindingElement symmSecurityElement = null;
 			
 			foreach (var element in elements) {
-				Console.WriteLine ("NET TCP ELEMENT: {0}", element);
 				if (element is TcpTransportBindingElement)
 					transportElement = (TcpTransportBindingElement)element;
 				else if (element is TransactionFlowBindingElement)
@@ -435,6 +441,12 @@ namespace WsdlImport {
 					windowsStreamElement = (WindowsStreamSecurityBindingElement)element;
 				else if (element is ReliableSessionBindingElement)
 					reliableSessionElement = (ReliableSessionBindingElement)element;
+				else if (element is TransportSecurityBindingElement)
+					transportSecurityElement = (TransportSecurityBindingElement)element;
+				else if (element is SslStreamSecurityBindingElement)
+					sslStreamElement = (SslStreamSecurityBindingElement)element;
+				else if (element is SymmetricSecurityBindingElement)
+					symmSecurityElement = (SymmetricSecurityBindingElement)element;
 				else
 					Assert.Fail (string.Format (
 						"Unknown element `{0}'.", element.GetType ()), label.Get ());
@@ -462,7 +474,11 @@ namespace WsdlImport {
 			label.LeaveScope ();
 
 			label.EnterScope ("transaction");
-			Assert.That (transactionFlowElement, Is.Not.Null, label + "m");
+			if (security == SecurityMode.Message) {
+				Assert.That (transactionFlowElement, Is.Null, label.Get ());
+			} else {
+				Assert.That (transactionFlowElement, Is.Not.Null, label.Get ());
+			}
 			label.LeaveScope ();
 
 			label.EnterScope ("transport");
@@ -471,6 +487,30 @@ namespace WsdlImport {
 			Assert.That (transportElement.Scheme, Is.EqualTo ("net.tcp"), label.Get ());
 			Assert.That (transportElement.TransferMode, Is.EqualTo (transferMode), label.Get ());
 			label.LeaveScope (); // transport
+
+			label.EnterScope ("security");
+			switch (security) {
+			case SecurityMode.None:
+			case SecurityMode.Transport:
+				Assert.That (transportSecurityElement, Is.Null, label.Get ());
+				Assert.That (sslStreamElement, Is.Null, label.Get ());
+				Assert.That (symmSecurityElement, Is.Null, label.Get ());
+				break;
+			case SecurityMode.TransportWithMessageCredential:
+				Assert.That (transportSecurityElement, Is.Not.Null, label.Get ());
+				Assert.That (sslStreamElement, Is.Not.Null, label.Get ());
+				Assert.That (symmSecurityElement, Is.Null, label.Get ());
+				break;
+			case SecurityMode.Message:
+				Assert.That (transportSecurityElement, Is.Null, label.Get ());
+				Assert.That (sslStreamElement, Is.Null, label.Get ());
+				Assert.That (symmSecurityElement, Is.Not.Null, label.Get ());
+				break;
+			default:
+				throw new InvalidOperationException ();
+			}
+			label.LeaveScope ();
+
 			label.LeaveScope (); // elements
 			label.LeaveScope (); // net-tcp
 		}

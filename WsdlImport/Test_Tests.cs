@@ -156,9 +156,29 @@ namespace WsdlImport {
 		public void NetTcp_TransportSecurity ()
 		{
 			var doc = MetadataProvider.Get ("NetTcp_TransportSecurity");
-			var label = new TestLabel ("NetTcpBinding2");
+			var label = new TestLabel ("NetTcp_TransportSecurity");
 			NetTcpBinding (
 				doc, SecurityMode.Transport, false,
+				TransferMode.Buffered, label);
+		}
+		
+		[Test]
+		public void NetTcp_MessageSecurity ()
+		{
+			var doc = MetadataProvider.Get ("NetTcp_MessageSecurity");
+			var label = new TestLabel ("NetTcp_MessageSecurity");
+			NetTcpBinding (
+				doc, SecurityMode.Message, false,
+				TransferMode.Buffered, label);
+		}
+		
+		[Test]
+		public void NetTcp_TransportWithMessageCredential ()
+		{
+			var doc = MetadataProvider.Get ("NetTcp_TransportWithMessageCredential");
+			var label = new TestLabel ("NetTcp_TransportWithMessageCredential");
+			NetTcpBinding (
+				doc, SecurityMode.TransportWithMessageCredential, false,
 				TransferMode.Buffered, label);
 		}
 		

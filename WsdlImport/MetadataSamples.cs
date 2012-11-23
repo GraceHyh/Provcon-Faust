@@ -220,6 +220,36 @@ namespace WsdlImport {
 			return doc;
 		}
 		
+		[MetadataSample]
+		public static MetadataSet NetTcp_MessageSecurity ()
+		{
+			var exporter = new WsdlExporter ();
+			
+			var cd = new ContractDescription ("MyContract");
+			
+			exporter.ExportEndpoint (new ServiceEndpoint (
+				cd, new NetTcpBinding (SecurityMode.Message, false),
+				new EndpointAddress (NetTcpUri)));
+			
+			var doc = exporter.GetGeneratedMetadata ();
+			return doc;
+		}
+		
+		[MetadataSample]
+		public static MetadataSet NetTcp_TransportWithMessageCredential ()
+		{
+			var exporter = new WsdlExporter ();
+			
+			var cd = new ContractDescription ("MyContract");
+			
+			exporter.ExportEndpoint (new ServiceEndpoint (
+				cd, new NetTcpBinding (SecurityMode.TransportWithMessageCredential, false),
+				new EndpointAddress (NetTcpUri)));
+			
+			var doc = exporter.GetGeneratedMetadata ();
+			return doc;
+		}
+
 		[MetadataSample ("net-tcp3")]
 		public static MetadataSet GetNetTcpMetadata3 ()
 		{
@@ -265,7 +295,10 @@ namespace WsdlImport {
 				var doc = (MetadataSet)method.Invoke (null, null);
 
 				var filename = Path.Combine ("Resources", name + ".xml");
+				if (File.Exists (filename))
+					continue;
 				Utils.Save (filename, doc);
+				Console.WriteLine ("Exported {0}.", filename);
 			}
 		}
 
