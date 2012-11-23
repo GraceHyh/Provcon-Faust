@@ -60,6 +60,26 @@ namespace WsdlImport {
 			MetadataProvider = metadata;
 		}
 
+		void CheckImportErrors (WsdlImporter importer, TestLabel label)
+		{
+			label.EnterScope ("import-errors");
+
+			bool foundErrors = false;
+			var myLabel = label.Get ();
+			foreach (var error in importer.Errors) {
+				if (error.IsWarning)
+					Console.WriteLine ("WARNING ({0}): {1}", myLabel, error.Message);
+				else {
+					Console.WriteLine ("ERROR ({0}): {1}", myLabel, error.Message);
+					foundErrors = true;
+				}
+			}
+
+			if (foundErrors)
+				Assert.Fail ("Found import errors", myLabel);
+			label.LeaveScope ();
+		}
+
 		void CheckSoapBinding (object extension, string transport, TestLabel label)
 		{
 			label.EnterScope ("soap");
@@ -144,6 +164,8 @@ namespace WsdlImport {
 			label.EnterScope ("security");
 			if (security == BasicHttpSecurityMode.TransportWithMessageCredential) {
 				Assert.That (securityElement, Is.Not.Null, label.Get ());
+				Assert.That (securityElement.SecurityHeaderLayout,
+				             Is.EqualTo (SecurityHeaderLayout.Lax), label.Get ());
 			} else {
 				Assert.That (securityElement, Is.Null, label.Get ());
 			}
@@ -232,15 +254,6 @@ namespace WsdlImport {
 			BasicHttpBinding (doc, WSMessageEncoding.Mtom, label);
 		}
 
-		[Test]
-		public void BasicHttpBinding6 ()
-		{
-			var doc = MetadataProvider.Get ("http6.xml");
-			
-			var label = new TestLabel ("BasicHttpBinding6");
-			BasicHttpBinding (doc, WSMessageEncoding.Text, label);
-		}
-		
 		public void BasicHttpBinding (MetadataSet doc, WSMessageEncoding encoding,
 		                              TestLabel label)
 		{
@@ -313,9 +326,10 @@ namespace WsdlImport {
 
 			var importer = new WsdlImporter (doc);
 
-			var bindings = importer.ImportAllBindings ();
-
 			label.EnterScope ("bindings");
+			var bindings = importer.ImportAllBindings ();
+			CheckImportErrors (importer, label);
+
 			Assert.That (bindings, Is.Not.Null, label.Get ());
 			Assert.That (bindings.Count, Is.EqualTo (1), label.Get ());
 
@@ -332,9 +346,10 @@ namespace WsdlImport {
 				label);
 			label.LeaveScope ();
 
-			var endpoints = importer.ImportAllEndpoints ();
-
 			label.EnterScope ("endpoints");
+			var endpoints = importer.ImportAllEndpoints ();
+			CheckImportErrors (importer, label);
+
 			Assert.That (endpoints, Is.Not.Null, label.Get ());
 			Assert.That (endpoints.Count, Is.EqualTo (1), label.Get ());
 
@@ -446,6 +461,7 @@ namespace WsdlImport {
 
 			label.EnterScope ("bindings");
 			var bindings = importer.ImportAllBindings ();
+			CheckImportErrors (importer, label);
 			Assert.That (bindings, Is.Not.Null, label.Get ());
 			Assert.That (bindings.Count, Is.EqualTo (1), label.Get ());
 
@@ -456,6 +472,7 @@ namespace WsdlImport {
 
 			label.EnterScope ("endpoints");
 			var endpoints = importer.ImportAllEndpoints ();
+			CheckImportErrors (importer, label);
 			Assert.That (endpoints, Is.Not.Null, label.Get ());
 			Assert.That (endpoints.Count, Is.EqualTo (1), label.Get ());
 			
@@ -632,6 +649,7 @@ namespace WsdlImport {
 
 			label.EnterScope ("bindings");
 			var bindings = importer.ImportAllBindings ();
+			CheckImportErrors (importer, label);
 			Assert.That (bindings, Is.Not.Null, label.Get ());
 			Assert.That (bindings.Count, Is.EqualTo (1), label.Get ());
 			
@@ -639,8 +657,10 @@ namespace WsdlImport {
 				bindings [0], security, reliableSession,
 				transferMode, label);
 			label.LeaveScope ();
-			
+
+			label.EnterScope ("endpoints");
 			var endpoints = importer.ImportAllEndpoints ();
+			CheckImportErrors (importer, label);
 			Assert.That (endpoints, Is.Not.Null, label.Get ());
 			Assert.That (endpoints.Count, Is.EqualTo (1), label.Get ());
 			
@@ -667,6 +687,7 @@ namespace WsdlImport {
 			Assert.That (sd.Bindings.Count, Is.EqualTo (1), label.Get ());
 			
 			var binding = importer.ImportBinding (wsdlBinding);
+			CheckImportErrors (importer, label);
 			Assert.That (binding, Is.Not.Null, label.Get ());
 		}
 
@@ -690,6 +711,7 @@ namespace WsdlImport {
 			var importer = new WsdlImporter (doc);
 
 			var port = importer.ImportEndpoint (service.Ports [0]);
+			CheckImportErrors (importer, label);
 			Assert.That (port, Is.Not.Null, label.Get ());
 		}
 
@@ -864,18 +886,21 @@ namespace WsdlImport {
 
 			label.EnterScope ("by-service");
 			var byService = importer.ImportEndpoints (service);
+			CheckImportErrors (importer, label);
 			Assert.That (byService, Is.Not.Null, label.Get ());
 			Assert.That (byService.Count, Is.EqualTo (1), label.Get ());
 			label.LeaveScope ();
 
 			label.EnterScope ("by-binding");
 			var byBinding = importer.ImportEndpoints (binding);
+			CheckImportErrors (importer, label);
 			Assert.That (byBinding, Is.Not.Null, label.Get ());
 			Assert.That (byBinding.Count, Is.EqualTo (1), label.Get ());
 			label.LeaveScope ();
 
 			label.EnterScope ("by-port-type");
 			var byPortType = importer.ImportEndpoints (portType);
+			CheckImportErrors (importer, label);
 			Assert.That (byPortType, Is.Not.Null, label.Get ());
 			Assert.That (byPortType.Count, Is.EqualTo (1), label.Get ());
 			label.LeaveScope ();

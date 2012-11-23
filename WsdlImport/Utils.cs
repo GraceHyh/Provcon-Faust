@@ -121,22 +121,6 @@ namespace WsdlImport {
 			return doc;
 		}
 		
-		public static MetadataSet GetBasicHttpMetadata6 ()
-		{
-			var exporter = new WsdlExporter ();
-			
-			var cd = new ContractDescription ("MyContract");
-			
-			var binding = new BasicHttpBinding ();
-			binding.TransferMode = TransferMode.Streamed;
-			
-			exporter.ExportEndpoint (new ServiceEndpoint (
-				cd, binding, new EndpointAddress (HttpUri)));
-			
-			var doc = exporter.GetGeneratedMetadata ();
-			return doc;
-		}
-		
 #if NET_4_5
 		public static MetadataSet GetBasicHttpsMetadata ()
 		{
@@ -295,28 +279,24 @@ namespace WsdlImport {
 			}
 		}
 
+		static readonly string[] MetadataFiles = {
+			"http.xml", "http2.xml", "http3.xml", "http4.xml", "http5.xml",
+#if NET_4_5
+			"https.xml", "https2.xml", "https3.xml", "https4.xml",
+#endif
+			"net-tcp.xml", "net-tcp2.xml", "net-tcp3.xml", "net-tcp4.xml"
+		};
+
 		internal static void SaveMetadata ()
 		{
-			Utils.Save ("http.xml", GetBasicHttpMetadata ());
-			Utils.Save ("http2.xml", GetBasicHttpMetadata2 ());
-			Utils.Save ("http3.xml", GetBasicHttpMetadata3 ());
-			Utils.Save ("http4.xml", GetBasicHttpMetadata4 ());
-			Utils.Save ("http5.xml", GetBasicHttpMetadata5 ());
-			Utils.Save ("http6.xml", GetBasicHttpMetadata6 ());
-
-#if NET_4_5
-			Utils.Save ("https.xml", GetBasicHttpsMetadata ());
-			Utils.Save ("https2.xml", GetBasicHttpsMetadata2 ());
-			Utils.Save ("https3.xml", GetBasicHttpsMetadata3 ());
-			Utils.Save ("https4.xml", GetBasicHttpsMetadata4 ());
-#endif
-
-			Utils.Save ("net-tcp.xml", GetNetTcpMetadata ());
-			Utils.Save ("net-tcp2.xml", GetNetTcpMetadata2 ());
-			Utils.Save ("net-tcp3.xml", GetNetTcpMetadata3 ());
-			Utils.Save ("net-tcp4.xml", GetNetTcpMetadata4 ());
-
+			foreach (var name in MetadataFiles)
+				Save (name);
 			Console.WriteLine ("Metadata saved.");
+		}
+
+		static void Save (string name)
+		{
+			Save (name, DefaultMetadataProvider.Get (name));
 		}
 
 		public static IMetadataProvider EmbeddedResourceProvider = new _EmbeddedResourceProvider ();
@@ -343,8 +323,6 @@ namespace WsdlImport {
 					return Utils.GetBasicHttpMetadata4 ();
 				case "http5.xml":
 					return Utils.GetBasicHttpMetadata5 ();
-				case "http6.xml":
-					return Utils.GetBasicHttpMetadata6 ();
 #if NET_4_5
 				case "https.xml":
 					return Utils.GetBasicHttpsMetadata ();
