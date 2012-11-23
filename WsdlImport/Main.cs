@@ -55,8 +55,10 @@ namespace WsdlImport {
 	class Program {
 		static void Main (string[] args)
 		{
+#if FIXME
 			if (Environment.OSVersion.Platform == PlatformID.Win32NT)
 				MetadataSamples.Export ();
+#endif
 
 			TestDefault ();
 		}
@@ -67,8 +69,8 @@ namespace WsdlImport {
 			test.NetTcp ();
 			test.NetTcp_TransferMode ();
 			test.NetTcp_TransportSecurity ();
-			return;
 
+#if FIXME
 			test.BasicHttpBinding ();
 			test.BasicHttpBinding2 ();
 			test.BasicHttpBinding3 ();
@@ -87,6 +89,7 @@ namespace WsdlImport {
 			test.BasicHttpBinding_ImportEndpoints ();
 			test.BasicHttpBinding_Error ();
 			test.BasicHttpBinding_Error2 ();
+#endif
 		}
 	}
 }

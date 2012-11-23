@@ -26,6 +26,7 @@
 
 using System;
 using System.Net;
+using System.Net.Security;
 using System.Xml;
 using System.Text;
 using System.Collections.Generic;
@@ -400,8 +401,16 @@ namespace WsdlImport {
 			Assert.That (netTcp.MessageVersion, Is.EqualTo (MessageVersion.Soap12WSAddressing10), label.Get ());
 			Assert.That (netTcp.Scheme, Is.EqualTo ("net.tcp"), label.Get ());
 			Assert.That (netTcp.TransferMode, Is.EqualTo (transferMode), label.Get ());
+
+			label.EnterScope ("security");
 			Assert.That (netTcp.Security, Is.Not.Null, label.Get ());
 			Assert.That (netTcp.Security.Mode, Is.EqualTo (security), label.Get ());
+
+			if (security == SecurityMode.Transport) {
+				Assert.That (netTcp.Security.Transport, Is.Not.Null, label.Get ());
+				Assert.That (netTcp.Security.Transport.ProtectionLevel, Is.EqualTo (ProtectionLevel.EncryptAndSign), label.Get ());
+			}
+			label.LeaveScope ();
 
 			label.EnterScope ("elements");
 			
@@ -434,6 +443,7 @@ namespace WsdlImport {
 			label.EnterScope ("windows-stream");
 			if (security == SecurityMode.Transport) {
 				Assert.That (windowsStreamElement, Is.Not.Null, label.Get ());
+				Assert.That (windowsStreamElement.ProtectionLevel, Is.EqualTo (ProtectionLevel.EncryptAndSign), label.Get ());
 			} else {
 				Assert.That (windowsStreamElement, Is.Null, label.Get ());
 			}
