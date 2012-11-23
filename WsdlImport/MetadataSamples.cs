@@ -190,8 +190,8 @@ namespace WsdlImport {
 		}
 #endif
 		
-		[MetadataSample ("net-tcp")]
-		public static MetadataSet GetNetTcpMetadata ()
+		[MetadataSample]
+		public static MetadataSet NetTcp ()
 		{
 			var exporter = new WsdlExporter ();
 			
@@ -236,8 +236,8 @@ namespace WsdlImport {
 			return doc;
 		}
 		
-		[MetadataSample ("net-tcp4")]
-		public static MetadataSet GetNetTcpMetadata4 ()
+		[MetadataSample]
+		public static MetadataSet NetTcp_TransferMode ()
 		{
 			var exporter = new WsdlExporter ();
 			
