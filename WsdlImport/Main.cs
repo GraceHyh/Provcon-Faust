@@ -56,7 +56,7 @@ namespace WsdlImport {
 		static void Main (string[] args)
 		{
 			if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-				Utils.SaveMetadata ();
+				MetadataSamples.Export ();
 
 			TestDefault ();
 		}
@@ -67,6 +67,9 @@ namespace WsdlImport {
 			test.BasicHttpBinding ();
 			test.BasicHttpBinding2 ();
 			test.BasicHttpBinding5 ();
+
+			test.NetTcpBinding ();
+			test.NetTcpBinding4 ();
 
 			return;
 			test.BasicHttpBinding ();

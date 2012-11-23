@@ -353,10 +353,8 @@ namespace WsdlImport {
 			Assert.That (endpoints, Is.Not.Null, label.Get ());
 			Assert.That (endpoints.Count, Is.EqualTo (1), label.Get ());
 
-			CheckEndpoint (endpoints [0], Utils.HttpUri, label);
+			CheckEndpoint (endpoints [0], MetadataSamples.HttpUri, label);
 			label.LeaveScope ();
-
-			Utils.CreateConfig (bindings [0], "http.config");
 
 			label.LeaveScope ();
 		}
@@ -370,7 +368,6 @@ namespace WsdlImport {
 				doc, BasicHttpSecurityMode.Transport, WSMessageEncoding.Text,
 				HttpClientCredentialType.None, AuthenticationSchemes.Anonymous,
 				label);
-			Utils.CreateConfig (binding, "https.config");
 		}
 
 		[Test]
@@ -382,7 +379,6 @@ namespace WsdlImport {
 				doc, BasicHttpSecurityMode.Transport, WSMessageEncoding.Text,
 				HttpClientCredentialType.Ntlm, AuthenticationSchemes.Ntlm,
 				label);
-			Utils.CreateConfig (binding, "https2.config");
 		}
 
 		[Test]
@@ -476,7 +472,7 @@ namespace WsdlImport {
 			Assert.That (endpoints, Is.Not.Null, label.Get ());
 			Assert.That (endpoints.Count, Is.EqualTo (1), label.Get ());
 			
-			CheckEndpoint (endpoints [0], Utils.HttpsUri, label);
+			CheckEndpoint (endpoints [0], MetadataSamples.HttpsUri, label);
 			label.LeaveScope ();
 
 			label.LeaveScope ();
@@ -664,10 +660,8 @@ namespace WsdlImport {
 			Assert.That (endpoints, Is.Not.Null, label.Get ());
 			Assert.That (endpoints.Count, Is.EqualTo (1), label.Get ());
 			
-			CheckEndpoint (endpoints [0], Utils.NetTcpUri, label);
+			CheckEndpoint (endpoints [0], MetadataSamples.NetTcpUri, label);
 			label.LeaveScope ();
-
-			Utils.CreateConfig (bindings [0], "net-tcp.config");
 
 			label.LeaveScope ();
 		}
