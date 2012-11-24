@@ -49,21 +49,42 @@ using System.Runtime.Serialization;
 using WS = System.Web.Services.Description;
 
 using NUnit.Framework;
+using Mono.Options;
 
 namespace WsdlImport {
 
 	class Program {
+		enum Mode {
+			Default,
+			Export,
+			Server,
+			Client
+		}
+
 		static void Main (string[] args)
 		{
-			if (Environment.OSVersion.Platform == PlatformID.Win32NT) {
-				// MetadataSamples.Export ();
+			Mode mode = Mode.Default;
+			var options = new OptionSet ()
+				.Add ("mode=", m => mode = (Mode)Enum.Parse (typeof (Mode), m, true));
+			options.Parse (args);
+
+			switch (mode) {
+			case Mode.Export:
+				MetadataSamples.Export ();
+				return;
+
+			case Mode.Server:
 				Server.Run ();
 				return;
-			} else {
-				Client.Run (new Uri ("http://provcon-faust:9999/"));
-			}
 
-			// TestDefault ();
+			case Mode.Client:
+				Client.Run (new Uri ("http://provcon-faust:9999/?singleWsdl"));
+				return;
+
+			default:
+				TestDefault ();
+				return;
+			}
 		}
 
 		static void TestDefault ()

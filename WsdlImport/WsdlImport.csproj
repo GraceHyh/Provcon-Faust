@@ -52,6 +52,7 @@
     <Compile Include="Server.cs" />
     <Compile Include="IMyService.cs" />
     <Compile Include="Client.cs" />
+    <Compile Include="Options.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />

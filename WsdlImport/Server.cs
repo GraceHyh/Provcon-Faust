@@ -44,8 +44,9 @@ namespace WsdlImport {
 				typeof (IMyService), new BasicHttpBinding (),
 				new Uri ("http://provcon-faust:9999/service/"));
 			host.AddServiceEndpoint (
-				typeof (IMyService), new NetTcpBinding (),
-				new Uri ("net.tcp://provcon-faust:9000/"));
+				typeof (IMyService), new BasicHttpBinding (BasicHttpSecurityMode.Transport),
+				new Uri ("https://provcon-faust:9998/secureservice/"));
+			AddNetTcp (host);
 			host.Open ();
 
 			foreach (var endpoint in host.Description.Endpoints)
@@ -57,6 +58,24 @@ namespace WsdlImport {
 			host.Close ();
 		}
 
+		static void AddNetTcp (ServiceHost host)
+		{
+			var binding = new NetTcpBinding (SecurityMode.None);
+			binding.Security.Message.ClientCredentialType = MessageCredentialType.None;
+			host.AddServiceEndpoint (
+				typeof (IMyService), binding,
+				new Uri ("net.tcp://provcon-faust:9000/"));
+		}
+
+		static void AddNetTcp2 (ServiceHost host)
+		{
+			var binding = new NetTcpBinding (SecurityMode.None);
+			binding.Security.Message.ClientCredentialType = MessageCredentialType.UserName;
+			host.AddServiceEndpoint (
+				typeof (IMyService), binding,
+				new Uri ("net.tcp://provcon-faust:9001/"));
+		}
+
 		// http://msdn.microsoft.com/en-us/library/aa738489.aspx
 		static void AddMexEndpoint (ServiceHost host)
 		{
@@ -65,8 +84,6 @@ namespace WsdlImport {
 				smb = new ServiceMetadataBehavior ();
 			smb.HttpGetEnabled = true;
 			smb.HttpGetUrl = new Uri ("http://provcon-faust:9999/");
-			var doc = smb.MetadataExporter.GetGeneratedMetadata ();
-			Utils.Save ("Server.xml", doc);
 			// smb.MetadataExporter.PolicyVersion = PolicyVersion.Policy15;
 			host.Description.Behaviors.Add (smb);
 
