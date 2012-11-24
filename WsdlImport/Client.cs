@@ -28,6 +28,7 @@ using System;
 using System.IO;
 using System.Net;
 using System.Xml;
+using System.Text;
 using System.ServiceModel;
 using System.ServiceModel.Description;
 using System.Net.Security;
@@ -38,13 +39,75 @@ namespace WsdlImport {
 
 	public class Client {
 
-		static MetadataSet LoadMetadata (Uri uri)
+		static void DownloadXml (Uri uri, string filename)
 		{
-			var filename = Path.Combine ("Resources", "Server.wsdl");
+			var wc = new WebClient ();
+			using (var stream = wc.OpenRead (uri)) {
+				var reader = new XmlTextReader (stream);
+				using (var writer = new XmlTextWriter (filename, Encoding.UTF8)) {
+					writer.Formatting = Formatting.Indented;
+					while (reader.Read ())
+						WriteShallowNode (reader, writer);
+				}
+			}
+		}
+
+		// From http://blogs.msdn.com/b/mfussell/archive/2005/02/12/371546.aspx
+		static void WriteShallowNode( XmlReader reader, XmlWriter writer )
+		{
+			if ( reader == null )
+			{
+				throw new ArgumentNullException("reader");
+			}
+			if ( writer == null )
+			{
+				throw new ArgumentNullException("writer");
+			}
+			
+			switch ( reader.NodeType )
+			{
+			case XmlNodeType.Element:
+				writer.WriteStartElement( reader.Prefix, reader.LocalName, reader.NamespaceURI );
+				writer.WriteAttributes( reader, true );
+				if ( reader.IsEmptyElement )
+				{
+					writer.WriteEndElement();
+				}
+				break;
+			case XmlNodeType.Text:
+				writer.WriteString( reader.Value );
+				break;
+			case XmlNodeType.Whitespace:
+			case XmlNodeType.SignificantWhitespace:
+				writer.WriteWhitespace(reader.Value);
+				break;
+			case XmlNodeType.CDATA:
+				writer.WriteCData( reader.Value );
+				break;
+			case XmlNodeType.EntityReference:
+				writer.WriteEntityRef(reader.Name);
+				break;
+			case XmlNodeType.XmlDeclaration:
+			case XmlNodeType.ProcessingInstruction:
+				writer.WriteProcessingInstruction( reader.Name, reader.Value );
+				break;
+			case XmlNodeType.DocumentType:
+				writer.WriteDocType( reader.Name, reader.GetAttribute( "PUBLIC" ), reader.GetAttribute( "SYSTEM" ), reader.Value );
+				break;
+			case XmlNodeType.Comment:
+				writer.WriteComment( reader.Value );
+				break;
+			case XmlNodeType.EndElement:
+				writer.WriteFullEndElement();
+				break;
+			}
+		}
+
+		static MetadataSet LoadMetadata (Uri uri, string filename)
+		{
 			if (!File.Exists (filename)) {
 				Console.WriteLine ("Downloading service metadata ...");
-				var wc = new WebClient ();
-				wc.DownloadFile (uri, filename);
+				DownloadXml (uri, filename);
 				Console.WriteLine ("Downloaded service metadata into {0}.", filename);
 			} else {
 				Console.WriteLine ("Loading cached service metadata from {0}.", filename);
@@ -83,11 +146,34 @@ namespace WsdlImport {
 			// bindPortToCertificate.WaitForExit();
 		}
 		
-		public static void Run (Uri uri)
+		public static void Run (Uri uri, string cache)
 		{
 			ServicePointManager.ServerCertificateValidationCallback = Validator;
 
-			var doc = LoadMetadata (uri);
+			MetadataSet doc;
+			string tempfile = null;
+			bool needsDownload;
+			if (cache == null) {
+				needsDownload = true;
+				tempfile = Path.GetTempFileName ();
+				cache = tempfile;
+			} else {
+				needsDownload = !File.Exists (cache);
+			}
+
+			if (needsDownload) {
+				Console.WriteLine ("Downloading service metadata ...");
+				DownloadXml (uri, cache);
+				Console.WriteLine ("Downloaded service metadata into {0}.", cache);
+			}
+
+			try {
+				doc = LoadMetadata (uri, cache);
+			} finally {
+				if (tempfile != null)
+					File.Delete (tempfile);
+			}
+
 			var importer = new WsdlImporter (doc);
 
 			var bindings = importer.ImportAllBindings ();

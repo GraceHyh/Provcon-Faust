@@ -47,6 +47,7 @@ namespace WsdlImport {
 				typeof (IMyService), new BasicHttpBinding (BasicHttpSecurityMode.Transport),
 				new Uri ("https://provcon-faust:9998/secureservice/"));
 			AddNetTcp (host);
+			AddNetTcp2 (host);
 			host.Open ();
 
 			foreach (var endpoint in host.Description.Endpoints)

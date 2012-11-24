@@ -63,9 +63,11 @@ namespace WsdlImport {
 
 		static void Main (string[] args)
 		{
+			string cache = null;
 			Mode mode = Mode.Default;
-			var options = new OptionSet ()
-				.Add ("mode=", m => mode = (Mode)Enum.Parse (typeof (Mode), m, true));
+			var options = new OptionSet ();
+			options.Add ("mode=", m => mode = (Mode)Enum.Parse (typeof (Mode), m, true));
+			options.Add ("cache=", c => cache = c);
 			options.Parse (args);
 
 			switch (mode) {
@@ -78,7 +80,7 @@ namespace WsdlImport {
 				return;
 
 			case Mode.Client:
-				Client.Run (new Uri ("http://provcon-faust:9999/?singleWsdl"));
+				Client.Run (new Uri ("http://provcon-faust:9999/?singleWsdl"), cache);
 				return;
 
 			default:
