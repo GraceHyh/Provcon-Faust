@@ -120,6 +120,19 @@ namespace WsdlImport {
 
 			return sb.ToString ();
 		}
+
+		public override string ToString ()
+		{
+			var sb = new StringBuilder ();
+			sb.Append ("[");
+			for (int i = 0; i < scopes.Count; i++) {
+				if (i > 0)
+					sb.Append (delimiter);
+				sb.Append (scopes [i].Text);
+			}
+			sb.Append ("]");
+			return sb.ToString ();
+		}
 	}
 }
 

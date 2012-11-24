@@ -31,6 +31,7 @@ using System.Xml;
 using System.Text;
 using System.Collections.Generic;
 using System.ServiceModel;
+using System.ServiceModel.Security;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using NUnit.Framework;
@@ -110,6 +111,7 @@ namespace WsdlImport {
 				Assert.That (basicHttp.Security, Is.Not.Null, label.Get ());
 				Assert.That (basicHttp.Security.Mode, Is.EqualTo (security), label.Get ());
 				Assert.That (basicHttp.Security.Transport.ClientCredentialType, Is.EqualTo (clientCred), label.Get ());
+				Assert.That (basicHttp.Security.Message.AlgorithmSuite, Is.EqualTo (SecurityAlgorithmSuite.Basic256), label.Get ());
 			}
 
 			label.EnterScope ("elements");
@@ -129,6 +131,7 @@ namespace WsdlImport {
 			MtomMessageEncodingBindingElement mtomElement = null;
 			
 			foreach (var element in elements) {
+				Console.WriteLine ("BASIC HTTP ELEMENT: {0} {1}", label, element.GetType ());
 				if (element is TextMessageEncodingBindingElement)
 					textElement = (TextMessageEncodingBindingElement)element;
 				else if (element is HttpTransportBindingElement)
@@ -409,10 +412,9 @@ namespace WsdlImport {
 				Assert.That (netTcp.Security, Is.Not.Null, label.Get ());
 				Assert.That (netTcp.Security.Mode, Is.EqualTo (security), label.Get ());
 
-				if (security == SecurityMode.Transport) {
-					Assert.That (netTcp.Security.Transport, Is.Not.Null, label.Get ());
-					Assert.That (netTcp.Security.Transport.ProtectionLevel, Is.EqualTo (ProtectionLevel.EncryptAndSign), label.Get ());
-				}
+				Assert.That (netTcp.Security.Transport, Is.Not.Null, label.Get ());
+				Assert.That (netTcp.Security.Transport.ProtectionLevel, Is.EqualTo (ProtectionLevel.EncryptAndSign), label.Get ());
+				Assert.That (netTcp.Security.Transport.ClientCredentialType, Is.EqualTo (TcpClientCredentialType.Windows), label.Get ());
 				label.LeaveScope ();
 			}
 
@@ -431,6 +433,7 @@ namespace WsdlImport {
 			SymmetricSecurityBindingElement symmSecurityElement = null;
 			
 			foreach (var element in elements) {
+				Console.WriteLine ("NET TCP ELEMENT: {0} {1}", label, element.GetType ());
 				if (element is TcpTransportBindingElement)
 					transportElement = (TcpTransportBindingElement)element;
 				else if (element is TransactionFlowBindingElement)

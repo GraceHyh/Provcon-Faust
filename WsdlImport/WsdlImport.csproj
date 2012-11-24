@@ -76,5 +76,7 @@
     <EmbeddedResource Include="Resources\NetTcp_TransportSecurity.xml" />
     <EmbeddedResource Include="Resources\NetTcp_MessageSecurity.xml" />
     <EmbeddedResource Include="Resources\NetTcp_TransportWithMessageCredential.xml" />
+    <EmbeddedResource Include="Resources\BasicHttp.xml" />
+    <EmbeddedResource Include="Resources\BasicHttp_TransportSecurity.xml" />
   </ItemGroup>
 </Project>

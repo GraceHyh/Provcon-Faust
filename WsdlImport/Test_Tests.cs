@@ -44,20 +44,20 @@ namespace WsdlImport {
 	public partial class Test {
 
 		[Test]
-		public void BasicHttpBinding ()
+		public void BasicHttp ()
 		{
-			var doc = MetadataProvider.Get ("http.xml");
-			
-			var label = new TestLabel ("BasicHttpBinding");
+			var doc = MetadataProvider.Get ("BasicHttp");
+			var label = new TestLabel ("BasicHttp");
+
 			BasicHttpBinding (doc, BasicHttpSecurityMode.None, label);
 		}
 		
 		[Test]
-		public void BasicHttpBinding2 ()
+		public void BasicHttp_TransportSecurity ()
 		{
-			var doc = MetadataProvider.Get ("http2.xml");
-			
-			var label = new TestLabel ("BasicHttpBinding2");
+			var doc = MetadataProvider.Get ("BasicHttp_TransportSecurity");
+			var label = new TestLabel ("BasicHttp_TransportSecurity");
+
 			BasicHttpBinding (doc, BasicHttpSecurityMode.Transport, label);
 		}
 		
@@ -177,9 +177,35 @@ namespace WsdlImport {
 		{
 			var doc = MetadataProvider.Get ("NetTcp_TransportWithMessageCredential");
 			var label = new TestLabel ("NetTcp_TransportWithMessageCredential");
+
 			NetTcpBinding (
 				doc, SecurityMode.TransportWithMessageCredential, false,
 				TransferMode.Buffered, label);
+		}
+
+		[Test]
+		public void NetTcp_Binding ()
+		{
+			var label = new TestLabel ("NetTcp_Binding");
+
+			label.EnterScope ("None");
+			CheckNetTcpBinding (
+				new NetTcpBinding (SecurityMode.None), SecurityMode.None,
+				false, TransferMode.Buffered, label);
+			label.LeaveScope ();
+
+			label.EnterScope ("Transport");
+			CheckNetTcpBinding (
+				new NetTcpBinding (SecurityMode.Transport), SecurityMode.Transport,
+				false, TransferMode.Buffered, label);
+			label.LeaveScope ();
+
+			label.EnterScope ("TransportWithMessageCredential");
+			CheckNetTcpBinding (
+				new NetTcpBinding (SecurityMode.TransportWithMessageCredential),
+				SecurityMode.TransportWithMessageCredential, false,
+				TransferMode.Buffered, label);
+			label.LeaveScope ();
 		}
 		
 		[Test]

@@ -27,6 +27,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.ServiceModel;
+using System.ServiceModel.Security;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using System.ServiceModel.Configuration;
@@ -40,8 +41,8 @@ namespace WsdlImport {
 		internal const string HttpsUri = "https://tempuri.org/TestHttps/";
 		internal const string NetTcpUri = "net-tcp://tempuri.org:8000/TestNetTcp/";
 
-		[MetadataSample ("http")]
-		public static MetadataSet GetBasicHttpMetadata ()
+		[MetadataSample]
+		public static MetadataSet BasicHttp ()
 		{
 			var exporter = new WsdlExporter ();
 			
@@ -54,8 +55,8 @@ namespace WsdlImport {
 			return doc;
 		}
 
-		[MetadataSample ("http2")]
-		public static MetadataSet GetBasicHttpMetadata2 ()
+		[MetadataSample]
+		public static MetadataSet BasicHttp_TransportSecurity ()
 		{
 			var exporter = new WsdlExporter ();
 			
