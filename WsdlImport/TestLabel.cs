@@ -48,7 +48,7 @@ namespace WsdlImport {
 
 		public TestLabel (string prefix, string delimiter, Style style)
 		{
-			if (String.IsNullOrWhiteSpace (prefix))
+			if ((prefix == null) || (prefix.Equals (string.Empty)))
 				throw new ArgumentException ("Cannot be null or empty.", "prefix");
 			if (delimiter == null)
 				throw new ArgumentNullException ("delimiter");

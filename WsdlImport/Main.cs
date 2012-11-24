@@ -55,10 +55,15 @@ namespace WsdlImport {
 	class Program {
 		static void Main (string[] args)
 		{
-			if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-				MetadataSamples.Export ();
+			if (Environment.OSVersion.Platform == PlatformID.Win32NT) {
+				// MetadataSamples.Export ();
+				Server.Run ();
+				return;
+			} else {
+				Client.Run (new Uri ("http://provcon-faust:9999/"));
+			}
 
-			TestDefault ();
+			// TestDefault ();
 		}
 
 		static void TestDefault ()
@@ -72,7 +77,7 @@ namespace WsdlImport {
 			test.NetTcp_TransportSecurity ();
 			// test.NetTcp_MessageSecurity ();
 			// test.NetTcp_Binding ();
-			test.NetTcp_TransportWithMessageCredential ();
+			// test.NetTcp_TransportWithMessageCredential ();
 
 #if FIXME
 			test.BasicHttpBinding ();

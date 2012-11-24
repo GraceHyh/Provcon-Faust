@@ -288,11 +288,19 @@ namespace WsdlImport {
 		{
 			var bf = BindingFlags.Public | BindingFlags.Static;
 			foreach (var method in typeof (MetadataSamples).GetMethods (bf)) {
-				var cattr = method.GetCustomAttribute<MetadataSampleAttribute> ();
-				if (cattr == null)
+				MetadataSampleAttribute sampleAttr = null;
+				foreach (var obj in method.GetCustomAttributes (false)) {
+					var cattr = obj as MetadataSampleAttribute;
+					if (cattr != null) {
+						sampleAttr = cattr;
+						break;
+					}
+				}
+
+				if (sampleAttr == null)
 					continue;
 
-				var name = cattr.Name ?? method.Name;
+				var name = sampleAttr.Name ?? method.Name;
 				var doc = (MetadataSet)method.Invoke (null, null);
 
 				var filename = Path.Combine ("Resources", name + ".xml");
@@ -310,11 +318,19 @@ namespace WsdlImport {
 
 			var bf = BindingFlags.Public | BindingFlags.Static;
 			foreach (var method in typeof (MetadataSamples).GetMethods (bf)) {
-				var cattr = method.GetCustomAttribute<MetadataSampleAttribute> ();
-				if (cattr == null)
+				MetadataSampleAttribute sampleAttr = null;
+				foreach (var obj in method.GetCustomAttributes (false)) {
+					var cattr = obj as MetadataSampleAttribute;
+					if (cattr != null) {
+						sampleAttr = cattr;
+						break;
+					}
+				}
+				
+				if (sampleAttr == null)
 					continue;
 				
-				if (!name.Equals (cattr.Name ?? method.Name))
+				if (!name.Equals (sampleAttr.Name ?? method.Name))
 					continue;
 
 				return (MetadataSet)method.Invoke (null, null);
