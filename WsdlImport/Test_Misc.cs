@@ -47,7 +47,7 @@ namespace WsdlImport {
 		{
 			var label = new TestLabel ("BasicHttpBinding_ImportBinding");
 			
-			var doc = MetadataProvider.Get ("http.xml");
+			var doc = MetadataProvider.Get ("BasicHttp");
 			var sd = (WS.ServiceDescription)doc.MetadataSections [0].Metadata;
 			var wsdlBinding = sd.Bindings [0];
 			
@@ -66,7 +66,7 @@ namespace WsdlImport {
 		{
 			var label = new TestLabel ("BasicHttpBinding_ImportEndpoint");
 			
-			var doc = MetadataProvider.Get ("http.xml");
+			var doc = MetadataProvider.Get ("BasicHttp");
 			var sd = (WS.ServiceDescription)doc.MetadataSections [0].Metadata;
 			
 			label.EnterScope ("wsdl");
@@ -230,7 +230,7 @@ namespace WsdlImport {
 		{
 			var label = new TestLabel ("BasicHttpBinding_ImportEndpoints");
 			
-			var doc = MetadataProvider.Get ("http.xml");
+			var doc = MetadataProvider.Get ("BasicHttp");
 			var sd = (WS.ServiceDescription)doc.MetadataSections [0].Metadata;
 			
 			label.EnterScope ("wsdl");

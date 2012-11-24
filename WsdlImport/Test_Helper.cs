@@ -63,22 +63,18 @@ namespace WsdlImport {
 
 		void CheckImportErrors (WsdlImporter importer, TestLabel label)
 		{
-			label.EnterScope ("import-errors");
-
 			bool foundErrors = false;
-			var myLabel = label.Get ();
 			foreach (var error in importer.Errors) {
 				if (error.IsWarning)
-					Console.WriteLine ("WARNING ({0}): {1}", myLabel, error.Message);
+					Console.WriteLine ("WARNING ({0}): {1}", label, error.Message);
 				else {
-					Console.WriteLine ("ERROR ({0}): {1}", myLabel, error.Message);
+					Console.WriteLine ("ERROR ({0}): {1}", label, error.Message);
 					foundErrors = true;
 				}
 			}
 
 			if (foundErrors)
-				Assert.Fail ("Found import errors", myLabel);
-			label.LeaveScope ();
+				Assert.Fail ("Found import errors", label);
 		}
 
 		void CheckSoapBinding (object extension, string transport, TestLabel label)
@@ -131,7 +127,6 @@ namespace WsdlImport {
 			MtomMessageEncodingBindingElement mtomElement = null;
 			
 			foreach (var element in elements) {
-				Console.WriteLine ("BASIC HTTP ELEMENT: {0} {1}", label, element.GetType ());
 				if (element is TextMessageEncodingBindingElement)
 					textElement = (TextMessageEncodingBindingElement)element;
 				else if (element is HttpTransportBindingElement)
@@ -433,7 +428,6 @@ namespace WsdlImport {
 			SymmetricSecurityBindingElement symmSecurityElement = null;
 			
 			foreach (var element in elements) {
-				Console.WriteLine ("NET TCP ELEMENT: {0} {1}", label, element.GetType ());
 				if (element is TcpTransportBindingElement)
 					transportElement = (TcpTransportBindingElement)element;
 				else if (element is TransactionFlowBindingElement)

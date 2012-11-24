@@ -55,22 +55,10 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
   <ItemGroup>
-    <EmbeddedResource Include="Resources\http.xml" />
-    <EmbeddedResource Include="Resources\https.xml" />
-    <EmbeddedResource Include="Resources\https2.xml" />
     <EmbeddedResource Include="Resources\http.config" />
     <EmbeddedResource Include="Resources\https.config" />
     <EmbeddedResource Include="Resources\https2.config" />
     <EmbeddedResource Include="Resources\net-tcp.config" />
-    <EmbeddedResource Include="Resources\http-error.xml" />
-    <EmbeddedResource Include="Resources\https3.xml" />
-    <EmbeddedResource Include="Resources\https4.xml" />
-    <EmbeddedResource Include="Resources\http2.xml" />
-    <EmbeddedResource Include="Resources\http3.xml" />
-    <EmbeddedResource Include="Resources\http4.xml" />
-    <EmbeddedResource Include="Resources\net-tcp3.xml" />
-    <EmbeddedResource Include="Resources\net-tcp4.xml" />
-    <EmbeddedResource Include="Resources\http5.xml" />
     <EmbeddedResource Include="Resources\NetTcp.xml" />
     <EmbeddedResource Include="Resources\NetTcp_TransferMode.xml" />
     <EmbeddedResource Include="Resources\NetTcp_TransportSecurity.xml" />
@@ -78,5 +66,14 @@
     <EmbeddedResource Include="Resources\NetTcp_TransportWithMessageCredential.xml" />
     <EmbeddedResource Include="Resources\BasicHttp.xml" />
     <EmbeddedResource Include="Resources\BasicHttp_TransportSecurity.xml" />
+    <EmbeddedResource Include="Resources\BasicHttp_MessageSecurity.xml" />
+    <EmbeddedResource Include="Resources\BasicHttp_Mtom.xml" />
+    <EmbeddedResource Include="Resources\BasicHttp_TransportWithMessageCredential.xml" />
+    <EmbeddedResource Include="Resources\BasicHttps.xml" />
+    <EmbeddedResource Include="Resources\BasicHttps_Certificate.xml" />
+    <EmbeddedResource Include="Resources\BasicHttps_NtlmAuth.xml" />
+    <EmbeddedResource Include="Resources\BasicHttps_TransportWithMessageCredential.xml" />
+    <EmbeddedResource Include="Resources\NetTcp_ReliableSession.xml" />
+    <EmbeddedResource Include="Resources\http-error.xml" />
   </ItemGroup>
 </Project>

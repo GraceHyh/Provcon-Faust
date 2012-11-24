@@ -72,8 +72,8 @@ namespace WsdlImport {
 			return doc;
 		}
 
-		[MetadataSample ("http3")]
-		public static MetadataSet GetBasicHttpMetadata3 ()
+		[MetadataSample]
+		public static MetadataSet BasicHttp_MessageSecurity ()
 		{
 			var exporter = new WsdlExporter ();
 			
@@ -90,8 +90,8 @@ namespace WsdlImport {
 			return doc;
 		}
 		
-		[MetadataSample ("http4")]
-		public static MetadataSet GetBasicHttpMetadata4 ()
+		[MetadataSample]
+		public static MetadataSet BasicHttp_TransportWithMessageCredential ()
 		{
 			var exporter = new WsdlExporter ();
 			
@@ -107,8 +107,8 @@ namespace WsdlImport {
 			return doc;
 		}
 		
-		[MetadataSample ("http5")]
-		public static MetadataSet GetBasicHttpMetadata5 ()
+		[MetadataSample]
+		public static MetadataSet BasicHttp_Mtom ()
 		{
 			var exporter = new WsdlExporter ();
 			
@@ -125,8 +125,8 @@ namespace WsdlImport {
 		}
 		
 #if NET_4_5
-		[MetadataSample ("https")]
-		public static MetadataSet GetBasicHttpsMetadata ()
+		[MetadataSample]
+		public static MetadataSet BasicHttps ()
 		{
 			var exporter = new WsdlExporter ();
 			
@@ -139,8 +139,8 @@ namespace WsdlImport {
 			return doc;
 		}
 		
-		[MetadataSample ("https2")]
-		public static MetadataSet GetBasicHttpsMetadata2 ()
+		[MetadataSample]
+		public static MetadataSet BasicHttps_NtlmAuth ()
 		{
 			var exporter = new WsdlExporter ();
 			
@@ -157,8 +157,8 @@ namespace WsdlImport {
 			return doc;
 		}
 		
-		[MetadataSample ("https3")]
-		public static MetadataSet GetBasicHttpsMetadata3 ()
+		[MetadataSample]
+		public static MetadataSet BasicHttps_Certificate ()
 		{
 			var exporter = new WsdlExporter ();
 			
@@ -174,8 +174,8 @@ namespace WsdlImport {
 			return doc;
 		}
 		
-		[MetadataSample ("https4")]
-		public static MetadataSet GetBasicHttpsMetadata4 ()
+		[MetadataSample]
+		public static MetadataSet BasicHttps_TransportWithMessageCredential ()
 		{
 			var exporter = new WsdlExporter ();
 			
@@ -251,8 +251,8 @@ namespace WsdlImport {
 			return doc;
 		}
 
-		[MetadataSample ("net-tcp3")]
-		public static MetadataSet GetNetTcpMetadata3 ()
+		[MetadataSample]
+		public static MetadataSet NetTcp_ReliableSession ()
 		{
 			var exporter = new WsdlExporter ();
 			

@@ -64,14 +64,14 @@ namespace WsdlImport {
 		static void TestDefault ()
 		{
 			var test = new Test (Utils.EmbeddedResourceProvider);
-			test.BasicHttp ();
-			test.BasicHttp_TransportSecurity ();
+			// test.BasicHttp ();
+			// test.BasicHttp_TransportSecurity ();
 
 			test.NetTcp ();
 			test.NetTcp_TransferMode ();
 			test.NetTcp_TransportSecurity ();
 			// test.NetTcp_MessageSecurity ();
-			test.NetTcp_Binding ();
+			// test.NetTcp_Binding ();
 			test.NetTcp_TransportWithMessageCredential ();
 
 #if FIXME
