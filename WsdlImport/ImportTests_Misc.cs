@@ -40,7 +40,7 @@ using WS = System.Web.Services.Description;
 
 namespace WsdlImport {
 
-	public partial class Test {
+	public partial class ImportTests {
 
 		[Test]
 		public void BasicHttpBinding_ImportBinding ()
@@ -57,7 +57,7 @@ namespace WsdlImport {
 			Assert.That (sd.Bindings.Count, Is.EqualTo (1), label.Get ());
 			
 			var binding = importer.ImportBinding (wsdlBinding);
-			TestHelper.CheckImportErrors (importer, label);
+			BindingTestAssertions.CheckImportErrors (importer, label);
 			Assert.That (binding, Is.Not.Null, label.Get ());
 		}
 		
@@ -81,7 +81,7 @@ namespace WsdlImport {
 			var importer = new WsdlImporter (doc);
 			
 			var port = importer.ImportEndpoint (service.Ports [0]);
-			TestHelper.CheckImportErrors (importer, label);
+			BindingTestAssertions.CheckImportErrors (importer, label);
 			Assert.That (port, Is.Not.Null, label.Get ());
 		}
 		
@@ -256,21 +256,21 @@ namespace WsdlImport {
 			
 			label.EnterScope ("by-service");
 			var byService = importer.ImportEndpoints (service);
-			TestHelper.CheckImportErrors (importer, label);
+			BindingTestAssertions.CheckImportErrors (importer, label);
 			Assert.That (byService, Is.Not.Null, label.Get ());
 			Assert.That (byService.Count, Is.EqualTo (1), label.Get ());
 			label.LeaveScope ();
 			
 			label.EnterScope ("by-binding");
 			var byBinding = importer.ImportEndpoints (binding);
-			TestHelper.CheckImportErrors (importer, label);
+			BindingTestAssertions.CheckImportErrors (importer, label);
 			Assert.That (byBinding, Is.Not.Null, label.Get ());
 			Assert.That (byBinding.Count, Is.EqualTo (1), label.Get ());
 			label.LeaveScope ();
 			
 			label.EnterScope ("by-port-type");
 			var byPortType = importer.ImportEndpoints (portType);
-			TestHelper.CheckImportErrors (importer, label);
+			BindingTestAssertions.CheckImportErrors (importer, label);
 			Assert.That (byPortType, Is.Not.Null, label.Get ());
 			Assert.That (byPortType.Count, Is.EqualTo (1), label.Get ());
 			label.LeaveScope ();

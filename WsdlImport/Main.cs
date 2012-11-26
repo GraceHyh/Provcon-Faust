@@ -100,7 +100,7 @@ namespace WsdlImport {
 
 		static void TestDefault ()
 		{
-			var test = new Test ();
+			var test = new ImportTests ();
 			test.BasicHttp ();
 			test.BasicHttp_Mtom ();
 			test.BasicHttp_TransportSecurity ();

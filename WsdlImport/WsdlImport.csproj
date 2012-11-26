@@ -46,14 +46,14 @@
     <Compile Include="Utils.cs" />
     <Compile Include="TestLabel.cs" />
     <Compile Include="MetadataSamples.cs" />
-    <Compile Include="Test_Tests.cs" />
-    <Compile Include="Test_Misc.cs" />
     <Compile Include="Server.cs" />
     <Compile Include="IMyService.cs" />
     <Compile Include="Client.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="TestContext.cs" />
-    <Compile Include="WsdlBindingTestAssertions.cs" />
+    <Compile Include="ImportTests_Tests.cs" />
+    <Compile Include="ImportTests_Misc.cs" />
+    <Compile Include="BindingTestAssertions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />

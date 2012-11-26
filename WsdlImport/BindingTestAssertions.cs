@@ -42,7 +42,7 @@ using WS = System.Web.Services.Description;
 
 namespace WsdlImport {
 
-	public static class TestHelper {
+	public static class BindingTestAssertions {
 
 		const string WspNamespace = "http://schemas.xmlsoap.org/ws/2004/09/policy";
 
