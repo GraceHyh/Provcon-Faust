@@ -92,7 +92,7 @@ namespace WsdlImport {
 
 		static void TestConfig ()
 		{
-			var binding = new BasicHttpsBinding ();
+			var binding = new BasicHttpBinding ();
 			Console.WriteLine ("TEST: {0}", binding.Name);
 			Utils.CreateConfig (binding, "test.config");
 
@@ -100,7 +100,7 @@ namespace WsdlImport {
 
 		static void TestDefault ()
 		{
-			var test = new Test (Utils.EmbeddedResourceProvider);
+			var test = new Test ();
 			test.BasicHttp ();
 			test.BasicHttp_Mtom ();
 			test.BasicHttp_TransportSecurity ();

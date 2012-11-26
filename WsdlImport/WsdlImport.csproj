@@ -16,7 +16,7 @@
     <DebugType>full</DebugType>
     <Optimize>False</Optimize>
     <OutputPath>bin\</OutputPath>
-    <DefineConstants>DEBUG; NET_4_5</DefineConstants>
+    <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>False</ConsolePause>
@@ -44,7 +44,6 @@
     <Compile Include="Main.cs" />
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Utils.cs" />
-    <Compile Include="IMetadataProvider.cs" />
     <Compile Include="TestLabel.cs" />
     <Compile Include="MetadataSamples.cs" />
     <Compile Include="Test_Tests.cs" />
@@ -54,6 +53,7 @@
     <Compile Include="IMyService.cs" />
     <Compile Include="Client.cs" />
     <Compile Include="Options.cs" />
+    <Compile Include="TestContext.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />

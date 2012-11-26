@@ -46,7 +46,7 @@ namespace WsdlImport {
 		[Test]
 		public void BasicHttp ()
 		{
-			var doc = MetadataProvider.Get ("BasicHttp");
+			var doc = Context.GetMetadata ("BasicHttp");
 			var label = new TestLabel ("BasicHttp");
 
 			BasicHttpBinding (doc, BasicHttpSecurityMode.None, label);
@@ -55,7 +55,7 @@ namespace WsdlImport {
 		[Test]
 		public void BasicHttp_TransportSecurity ()
 		{
-			var doc = MetadataProvider.Get ("BasicHttp_TransportSecurity");
+			var doc = Context.GetMetadata ("BasicHttp_TransportSecurity");
 			var label = new TestLabel ("BasicHttp_TransportSecurity");
 
 			BasicHttpBinding (doc, BasicHttpSecurityMode.Transport, label);
@@ -65,7 +65,7 @@ namespace WsdlImport {
 		[Category ("NotWorking")]
 		public void BasicHttp_MessageSecurity ()
 		{
-			var doc = MetadataProvider.Get ("BasicHttp_MessageSecurity");
+			var doc = Context.GetMetadata ("BasicHttp_MessageSecurity");
 			var label = new TestLabel ("BasicHttp_MessageSecurity");
 
 			BasicHttpBinding (doc, BasicHttpSecurityMode.Message, label);
@@ -75,7 +75,7 @@ namespace WsdlImport {
 		[Category ("NotWorking")]
 		public void BasicHttp_TransportWithMessageCredential ()
 		{
-			var doc = MetadataProvider.Get ("BasicHttp_TransportWithMessageCredential");
+			var doc = Context.GetMetadata ("BasicHttp_TransportWithMessageCredential");
 			var label = new TestLabel ("BasicHttp_TransportWithMessageCredential");
 
 			BasicHttpBinding (doc, BasicHttpSecurityMode.TransportWithMessageCredential, label);
@@ -84,7 +84,7 @@ namespace WsdlImport {
 		[Test]
 		public void BasicHttp_Mtom ()
 		{
-			var doc = MetadataProvider.Get ("BasicHttp_Mtom");
+			var doc = Context.GetMetadata ("BasicHttp_Mtom");
 			var label = new TestLabel ("BasicHttp_Mtom");
 
 			BasicHttpBinding (doc, WSMessageEncoding.Mtom, label);
@@ -93,7 +93,7 @@ namespace WsdlImport {
 		[Test]
 		public void BasicHttp_NtlmAuth ()
 		{
-			var doc = MetadataProvider.Get ("BasicHttp_NtlmAuth");
+			var doc = Context.GetMetadata ("BasicHttp_NtlmAuth");
 			var label = new TestLabel ("BasicHttp_NtlmAuth");
 			
 			BasicHttpBinding (
@@ -105,7 +105,7 @@ namespace WsdlImport {
 		[Test]
 		public void BasicHttps ()
 		{
-			var doc = MetadataProvider.Get ("BasicHttps");
+			var doc = Context.GetMetadata ("BasicHttps");
 			var label = new TestLabel ("BasicHttps");
 
 			BasicHttpsBinding (
@@ -117,7 +117,7 @@ namespace WsdlImport {
 		[Test]
 		public void BasicHttps_NtlmAuth ()
 		{
-			var doc = MetadataProvider.Get ("BasicHttps_NtlmAuth");
+			var doc = Context.GetMetadata ("BasicHttps_NtlmAuth");
 			var label = new TestLabel ("BasicHttps_NtlmAuth");
 
 			BasicHttpsBinding (
@@ -130,7 +130,7 @@ namespace WsdlImport {
 		[Category ("NotWorking")]
 		public void BasicHttps_Certificate ()
 		{
-			var doc = MetadataProvider.Get ("BasicHttps_Certificate");
+			var doc = Context.GetMetadata ("BasicHttps_Certificate");
 			var label = new TestLabel ("BasicHttps_Certificate");
 
 			BasicHttpsBinding (
@@ -143,7 +143,7 @@ namespace WsdlImport {
 		[Category ("NotWorking")]
 		public void BasicHttps_TransportWithMessageCredential ()
 		{
-			var doc = MetadataProvider.Get ("BasicHttps_TransportWithMessageCredential");
+			var doc = Context.GetMetadata ("BasicHttps_TransportWithMessageCredential");
 			var label = new TestLabel ("BasicHttps_TransportWithMessageCredential");
 
 			BasicHttpsBinding (
@@ -155,7 +155,7 @@ namespace WsdlImport {
 		[Test]
 		public void NetTcp ()
 		{
-			var doc = MetadataProvider.Get ("NetTcp");
+			var doc = Context.GetMetadata ("NetTcp");
 			var label = new TestLabel ("NetTcp");
 			NetTcpBinding (
 				doc, SecurityMode.None, false, TransferMode.Buffered, label);
@@ -164,7 +164,7 @@ namespace WsdlImport {
 		[Test]
 		public void NetTcp_TransferMode ()
 		{
-			var doc = MetadataProvider.Get ("NetTcp_TransferMode");
+			var doc = Context.GetMetadata ("NetTcp_TransferMode");
 
 			var label = new TestLabel ("NetTcp_TransferMode");
 			NetTcpBinding (
@@ -175,7 +175,7 @@ namespace WsdlImport {
 		[Test]
 		public void NetTcp_TransportSecurity ()
 		{
-			var doc = MetadataProvider.Get ("NetTcp_TransportSecurity");
+			var doc = Context.GetMetadata ("NetTcp_TransportSecurity");
 			var label = new TestLabel ("NetTcp_TransportSecurity");
 			NetTcpBinding (
 				doc, SecurityMode.Transport, false,
@@ -186,7 +186,7 @@ namespace WsdlImport {
 		[Category ("NotWorking")]
 		public void NetTcp_MessageSecurity ()
 		{
-			var doc = MetadataProvider.Get ("NetTcp_MessageSecurity");
+			var doc = Context.GetMetadata ("NetTcp_MessageSecurity");
 			var label = new TestLabel ("NetTcp_MessageSecurity");
 			NetTcpBinding (
 				doc, SecurityMode.Message, false,
@@ -197,7 +197,7 @@ namespace WsdlImport {
 		[Category ("NotWorking")]
 		public void NetTcp_TransportWithMessageCredential ()
 		{
-			var doc = MetadataProvider.Get ("NetTcp_TransportWithMessageCredential");
+			var doc = Context.GetMetadata ("NetTcp_TransportWithMessageCredential");
 			var label = new TestLabel ("NetTcp_TransportWithMessageCredential");
 
 			NetTcpBinding (
@@ -241,7 +241,7 @@ namespace WsdlImport {
 		[Category ("NotWorking")]
 		public void NetTcp_ReliableSession ()
 		{
-			var doc = MetadataProvider.Get ("NetTcp_ReliableSession");
+			var doc = Context.GetMetadata ("NetTcp_ReliableSession");
 			var label = new TestLabel ("NetTcp_ReliableSession");
 			NetTcpBinding (
 				doc, SecurityMode.None, true,

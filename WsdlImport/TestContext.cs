@@ -1,5 +1,5 @@
 //
-// IMetadataProvider.cs
+// ITestContext.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -23,13 +23,45 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
 using System;
+using System.Xml;
+using System.Reflection;
 using System.ServiceModel.Description;
 
 namespace WsdlImport {
 
-	public interface IMetadataProvider {
-		MetadataSet Get (string name);
+	public abstract class TestContext {
+
+		#region Public API
+
+		public static TestContext Default = new _DefaultTestContext ();
+		
+		public abstract MetadataSet GetMetadata (string name);
+
+		#endregion
+
+		internal static MetadataSet LoadMetadataFromResource (string name)
+		{
+			var asm = Assembly.GetExecutingAssembly ();
+			if (!name.EndsWith (".xml"))
+				name = name + ".xml";
+			var resname = "WsdlImport.Resources." + name;
+			using (var stream = asm.GetManifestResourceStream (resname)) {
+				if (stream == null)
+					throw new InvalidOperationException (string.Format (
+						"No such resource: {0}", name));
+				var reader = new XmlTextReader (stream);
+				return MetadataSet.ReadFrom (reader);
+			}
+		}
+		
+		class _DefaultTestContext : TestContext {
+			public override MetadataSet GetMetadata (string name)
+			{
+				return LoadMetadataFromResource (name);
+			}
+		}
 	}
 }
 

@@ -46,19 +46,19 @@ namespace WsdlImport {
 
 		const string WspNamespace = "http://schemas.xmlsoap.org/ws/2004/09/policy";
 
-		public IMetadataProvider MetadataProvider {
+		public TestContext Context {
 			get;
 			set;
 		}
 
 		public Test ()
-			: this (Utils.EmbeddedResourceProvider)
+			: this (TestContext.Default)
 		{
 		}
 
-		public Test (IMetadataProvider metadata)
+		public Test (TestContext context)
 		{
-			MetadataProvider = metadata;
+			Context = context;
 		}
 
 		void CheckImportErrors (WsdlImporter importer, TestLabel label)

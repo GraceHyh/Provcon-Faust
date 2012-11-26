@@ -65,38 +65,6 @@ namespace WsdlImport {
 			}
 		}
 
-		public static MetadataSet LoadFromResource (string name)
-		{
-			var asm = Assembly.GetExecutingAssembly ();
-			if (!name.EndsWith (".xml"))
-				name = name + ".xml";
-			var resname = "WsdlImport.Resources." + name;
-			using (var stream = asm.GetManifestResourceStream (resname)) {
-				if (stream == null)
-					throw new InvalidOperationException (string.Format (
-						"No such resource: {0}", name));
-				var reader = new XmlTextReader (stream);
-				return MetadataSet.ReadFrom (reader);
-			}
-		}
-
-		public static IMetadataProvider EmbeddedResourceProvider = new _EmbeddedResourceProvider ();
-		public static IMetadataProvider DefaultMetadataProvider = new _DefaultMetadataProvider ();
-
-		class _EmbeddedResourceProvider : IMetadataProvider {
-			public MetadataSet Get (string name)
-			{
-				return Utils.LoadFromResource (name);
-			}
-		}
-
-		class _DefaultMetadataProvider : IMetadataProvider {
-			public MetadataSet Get (string name)
-			{
-				return MetadataSamples.GetMetadataByName (name);
-			}
-		}
-
 		internal static string GetConfigElementName (Binding binding)
 		{
 			if (binding is BasicHttpBinding)
