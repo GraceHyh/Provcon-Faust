@@ -59,11 +59,14 @@ namespace Bug5904 {
 			var hello = service.HelloWorld ();
 			Console.WriteLine ("HELLO WORLD: {0}", hello);
 
-			try {
-				var fault = service.TestFault ();
-				Console.WriteLine ("OOPS: {0}", fault);
-			} catch (SoapException ex) {
-				Console.WriteLine ("GOT SOAP FAULT: {0}", ex);
+			for (int i = 0; i < 500; i++) {
+				try {
+					var fault = service.TestFault ();
+					Console.WriteLine ("OOPS: {0}", fault);
+					break;
+				} catch (SoapException ex) {
+					Console.WriteLine ("GOT SOAP FAULT: {0}", ex.Code);
+				}
 			}
 		}
 
