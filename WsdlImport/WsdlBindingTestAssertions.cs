@@ -42,26 +42,11 @@ using WS = System.Web.Services.Description;
 
 namespace WsdlImport {
 
-	public partial class Test {
+	public static class TestHelper {
 
 		const string WspNamespace = "http://schemas.xmlsoap.org/ws/2004/09/policy";
 
-		public TestContext Context {
-			get;
-			set;
-		}
-
-		public Test ()
-			: this (TestContext.Default)
-		{
-		}
-
-		public Test (TestContext context)
-		{
-			Context = context;
-		}
-
-		void CheckImportErrors (WsdlImporter importer, TestLabel label)
+		public static void CheckImportErrors (WsdlImporter importer, TestLabel label)
 		{
 			bool foundErrors = false;
 			foreach (var error in importer.Errors) {
@@ -77,7 +62,7 @@ namespace WsdlImport {
 				Assert.Fail ("Found import errors", label);
 		}
 
-		void CheckSoapBinding (object extension, string transport, TestLabel label)
+		static void CheckSoapBinding (object extension, string transport, TestLabel label)
 		{
 			label.EnterScope ("soap");
 			Assert.That (extension, Is.InstanceOfType (typeof (WS.SoapBinding)), label.Get ());
@@ -88,9 +73,10 @@ namespace WsdlImport {
 			label.LeaveScope ();
 		}
 
-		void CheckBasicHttpBinding (Binding binding, string scheme, BasicHttpSecurityMode security,
-		                            WSMessageEncoding encoding, HttpClientCredentialType clientCred,
-		                            AuthenticationSchemes authScheme, TestLabel label)
+		public static void CheckBasicHttpBinding (
+			Binding binding, string scheme, BasicHttpSecurityMode security,
+			WSMessageEncoding encoding, HttpClientCredentialType clientCred,
+			AuthenticationSchemes authScheme, TestLabel label)
 		{
 			label.EnterScope ("http");
 
@@ -192,7 +178,7 @@ namespace WsdlImport {
 			label.LeaveScope (); // http
 		}
 
-		void CheckEndpoint (ServiceEndpoint endpoint, string uri, TestLabel label)
+		static void CheckEndpoint (ServiceEndpoint endpoint, string uri, TestLabel label)
 		{
 			label.EnterScope ("endpoint");
 			Assert.That (endpoint.ListenUri, Is.EqualTo (new Uri (uri)), label.Get ());
@@ -207,8 +193,8 @@ namespace WsdlImport {
 			label.LeaveScope ();
 		}
 
-		public void BasicHttpBinding (MetadataSet doc, WSMessageEncoding encoding,
-		                              TestLabel label)
+		public static void BasicHttpBinding (
+			MetadataSet doc, WSMessageEncoding encoding, TestLabel label)
 		{
 			BasicHttpBinding (
 				doc, BasicHttpSecurityMode.None, encoding,
@@ -216,8 +202,8 @@ namespace WsdlImport {
 				label);
 		}
 
-		public void BasicHttpBinding (MetadataSet doc, BasicHttpSecurityMode security,
-		                              TestLabel label)
+		public static void BasicHttpBinding (
+			MetadataSet doc, BasicHttpSecurityMode security, TestLabel label)
 		{
 			BasicHttpBinding (
 				doc, security, WSMessageEncoding.Text,
@@ -225,9 +211,10 @@ namespace WsdlImport {
 				label);
 		}
 		
-		void BasicHttpBinding (MetadataSet doc, BasicHttpSecurityMode security,
-		                       WSMessageEncoding encoding, HttpClientCredentialType clientCred,
-		                       AuthenticationSchemes authScheme, TestLabel label)
+		public static void BasicHttpBinding (
+			MetadataSet doc, BasicHttpSecurityMode security, WSMessageEncoding encoding,
+			HttpClientCredentialType clientCred, AuthenticationSchemes authScheme,
+			TestLabel label)
 		{
 			label.EnterScope ("basicHttpBinding");
 
@@ -321,9 +308,10 @@ namespace WsdlImport {
 			label.LeaveScope ();
 		}
 
-		Binding BasicHttpsBinding (MetadataSet doc, BasicHttpSecurityMode security,
-		                           WSMessageEncoding encoding, HttpClientCredentialType clientCred,
-		                           AuthenticationSchemes authScheme, TestLabel label)
+		public static void BasicHttpsBinding (
+			MetadataSet doc, BasicHttpSecurityMode security, WSMessageEncoding encoding,
+			HttpClientCredentialType clientCred, AuthenticationSchemes authScheme,
+			TestLabel label)
 		{
 			label.EnterScope ("basicHttpsBinding");
 
@@ -394,12 +382,11 @@ namespace WsdlImport {
 			label.LeaveScope ();
 
 			label.LeaveScope ();
-			return bindings [0];
 		}
 
-		void CheckNetTcpBinding (Binding binding, SecurityMode security,
-		                         bool reliableSession, TransferMode transferMode,
-		                         TestLabel label)
+		public static void CheckNetTcpBinding (
+			Binding binding, SecurityMode security, bool reliableSession,
+			TransferMode transferMode, TestLabel label)
 		{
 			label.EnterScope ("net-tcp");
 			if (security == SecurityMode.Message) {
@@ -521,9 +508,9 @@ namespace WsdlImport {
 			label.LeaveScope (); // net-tcp
 		}
 
-		public void NetTcpBinding (MetadataSet doc, SecurityMode security,
-		                           bool reliableSession, TransferMode transferMode,
-		                           TestLabel label)
+		public static void NetTcpBinding (
+			MetadataSet doc, SecurityMode security, bool reliableSession,
+			TransferMode transferMode, TestLabel label)
 		{
 			label.EnterScope ("netTcpBinding");
 
