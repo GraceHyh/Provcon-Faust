@@ -1,5 +1,5 @@
 //
-// AssemblyInfo.cs
+// TestContext.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -23,30 +23,50 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+using System;
+using System.IO;
+using System.Xml;
 using System.Reflection;
-using System.Runtime.CompilerServices;
+using System.ServiceModel.Description;
 
-// Information about this assembly is defined by the following attributes. 
-// Change them to the values specific to your project.
+namespace MonoTests.System.ServiceModel.MetadataTests {
 
-[assembly: AssemblyTitle("MetadataTests")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Xamarin")]
-[assembly: AssemblyProduct("")]
-[assembly: AssemblyCopyright("Xamarin Inc. (http://www.xamarin.com)")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
+	public abstract partial class TestContext {
 
-// The assembly version has the format "{Major}.{Minor}.{Build}.{Revision}".
-// The form "{Major}.{Minor}.*" will automatically update the build and revision,
-// and "{Major}.{Minor}.{Build}.*" will update just the revision.
+		static TestContext ()
+		{
+			Default = new _EmbeddedTestContext ();
+		}
 
-[assembly: AssemblyVersion("1.0.*")]
+		internal static MetadataSet LoadMetadataFromResource (string name)
+		{
+			var asm = Assembly.GetExecutingAssembly ();
+			if (!name.EndsWith (".xml"))
+				name = name + ".xml";
 
-// The following attributes are used to specify the signing key for the assembly, 
-// if desired. See the Mono documentation for more information about signing.
+			var resname = "MetadataTests.Resources." + name;
+			using (var stream = asm.GetManifestResourceStream (resname)) {
+				if (stream == null)
+					throw new InvalidOperationException (
+						"No such resource: " + name);
+				var reader = new XmlTextReader (stream);
+				return MetadataSet.ReadFrom (reader);
+			}
+		}
 
-//[assembly: AssemblyDelaySign(false)]
-//[assembly: AssemblyKeyFile("")]
+		class _EmbeddedTestContext : TestContext {
+			public override MetadataSet GetMetadata (string name)
+			{
+				return LoadMetadataFromResource (name);
+			}
+			
+			public override void SaveMetadata (string name, MetadataSet metadata)
+			{
+				SaveMetadataToFile (name, metadata);
+			}
+		}
+
+	}
+}
 

@@ -75,7 +75,7 @@
     <EmbeddedResource Include="Resources\BasicHttp_NtlmAuth.xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="MetadataTests\MetadataTests.csproj">
+    <ProjectReference Include="MetadataTests.csproj">
       <Project>{F90E9E5C-4C86-47DB-A98C-2DFE753F21D5}</Project>
       <Name>MetadataTests</Name>
     </ProjectReference>
