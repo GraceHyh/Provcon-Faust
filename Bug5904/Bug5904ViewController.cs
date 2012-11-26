@@ -45,12 +45,17 @@ namespace Bug5904 {
 		#region Test Code
 
 		// public const string FeedURI = "https://github.com/baulig.atom";
-		public const string FeedURI = "http://www.go-mono.com/monologue/index.rss";
+		// public const string FeedURI = "http://www.go-mono.com/monologue/index.rss";
+		public const string FeedURI = "http://feeds.feedburner.com/baulig?format=xml";
 
 		void Test ()
 		{
 			var doc = XDocument.Load (FeedURI);
 			Console.WriteLine ("LOADED: {0}", doc);
+
+			var service = new TestService ();
+			var hello = service.HelloWorld ();
+			Console.WriteLine ("HELLO WORLD: {0}", hello);
 		}
 
 		#endregion

@@ -25,6 +25,8 @@
     <MtouchProfiling>True</MtouchProfiling>
     <MtouchI18n />
     <MtouchArch>ARMv7</MtouchArch>
+    <MtouchSdkVersion>6.0</MtouchSdkVersion>
+    <MtouchLink>None</MtouchLink>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
     <DebugType>none</DebugType>
@@ -84,6 +86,7 @@
     <Reference Include="System.Core" />
     <Reference Include="monotouch" />
     <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Web.Services" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
@@ -98,6 +101,7 @@
     <Compile Include="Bug5904ViewController.designer.cs">
       <DependentUpon>Bug5904ViewController.cs</DependentUpon>
     </Compile>
+    <Compile Include="TestService.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Bug5904ViewController_iPhone.xib" />
