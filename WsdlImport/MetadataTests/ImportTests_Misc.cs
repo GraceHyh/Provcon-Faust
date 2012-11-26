@@ -38,7 +38,7 @@ using NUnit.Framework.SyntaxHelpers;
 
 using WS = System.Web.Services.Description;
 
-namespace WsdlImport {
+namespace MonoTests.System.ServiceModel.MetadataTests {
 
 	public partial class ImportTests {
 

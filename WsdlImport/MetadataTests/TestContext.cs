@@ -25,11 +25,12 @@
 // THE SOFTWARE.
 
 using System;
+using System.IO;
 using System.Xml;
 using System.Reflection;
 using System.ServiceModel.Description;
 
-namespace WsdlImport {
+namespace MonoTests.System.ServiceModel.MetadataTests {
 
 	public abstract class TestContext {
 
@@ -38,6 +39,8 @@ namespace WsdlImport {
 		public static TestContext Default = new _DefaultTestContext ();
 		
 		public abstract MetadataSet GetMetadata (string name);
+
+		public abstract void SaveMetadata (string name, MetadataSet metadata);
 
 		#endregion
 
@@ -55,11 +58,31 @@ namespace WsdlImport {
 				return MetadataSet.ReadFrom (reader);
 			}
 		}
+
+		internal static void SaveMetadataToFile (string name, MetadataSet metadata)
+		{
+			var filename = Path.Combine ("Resources", name + ".xml");
+			if (File.Exists (filename))
+				return;
+
+			using (var file = new StreamWriter (filename, false)) {
+				var writer = new XmlTextWriter (file);
+				writer.Formatting = Formatting.Indented;
+				metadata.WriteTo (writer);
+			}
+
+			Console.WriteLine ("Exported {0}.", filename);
+		}
 		
 		class _DefaultTestContext : TestContext {
 			public override MetadataSet GetMetadata (string name)
 			{
 				return LoadMetadataFromResource (name);
+			}
+
+			public override void SaveMetadata (string name, MetadataSet metadata)
+			{
+				SaveMetadataToFile (name, metadata);
 			}
 		}
 	}

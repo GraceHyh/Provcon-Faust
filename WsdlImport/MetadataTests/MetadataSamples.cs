@@ -33,7 +33,7 @@ using System.ServiceModel.Description;
 using System.ServiceModel.Configuration;
 using WS = System.Web.Services.Description;
 
-namespace WsdlImport {
+namespace MonoTests.System.ServiceModel.MetadataTests {
 
 	public static class MetadataSamples  {
 
@@ -302,7 +302,7 @@ namespace WsdlImport {
 			return doc;
 		}
 
-		public static void Export ()
+		public static void Export (TestContext context)
 		{
 			var bf = BindingFlags.Public | BindingFlags.Static;
 			foreach (var method in typeof (MetadataSamples).GetMethods (bf)) {
@@ -320,12 +320,7 @@ namespace WsdlImport {
 
 				var name = sampleAttr.Name ?? method.Name;
 				var doc = (MetadataSet)method.Invoke (null, null);
-
-				var filename = Path.Combine ("Resources", name + ".xml");
-				if (File.Exists (filename))
-					continue;
-				Utils.Save (filename, doc);
-				Console.WriteLine ("Exported {0}.", filename);
+				context.SaveMetadata (name, doc);
 			}
 		}
 

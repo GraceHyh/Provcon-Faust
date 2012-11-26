@@ -27,7 +27,7 @@ using System;
 using System.Text;
 using System.Collections.Generic;
 
-namespace WsdlImport {
+namespace MonoTests.System.ServiceModel.MetadataTests {
 
 	public class TestLabel {
 

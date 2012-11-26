@@ -44,16 +44,16 @@
     <Compile Include="Main.cs" />
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Utils.cs" />
-    <Compile Include="TestLabel.cs" />
-    <Compile Include="MetadataSamples.cs" />
     <Compile Include="Server.cs" />
     <Compile Include="IMyService.cs" />
     <Compile Include="Client.cs" />
     <Compile Include="Options.cs" />
-    <Compile Include="TestContext.cs" />
-    <Compile Include="ImportTests_Tests.cs" />
-    <Compile Include="ImportTests_Misc.cs" />
-    <Compile Include="BindingTestAssertions.cs" />
+    <Compile Include="MetadataTests\BindingTestAssertions.cs" />
+    <Compile Include="MetadataTests\TestLabel.cs" />
+    <Compile Include="MetadataTests\TestContext.cs" />
+    <Compile Include="MetadataTests\MetadataSamples.cs" />
+    <Compile Include="MetadataTests\ImportTests_Misc.cs" />
+    <Compile Include="MetadataTests\ImportTests_Tests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
@@ -79,5 +79,8 @@
     <EmbeddedResource Include="Resources\NetTcp_ReliableSession.xml" />
     <EmbeddedResource Include="Resources\http-error.xml" />
     <EmbeddedResource Include="Resources\BasicHttp_NtlmAuth.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="MetadataTests\" />
   </ItemGroup>
 </Project>

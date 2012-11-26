@@ -47,6 +47,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 using WS = System.Web.Services.Description;
+using MonoTests.System.ServiceModel.MetadataTests;
 
 using NUnit.Framework;
 using Mono.Options;
@@ -72,7 +73,7 @@ namespace WsdlImport {
 
 			switch (mode) {
 			case Mode.Export:
-				MetadataSamples.Export ();
+				MetadataSamples.Export (TestContext.Default);
 				return;
 
 			case Mode.Server:
