@@ -24,6 +24,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Web.Services;
+using System.Web.Services.Protocols;
 using System.Drawing;
 using System.Xml.Linq;
 
@@ -56,6 +58,13 @@ namespace Bug5904 {
 			var service = new TestService ();
 			var hello = service.HelloWorld ();
 			Console.WriteLine ("HELLO WORLD: {0}", hello);
+
+			try {
+				var fault = service.TestFault ();
+				Console.WriteLine ("OOPS: {0}", fault);
+			} catch (SoapException ex) {
+				Console.WriteLine ("GOT SOAP FAULT: {0}", ex);
+			}
 		}
 
 		#endregion

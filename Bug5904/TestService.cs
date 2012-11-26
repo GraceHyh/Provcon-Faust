@@ -31,6 +31,8 @@ public partial class TestService : System.Web.Services.Protocols.SoapHttpClientP
     
     private System.Threading.SendOrPostCallback TestPostOperationCompleted;
     
+    private System.Threading.SendOrPostCallback TestFaultOperationCompleted;
+    
     /// <remarks/>
     public TestService() {
         this.Url = "http://provcon-faust/TestWCF/TestService.asmx";
@@ -41,6 +43,9 @@ public partial class TestService : System.Web.Services.Protocols.SoapHttpClientP
     
     /// <remarks/>
     public event TestPostCompletedEventHandler TestPostCompleted;
+    
+    /// <remarks/>
+    public event TestFaultCompletedEventHandler TestFaultCompleted;
     
     /// <remarks/>
     [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://provcon-faust/TestWCF/TestService.asmx/HelloWorld", RequestNamespace="http://provcon-faust/TestWCF/TestService.asmx/", ResponseNamespace="http://provcon-faust/TestWCF/TestService.asmx/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -122,6 +127,44 @@ public partial class TestService : System.Web.Services.Protocols.SoapHttpClientP
     }
     
     /// <remarks/>
+    [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://provcon-faust/TestWCF/TestService.asmx/TestFault", RequestNamespace="http://provcon-faust/TestWCF/TestService.asmx/", ResponseNamespace="http://provcon-faust/TestWCF/TestService.asmx/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+    public string TestFault() {
+        object[] results = this.Invoke("TestFault", new object[0]);
+        return ((string)(results[0]));
+    }
+    
+    /// <remarks/>
+    public System.IAsyncResult BeginTestFault(System.AsyncCallback callback, object asyncState) {
+        return this.BeginInvoke("TestFault", new object[0], callback, asyncState);
+    }
+    
+    /// <remarks/>
+    public string EndTestFault(System.IAsyncResult asyncResult) {
+        object[] results = this.EndInvoke(asyncResult);
+        return ((string)(results[0]));
+    }
+    
+    /// <remarks/>
+    public void TestFaultAsync() {
+        this.TestFaultAsync(null);
+    }
+    
+    /// <remarks/>
+    public void TestFaultAsync(object userState) {
+        if ((this.TestFaultOperationCompleted == null)) {
+            this.TestFaultOperationCompleted = new System.Threading.SendOrPostCallback(this.OnTestFaultOperationCompleted);
+        }
+        this.InvokeAsync("TestFault", new object[0], this.TestFaultOperationCompleted, userState);
+    }
+    
+    private void OnTestFaultOperationCompleted(object arg) {
+        if ((this.TestFaultCompleted != null)) {
+            System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+            this.TestFaultCompleted(this, new TestFaultCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+        }
+    }
+    
+    /// <remarks/>
     public new void CancelAsync(object userState) {
         base.CancelAsync(userState);
     }
@@ -166,6 +209,32 @@ public partial class TestPostCompletedEventArgs : System.ComponentModel.AsyncCom
     private object[] results;
     
     internal TestPostCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+            base(exception, cancelled, userState) {
+        this.results = results;
+    }
+    
+    /// <remarks/>
+    public string Result {
+        get {
+            this.RaiseExceptionIfNecessary();
+            return ((string)(this.results[0]));
+        }
+    }
+}
+
+/// <remarks/>
+[System.CodeDom.Compiler.GeneratedCodeAttribute("wsdl", "4.0.30319.17929")]
+public delegate void TestFaultCompletedEventHandler(object sender, TestFaultCompletedEventArgs e);
+
+/// <remarks/>
+[System.CodeDom.Compiler.GeneratedCodeAttribute("wsdl", "4.0.30319.17929")]
+[System.Diagnostics.DebuggerStepThroughAttribute()]
+[System.ComponentModel.DesignerCategoryAttribute("code")]
+public partial class TestFaultCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+    
+    private object[] results;
+    
+    internal TestFaultCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
             base(exception, cancelled, userState) {
         this.results = results;
     }
