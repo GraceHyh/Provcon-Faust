@@ -210,17 +210,24 @@ namespace WsdlImport {
 		public void BasicHttpBinding (MetadataSet doc, WSMessageEncoding encoding,
 		                              TestLabel label)
 		{
-			BasicHttpBinding (doc, BasicHttpSecurityMode.None, encoding, label);
+			BasicHttpBinding (
+				doc, BasicHttpSecurityMode.None, encoding,
+				HttpClientCredentialType.None, AuthenticationSchemes.Anonymous,
+				label);
 		}
 
 		public void BasicHttpBinding (MetadataSet doc, BasicHttpSecurityMode security,
 		                              TestLabel label)
 		{
-			BasicHttpBinding (doc, security, WSMessageEncoding.Text, label);
+			BasicHttpBinding (
+				doc, security, WSMessageEncoding.Text,
+				HttpClientCredentialType.None, AuthenticationSchemes.Anonymous,
+				label);
 		}
 		
 		void BasicHttpBinding (MetadataSet doc, BasicHttpSecurityMode security,
-		                       WSMessageEncoding encoding, TestLabel label)
+		                       WSMessageEncoding encoding, HttpClientCredentialType clientCred,
+		                       AuthenticationSchemes authScheme, TestLabel label)
 		{
 			label.EnterScope ("basicHttpBinding");
 
@@ -246,6 +253,9 @@ namespace WsdlImport {
 			case BasicHttpSecurityMode.TransportWithMessageCredential:
 				if (encoding == WSMessageEncoding.Mtom)
 					throw new InvalidOperationException ();
+				Assert.That (binding.Extensions.Count, Is.EqualTo (2), label.Get ());
+				break;
+			case BasicHttpSecurityMode.TransportCredentialOnly:
 				Assert.That (binding.Extensions.Count, Is.EqualTo (2), label.Get ());
 				break;
 			default:
@@ -294,9 +304,8 @@ namespace WsdlImport {
 				scheme = "http";
 
 			CheckBasicHttpBinding (
-				bindings [0], scheme, security, encoding,
-				HttpClientCredentialType.None, AuthenticationSchemes.Anonymous,
-				label);
+				bindings [0], scheme, security, encoding, clientCred,
+				authScheme, label);
 			label.LeaveScope ();
 
 			label.EnterScope ("endpoints");

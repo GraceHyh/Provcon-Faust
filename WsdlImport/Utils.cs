@@ -164,7 +164,7 @@ namespace WsdlImport {
 			}
 		}
 
-		static void CreateConfig_NET (Binding binding, string filename)
+		internal static void CreateConfig (Binding binding, string filename)
 		{
 			if (File.Exists (filename))
 				File.Delete (filename);
@@ -184,11 +184,11 @@ namespace WsdlImport {
 			config.Save ();
 		}
 
-		public static void CreateConfig (Binding binding, string filename)
+		public static void CreateConfig_Hack (Binding binding, string filename)
 		{
 			if (Environment.OSVersion.Platform == PlatformID.Win32NT) {
 				// Use the real API on Windows.
-				CreateConfig_NET (binding, filename);
+				CreateConfig (binding, filename);
 				return;
 			}
 

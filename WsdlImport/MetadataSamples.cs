@@ -40,6 +40,7 @@ namespace WsdlImport {
 		internal const string HttpUri = "http://tempuri.org/TestHttp/";
 		internal const string HttpsUri = "https://tempuri.org/TestHttps/";
 		internal const string NetTcpUri = "net-tcp://tempuri.org:8000/TestNetTcp/";
+		internal const string CustomUri = "custom://tempuri.org:8000/Test/";
 
 		[MetadataSample]
 		public static MetadataSet BasicHttp ()
@@ -116,6 +117,23 @@ namespace WsdlImport {
 			
 			var binding = new BasicHttpBinding ();
 			binding.MessageEncoding = WSMessageEncoding.Mtom;
+			
+			exporter.ExportEndpoint (new ServiceEndpoint (
+				cd, binding, new EndpointAddress (HttpUri)));
+			
+			var doc = exporter.GetGeneratedMetadata ();
+			return doc;
+		}
+
+		[MetadataSample]
+		public static MetadataSet BasicHttp_NtlmAuth ()
+		{
+			var exporter = new WsdlExporter ();
+			
+			var cd = new ContractDescription ("MyContract");
+			
+			var binding = new BasicHttpBinding (BasicHttpSecurityMode.TransportCredentialOnly);
+			binding.Security.Transport.ClientCredentialType = HttpClientCredentialType.Ntlm;
 			
 			exporter.ExportEndpoint (new ServiceEndpoint (
 				cd, binding, new EndpointAddress (HttpUri)));

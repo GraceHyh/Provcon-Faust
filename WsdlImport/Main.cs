@@ -85,15 +85,26 @@ namespace WsdlImport {
 
 			default:
 				TestDefault ();
+				TestConfig ();
 				return;
 			}
+		}
+
+		static void TestConfig ()
+		{
+			var binding = new BasicHttpsBinding ();
+			Console.WriteLine ("TEST: {0}", binding.Name);
+			Utils.CreateConfig (binding, "test.config");
+
 		}
 
 		static void TestDefault ()
 		{
 			var test = new Test (Utils.EmbeddedResourceProvider);
-			// test.BasicHttp ();
-			// test.BasicHttp_TransportSecurity ();
+			test.BasicHttp ();
+			test.BasicHttp_Mtom ();
+			test.BasicHttp_TransportSecurity ();
+			test.BasicHttp_NtlmAuth ();
 
 			test.NetTcp ();
 			test.NetTcp_TransferMode ();
@@ -101,6 +112,12 @@ namespace WsdlImport {
 			// test.NetTcp_MessageSecurity ();
 			// test.NetTcp_Binding ();
 			// test.NetTcp_TransportWithMessageCredential ();
+
+#if NET_4_5
+			test.BasicHttps ();
+			test.BasicHttps_NtlmAuth ();
+			test.BasicHttps_Certificate ();
+#endif
 
 #if FIXME
 			test.BasicHttpBinding ();

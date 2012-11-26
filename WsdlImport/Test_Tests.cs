@@ -89,7 +89,19 @@ namespace WsdlImport {
 
 			BasicHttpBinding (doc, WSMessageEncoding.Mtom, label);
 		}
-		
+
+		[Test]
+		public void BasicHttp_NtlmAuth ()
+		{
+			var doc = MetadataProvider.Get ("BasicHttp_NtlmAuth");
+			var label = new TestLabel ("BasicHttp_NtlmAuth");
+			
+			BasicHttpBinding (
+				doc, BasicHttpSecurityMode.TransportCredentialOnly, WSMessageEncoding.Text,
+				HttpClientCredentialType.Ntlm, AuthenticationSchemes.Ntlm,
+				label);
+		}
+
 		[Test]
 		public void BasicHttps ()
 		{
