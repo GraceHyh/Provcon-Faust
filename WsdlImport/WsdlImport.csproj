@@ -48,12 +48,6 @@
     <Compile Include="IMyService.cs" />
     <Compile Include="Client.cs" />
     <Compile Include="Options.cs" />
-    <Compile Include="MetadataTests\BindingTestAssertions.cs" />
-    <Compile Include="MetadataTests\TestLabel.cs" />
-    <Compile Include="MetadataTests\TestContext.cs" />
-    <Compile Include="MetadataTests\MetadataSamples.cs" />
-    <Compile Include="MetadataTests\ImportTests_Misc.cs" />
-    <Compile Include="MetadataTests\ImportTests_Tests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
@@ -81,6 +75,9 @@
     <EmbeddedResource Include="Resources\BasicHttp_NtlmAuth.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="MetadataTests\" />
+    <ProjectReference Include="MetadataTests\MetadataTests.csproj">
+      <Project>{F90E9E5C-4C86-47DB-A98C-2DFE753F21D5}</Project>
+      <Name>MetadataTests</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>
