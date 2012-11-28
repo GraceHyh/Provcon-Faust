@@ -30,6 +30,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MonoMac.Foundation;
 using MonoMac.AppKit;
+using Library;
 
 namespace TestMac {
 
@@ -55,6 +56,14 @@ namespace TestMac {
 		}
 		
 		#endregion
+
+		public override void AwakeFromNib ()
+		{
+			base.AwakeFromNib ();
+
+			var controller = new TestViewController ();
+			MyView.AddSubview (controller.View);
+		}
 	}
 }
 
