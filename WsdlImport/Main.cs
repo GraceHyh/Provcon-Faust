@@ -73,7 +73,7 @@ namespace WsdlImport {
 
 			switch (mode) {
 			case Mode.Export:
-				MetadataSamples.Export (TestContext.Default);
+				MetadataSamples.Export ();
 				return;
 
 			case Mode.Server:
@@ -101,7 +101,7 @@ namespace WsdlImport {
 
 		static void TestDefault ()
 		{
-			var test = new ImportTests ();
+			var test = new ImportTests_LoadMetadata ();
 			test.BasicHttp ();
 			test.BasicHttp_Mtom ();
 			test.BasicHttp_TransportSecurity ();

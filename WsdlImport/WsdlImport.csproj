@@ -52,26 +52,9 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
   <ItemGroup>
-    <EmbeddedResource Include="Resources\http.config" />
-    <EmbeddedResource Include="Resources\https.config" />
-    <EmbeddedResource Include="Resources\https2.config" />
-    <EmbeddedResource Include="Resources\net-tcp.config" />
-    <EmbeddedResource Include="Resources\NetTcp.xml" />
-    <EmbeddedResource Include="Resources\NetTcp_TransferMode.xml" />
-    <EmbeddedResource Include="Resources\NetTcp_TransportSecurity.xml" />
-    <EmbeddedResource Include="Resources\NetTcp_MessageSecurity.xml" />
-    <EmbeddedResource Include="Resources\NetTcp_TransportWithMessageCredential.xml" />
-    <EmbeddedResource Include="Resources\BasicHttp.xml" />
-    <EmbeddedResource Include="Resources\BasicHttp_TransportSecurity.xml" />
-    <EmbeddedResource Include="Resources\BasicHttp_MessageSecurity.xml" />
-    <EmbeddedResource Include="Resources\BasicHttp_Mtom.xml" />
-    <EmbeddedResource Include="Resources\BasicHttp_TransportWithMessageCredential.xml" />
-    <EmbeddedResource Include="Resources\BasicHttps.xml" />
-    <EmbeddedResource Include="Resources\BasicHttps_Certificate.xml" />
-    <EmbeddedResource Include="Resources\BasicHttps_NtlmAuth.xml" />
-    <EmbeddedResource Include="Resources\BasicHttps_TransportWithMessageCredential.xml" />
-    <EmbeddedResource Include="Resources\NetTcp_ReliableSession.xml" />
-    <EmbeddedResource Include="Resources\http-error.xml" />
-    <EmbeddedResource Include="Resources\BasicHttp_NtlmAuth.xml" />
+    <ProjectReference Include="..\..\mono\mcs\class\System.ServiceModel\Test\MetadataTests\MetadataTests.csproj">
+      <Project>{7731D464-5152-4A1B-AACB-6B5A7CA9ACAA}</Project>
+      <Name>MetadataTests</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>
