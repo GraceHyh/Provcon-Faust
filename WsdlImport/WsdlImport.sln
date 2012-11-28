@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WsdlImport", "WsdlImport.csproj", "{487E3B29-2A6B-429C-94B1-0D3B24C08D1D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetadataTests", "MetadataTests.csproj", "{F90E9E5C-4C86-47DB-A98C-2DFE753F21D5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MetadataTests", "..\..\mono\mcs\class\System.ServiceModel\Test\MetadataTests\MetadataTests.csproj", "{7731D464-5152-4A1B-AACB-6B5A7CA9ACAA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,10 +15,10 @@ Global
 		{487E3B29-2A6B-429C-94B1-0D3B24C08D1D}.Debug|x86.Build.0 = Debug|x86
 		{487E3B29-2A6B-429C-94B1-0D3B24C08D1D}.Release|x86.ActiveCfg = Release|x86
 		{487E3B29-2A6B-429C-94B1-0D3B24C08D1D}.Release|x86.Build.0 = Release|x86
-		{F90E9E5C-4C86-47DB-A98C-2DFE753F21D5}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{F90E9E5C-4C86-47DB-A98C-2DFE753F21D5}.Debug|x86.Build.0 = Debug|Any CPU
-		{F90E9E5C-4C86-47DB-A98C-2DFE753F21D5}.Release|x86.ActiveCfg = Release|Any CPU
-		{F90E9E5C-4C86-47DB-A98C-2DFE753F21D5}.Release|x86.Build.0 = Release|Any CPU
+		{7731D464-5152-4A1B-AACB-6B5A7CA9ACAA}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7731D464-5152-4A1B-AACB-6B5A7CA9ACAA}.Debug|x86.Build.0 = Debug|Any CPU
+		{7731D464-5152-4A1B-AACB-6B5A7CA9ACAA}.Release|x86.ActiveCfg = Release|Any CPU
+		{7731D464-5152-4A1B-AACB-6B5A7CA9ACAA}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = WsdlImport.csproj
