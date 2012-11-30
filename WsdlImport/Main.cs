@@ -85,8 +85,6 @@ namespace WsdlImport {
 				return;
 
 			default:
-				TestExport.Run ();
-				return;
 				TestCreate ();
 				TestDefault ();
 				// TestConfig ();
