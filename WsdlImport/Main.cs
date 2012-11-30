@@ -85,8 +85,11 @@ namespace WsdlImport {
 				return;
 
 			default:
+				TestExport.Run ();
+				return;
+				TestCreate ();
 				TestDefault ();
-				TestConfig ();
+				// TestConfig ();
 				return;
 			}
 		}
@@ -99,6 +102,13 @@ namespace WsdlImport {
 
 		}
 
+		static void TestCreate ()
+		{
+			var test = new ImportTests_CreateMetadata ();
+			test.BasicHttp_Mtom ();
+			test.BasicHttp_NtlmAuth ();
+		}
+
 		static void TestDefault ()
 		{
 			var test = new ImportTests_LoadMetadata ();
@@ -106,6 +116,7 @@ namespace WsdlImport {
 			test.BasicHttp_Mtom ();
 			test.BasicHttp_TransportSecurity ();
 			test.BasicHttp_NtlmAuth ();
+			test.BasicHttp_Mtom_EmbeddedPolicy ();
 
 			test.NetTcp ();
 			test.NetTcp_TransferMode ();
@@ -113,33 +124,6 @@ namespace WsdlImport {
 			// test.NetTcp_MessageSecurity ();
 			// test.NetTcp_Binding ();
 			// test.NetTcp_TransportWithMessageCredential ();
-
-#if NET_4_5
-			test.BasicHttps ();
-			test.BasicHttps_NtlmAuth ();
-			test.BasicHttps_Certificate ();
-#endif
-
-#if FIXME
-			test.BasicHttpBinding ();
-			test.BasicHttpBinding2 ();
-			test.BasicHttpBinding3 ();
-			test.BasicHttpBinding4 ();
-			test.BasicHttpBinding5 ();
-			test.BasicHttpsBinding ();
-			test.BasicHttpsBinding2 ();
-			test.BasicHttpsBinding3 ();
-			test.BasicHttpsBinding4 ();
-			test.NetTcp ();
-			test.NetTcp_TransportSecurity ();
-			test.NetTcpBinding3 ();
-			test.NetTcp_TransferMode ();
-			test.BasicHttpBinding_ImportBinding ();
-			test.BasicHttpBinding_ImportEndpoint ();
-			test.BasicHttpBinding_ImportEndpoints ();
-			test.BasicHttpBinding_Error ();
-			test.BasicHttpBinding_Error2 ();
-#endif
 		}
 	}
 }
