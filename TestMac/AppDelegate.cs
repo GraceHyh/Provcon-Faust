@@ -27,6 +27,7 @@
 
 using System;
 using System.IO;
+using System.Net;
 using System.Drawing;
 using MonoMac.Foundation;
 using MonoMac.AppKit;
@@ -41,25 +42,34 @@ namespace TestMac {
 		{
 		}
 
-		void TestUrls ()
+		void TestNetwork ()
 		{
-			var path = Path.GetTempFileName ();
-			Console.WriteLine ("TEST: {0} {1}", path, File.Exists (path));
+			var url = NSUrl.FromString ("http://www.heise.de/");
+			var request = NSUrlRequest.FromUrl (url);
+			var dlg = new ConnectionDelegate ();
 
-			var array = new NSMutableArray ();
-			var url = new NSUrl ("file://" + path);
-			array.Add (url);
+			NSError error;
+			NSUrlResponse response;
 
-			var workspace = NSWorkspace.SharedWorkspace;
-			workspace.DuplicateUrls (array, (urls, error) => {
-				Console.WriteLine ("DUPLICATED: {0} {1}", urls, error);
-				array.Add (urls.Values [0]);
+			NSUrlConnection.SendSynchronousRequest (request, out response, out error);
 
-				workspace.RecycleUrls (array, (urls2, error2) => {
-					Console.WriteLine ("RECYCLED: {0} {1} {2}",
-					                   urls2, error2, File.Exists (path));
-				});
-			});
+			Console.WriteLine ("GOT RESPONSE: {0} {1}", response, error);
+		}
+
+		void TestWebRequest ()
+		{
+			IntPtr native = _SystemNet.CFNetwork.CFNetworkCopySystemProxySettings ();
+			var dict = new NSDictionary (native, true);
+
+			foreach (var key in dict.Keys) {
+				var value = dict [key];
+				Console.WriteLine ("DICT: {0} {1:x} -> {2}", key, key.Handle.ToInt32 (), value);
+			}
+
+			var uri = new Uri ("http://www.heise.de/");
+			var proxy = _SystemNet.CFNetwork.GetDefaultProxy ();
+			var targetProxy = proxy.GetProxy (uri);
+			Console.WriteLine ("PROXY: {0}", targetProxy != null);
 		}
 
 		public override void FinishedLaunching (NSObject notification)
@@ -67,33 +77,31 @@ namespace TestMac {
 			mainWindowController = new MainWindowController ();
 			mainWindowController.Window.MakeKeyAndOrderFront (this);
 
-			TestUrls ();
+			try {
+				// TestNetwork ();
+				TestWebRequest ();
+			} catch (Exception ex) {
+				Console.WriteLine ("NETWORK EX: {0}", ex);
+			}
 		}
 
-		void TestJPEG ()
-		{
-			var path = Path.Combine (NSBundle.MainBundle.BundlePath, "Contents", "Resources");
-			var filePath = Path.Combine (path, "Neptune.jpg");
+		class ConnectionDelegate : NSUrlConnectionDelegate {
+			public override void ReceivedResponse (NSUrlConnection connection, NSUrlResponse response)
+			{
+				throw new System.NotImplementedException ();
+			}
 
-			var image = new NSImage (filePath);
-			Console.WriteLine (image);
+			public override void ReceivedAuthenticationChallenge (NSUrlConnection connection, NSUrlAuthenticationChallenge challenge)
+			{
+				throw new System.NotImplementedException ();
+			}
 
-			SaveImage (image, "output.jpg", 0.0f);
-			SaveImage (image, "output.jpg", 0.25f);
-			SaveImage (image, "output.jpg", 0.5f);
-			SaveImage (image, "output.jpg", 1.0f);
+			public override void ReceivedData (NSUrlConnection connection, NSData data)
+			{
+				throw new System.NotImplementedException ();
+			}
 		}
 
-		public void SaveImage (NSImage image, string location, float quality) 
-		{
-			var brep = (NSBitmapImageRep)image.Representations ()[0];
-
-			var dict = NSDictionary.FromObjectAndKey (
-				NSNumber.FromFloat (quality), NSBitmapImageRep.CompressionFactor);
-
-			var data = brep.RepresentationUsingTypeProperties (NSBitmapImageFileType.Jpeg, dict);
-			Console.WriteLine (data.Length);
-		} 
 	}
 }
 

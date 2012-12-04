@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5B33BAFA166D59BA005EBC2C /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B33BAF9166D59BA005EBC2C /* Security.framework */; };
 		5B749B381655012300465FB6 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B749B371655012300465FB6 /* Cocoa.framework */; };
 		5B749B421655012300465FB6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5B749B401655012300465FB6 /* InfoPlist.strings */; };
 		5B749B441655012300465FB6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 5B749B431655012300465FB6 /* main.m */; };
@@ -17,6 +18,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		5B33BAF9166D59BA005EBC2C /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		5B749B331655012300465FB6 /* NativeTestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NativeTestApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5B749B371655012300465FB6 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		5B749B3A1655012300465FB6 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -25,7 +27,6 @@
 		5B749B3F1655012300465FB6 /* NativeTestApp-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "NativeTestApp-Info.plist"; sourceTree = "<group>"; };
 		5B749B411655012300465FB6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		5B749B431655012300465FB6 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		5B749B451655012300465FB6 /* NativeTestApp-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NativeTestApp-Prefix.pch"; sourceTree = "<group>"; };
 		5B749B471655012300465FB6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
 		5B749B491655012300465FB6 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		5B749B4A1655012300465FB6 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -38,6 +39,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5B33BAFA166D59BA005EBC2C /* Security.framework in Frameworks */,
 				5B749B381655012300465FB6 /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -48,6 +50,7 @@
 		5B749B281655012300465FB6 = {
 			isa = PBXGroup;
 			children = (
+				5B33BAF9166D59BA005EBC2C /* Security.framework */,
 				5B749B3D1655012300465FB6 /* NativeTestApp */,
 				5B749B361655012300465FB6 /* Frameworks */,
 				5B749B341655012300465FB6 /* Products */,
@@ -99,7 +102,6 @@
 				5B749B3F1655012300465FB6 /* NativeTestApp-Info.plist */,
 				5B749B401655012300465FB6 /* InfoPlist.strings */,
 				5B749B431655012300465FB6 /* main.m */,
-				5B749B451655012300465FB6 /* NativeTestApp-Prefix.pch */,
 				5B749B461655012300465FB6 /* Credits.rtf */,
 			);
 			name = "Supporting Files";
@@ -230,6 +232,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				ONLY_ACTIVE_ARCH = YES;
+				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -252,6 +255,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -261,9 +265,10 @@
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "NativeTestApp/NativeTestApp-Prefix.pch";
 				INFOPLIST_FILE = "NativeTestApp/NativeTestApp-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -273,9 +278,10 @@
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "NativeTestApp/NativeTestApp-Prefix.pch";
 				INFOPLIST_FILE = "NativeTestApp/NativeTestApp-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
@@ -299,6 +305,7 @@
 				5B749B531655012300465FB6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

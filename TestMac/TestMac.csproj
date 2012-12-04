@@ -28,6 +28,9 @@
     <EnableCodeSigning>False</EnableCodeSigning>
     <ConsolePause>False</ConsolePause>
     <PlatformTarget>x86</PlatformTarget>
+    <PackageSigningKey>Developer ID Installer</PackageSigningKey>
+    <I18n />
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugType>none</DebugType>
@@ -44,6 +47,7 @@
     <EnableCodeSigning>True</EnableCodeSigning>
     <ConsolePause>False</ConsolePause>
     <PlatformTarget>x86</PlatformTarget>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'AppStore|x86' ">
     <DebugType>none</DebugType>
@@ -61,6 +65,7 @@
     <CreatePackage>True</CreatePackage>
     <EnablePackageSigning>True</EnablePackageSigning>
     <PlatformTarget>x86</PlatformTarget>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -84,6 +89,7 @@
     <Compile Include="AppDelegate.designer.cs">
       <DependentUpon>AppDelegate.cs</DependentUpon>
     </Compile>
+    <Compile Include="MacProxy.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainWindow.xib" />
@@ -96,11 +102,5 @@
   <Import Project="$(MSBuildExtensionsPath)\Mono\MonoMac\v0.0\Mono.MonoMac.targets" />
   <ItemGroup>
     <BundleResource Include="Resources\Neptune.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="Library\Library.csproj">
-      <Project>{58D96A34-FF15-4333-82AD-0E564A957361}</Project>
-      <Name>Library</Name>
-    </ProjectReference>
   </ItemGroup>
 </Project>
