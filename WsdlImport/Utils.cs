@@ -26,6 +26,7 @@
 using System;
 using System.IO;
 using System.Xml;
+using System.Xml.XPath;
 using System.Reflection;
 using System.Configuration;
 using System.Collections.Generic;
@@ -142,6 +143,8 @@ namespace WsdlImport {
 			var config = ConfigurationManager.OpenMappedExeConfiguration (
 				fileMap, ConfigurationUserLevel.None);
 
+			Console.WriteLine ("CREATE CONFIG: {0}", binding.Name);
+
 			var generator = new ServiceContractGenerator (config);
 
 			string sectionName, configName;
@@ -149,54 +152,46 @@ namespace WsdlImport {
 
 			Console.WriteLine ("CONFIG: {0} {1} {2}", binding, sectionName, configName);
 
-			config.Save ();
+			config.Save (ConfigurationSaveMode.Minimal);
+			Console.WriteLine ("CONFIG: {0}", config.FilePath);
+			Dump (config.FilePath);
 		}
 
-		public static void CreateConfig_Hack (Binding binding, string filename)
+		public static void NormalizeConfig (string filename)
 		{
-			if (Environment.OSVersion.Platform == PlatformID.Win32NT) {
-				// Use the real API on Windows.
-				CreateConfig (binding, filename);
+			var doc = new XmlDocument ();
+			doc.Load (filename);
+			var nav = doc.CreateNavigator ();
+			
+			var empty = new List<XPathNavigator> ();
+			var iter = nav.Select ("/configuration/system.serviceModel/bindings/*");
+			foreach (XPathNavigator node in iter) {
+				if (!node.HasChildren && !node.HasAttributes && string.IsNullOrEmpty (node.Value))
+					empty.Add (node);
+			}
+			foreach (var node in empty)
+				node.DeleteSelf ();
+			
+			var settings = new XmlWriterSettings ();
+			settings.Indent = true;
+			settings.NewLineHandling = NewLineHandling.Replace;
+			
+			using (var writer = XmlWriter.Create (filename, settings)) {
+				doc.WriteTo (writer);
+			}
+			Console.WriteLine ();
+		}
+
+		public static void Dump (string filename)
+		{
+			if (!File.Exists (filename)) {
+				Console.WriteLine ("ERROR: File does not exist!");
 				return;
 			}
-
-			// The reflection stuff below uses private Mono APIs.
-
-			var configName = GetConfigElementName (binding);
-			if (configName == null)
-				throw new InvalidOperationException ();
-			
-			var element = CreateConfigElement (binding, configName);
-			if (element == null)
-				return;
-
-			var init = element.GetType ().GetMethod (
-				"InitializeFrom", BindingFlags.Instance | BindingFlags.NonPublic);
-			init.Invoke (element, new object[] { binding });
-
-			var collectionElement = CreateCollectionElement (configName, element);
-
-			// FIXME: Mono bug
-			filename = Path.GetFullPath (filename);
-
-			if (File.Exists (filename))
-				File.Delete (filename);
-
-			var fileMap = new ExeConfigurationFileMap ();
-			fileMap.ExeConfigFilename = filename;
-			var config = ConfigurationManager.OpenMappedExeConfiguration (
-				fileMap, ConfigurationUserLevel.None);
-
-			Console.WriteLine ("CREATE CONFIG: {0} {1}", config, binding);
-
-			var section = (BindingsSection)config.GetSection ("system.serviceModel/bindings");
-
-			var method = section.GetType ().GetMethod (
-				"set_Item", BindingFlags.Instance | BindingFlags.NonPublic, null,
-				new Type [] { typeof (string), typeof (object) }, null);
-			method.Invoke (section, new object[] { configName, collectionElement });
-
-			config.Save ();
+			using (var reader = new StreamReader (filename)) {
+				Console.WriteLine (reader.ReadToEnd ());
+				Console.WriteLine ();
+			}
 		}
 	}
 }

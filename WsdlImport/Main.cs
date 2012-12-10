@@ -38,6 +38,8 @@ using System.ServiceModel.Dispatcher;
 using System.Collections.ObjectModel;
 using System.Configuration;
 using System.Xml;
+using System.Xml.Xsl;
+using System.Xml.XPath;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 using System.Web.Services;
@@ -85,9 +87,7 @@ namespace WsdlImport {
 				return;
 
 			default:
-				TestCreate ();
-				TestDefault ();
-				// TestConfig ();
+				TestConfig ();
 				return;
 			}
 		}
@@ -97,7 +97,22 @@ namespace WsdlImport {
 			var binding = new BasicHttpBinding ();
 			Console.WriteLine ("TEST: {0}", binding.Name);
 			Utils.CreateConfig (binding, "test.config");
+			// Utils.NormalizeConfig ("test.config");
+			// CheckConfig ();
+		}
 
+		static void CheckConfig ()
+		{
+			var doc = new XPathDocument ("test2.config");
+			var nav = doc.CreateNavigator ();
+
+			var iter = nav.Select ("/configuration/system.serviceModel/bindings/*");
+			Console.WriteLine ("SELECT: {0} - {1} {2}", iter, iter.Count, iter.Current);
+			foreach (XPathNavigator binding in iter) {
+				Console.WriteLine ("TEST: {0} - {1} {2} {3} {4}", binding.GetType (),
+				                   binding.HasChildren, binding.OuterXml, binding.Value,
+				                   binding.HasAttributes);
+			}
 		}
 
 		static void TestCreate ()
@@ -122,6 +137,27 @@ namespace WsdlImport {
 			// test.NetTcp_MessageSecurity ();
 			// test.NetTcp_Binding ();
 			// test.NetTcp_TransportWithMessageCredential ();
+		}
+
+		static void TestConfigSection ()
+		{
+			var filename = "test.config";
+			if (File.Exists (filename))
+				File.Delete (filename);
+			var fileMap = new ExeConfigurationFileMap ();
+			fileMap.ExeConfigFilename = filename;
+			var config = ConfigurationManager.OpenMappedExeConfiguration (
+				fileMap, ConfigurationUserLevel.None);
+			
+			var section = (BindingsSection)config.GetSection ("system.serviceModel/bindings");
+			var element = new BasicHttpBindingElement ("Test");
+			section.BasicHttpBinding.Bindings.Add (element);
+			
+			config.Save (ConfigurationSaveMode.Minimal);
+
+			Console.WriteLine ("TEST: {0}", config.FilePath);
+
+			Utils.Dump (filename);
 		}
 	}
 }
