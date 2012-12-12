@@ -159,6 +159,8 @@ namespace WsdlImport {
 
 			config.Save (ConfigurationSaveMode.Minimal);
 			Console.WriteLine ("CONFIG: {0}", config.FilePath);
+
+			NormalizeConfig (filename);
 			Dump (config.FilePath);
 		}
 
@@ -169,7 +171,7 @@ namespace WsdlImport {
 			var nav = doc.CreateNavigator ();
 			
 			var empty = new List<XPathNavigator> ();
-			var iter = nav.Select ("/configuration/system.serviceModel/bindings/*");
+			var iter = nav.Select ("/configuration/system.serviceModel//*");
 			foreach (XPathNavigator node in iter) {
 				if (!node.HasChildren && !node.HasAttributes && string.IsNullOrEmpty (node.Value))
 					empty.Add (node);
@@ -180,7 +182,7 @@ namespace WsdlImport {
 			var settings = new XmlWriterSettings ();
 			settings.Indent = true;
 			settings.NewLineHandling = NewLineHandling.Replace;
-			
+
 			using (var writer = XmlWriter.Create (filename, settings)) {
 				doc.WriteTo (writer);
 			}
@@ -196,6 +198,17 @@ namespace WsdlImport {
 			using (var reader = new StreamReader (filename)) {
 				Console.WriteLine (reader.ReadToEnd ());
 				Console.WriteLine ();
+			}
+		}
+
+		public static void PrettyPrintXML (string filename)
+		{
+			var doc = new XmlDocument ();
+			doc.Load (filename);
+			
+			using (var writer = new XmlTextWriter (new StreamWriter (filename))) {
+				writer.Formatting = Formatting.Indented;
+				doc.WriteTo (writer);
 			}
 		}
 	}
