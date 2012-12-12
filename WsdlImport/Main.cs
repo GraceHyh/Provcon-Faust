@@ -49,7 +49,6 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 using WS = System.Web.Services.Description;
-using MonoTests.System.ServiceModel.MetadataTests;
 
 using NUnit.Framework;
 using Mono.Options;
@@ -75,7 +74,7 @@ namespace WsdlImport {
 
 			switch (mode) {
 			case Mode.Export:
-				MetadataSamples.Export ();
+				// MetadataSamples.Export ();
 				return;
 
 			case Mode.Server:
@@ -88,6 +87,7 @@ namespace WsdlImport {
 
 			default:
 				TestConfig ();
+				ConfigTest.Run ("my.config");
 				return;
 			}
 		}
@@ -95,7 +95,7 @@ namespace WsdlImport {
 		static void TestConfig ()
 		{
 			var binding = new BasicHttpBinding ();
-			Console.WriteLine ("TEST: {0}", binding.Name);
+			binding.Name = "Test";
 			Utils.CreateConfig (binding, "test.config");
 			// Utils.NormalizeConfig ("test.config");
 			// CheckConfig ();
@@ -113,30 +113,6 @@ namespace WsdlImport {
 				                   binding.HasChildren, binding.OuterXml, binding.Value,
 				                   binding.HasAttributes);
 			}
-		}
-
-		static void TestCreate ()
-		{
-			var test = new ImportTests_CreateMetadata ();
-			test.BasicHttp_Mtom ();
-			test.BasicHttp_NtlmAuth ();
-		}
-
-		static void TestDefault ()
-		{
-			var test = new ImportTests_LoadMetadata ();
-			test.BasicHttp ();
-			test.BasicHttp_Mtom ();
-			test.BasicHttp_TransportSecurity ();
-			test.BasicHttp_NtlmAuth ();
-			test.BasicHttp_Mtom_EmbeddedPolicy ();
-
-			test.NetTcp ();
-			test.NetTcp_TransferMode ();
-			test.NetTcp_TransportSecurity ();
-			// test.NetTcp_MessageSecurity ();
-			// test.NetTcp_Binding ();
-			// test.NetTcp_TransportWithMessageCredential ();
 		}
 
 		static void TestConfigSection ()

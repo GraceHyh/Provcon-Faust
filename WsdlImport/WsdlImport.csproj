@@ -48,6 +48,7 @@
     <Compile Include="IMyService.cs" />
     <Compile Include="Client.cs" />
     <Compile Include="Options.cs" />
+    <Compile Include="ConfigTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />

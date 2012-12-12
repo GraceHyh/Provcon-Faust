@@ -135,8 +135,13 @@ namespace WsdlImport {
 
 		internal static void CreateConfig (Binding binding, string filename)
 		{
-			if (File.Exists (filename))
+			if (false && File.Exists (filename))
 				File.Delete (filename);
+
+			var element = new BasicHttpBindingElement ("Test");
+			foreach (PropertyInformation prop in element.ElementInformation.Properties) {
+				Console.WriteLine ("PROP: {0} {1}", prop.Name, prop.IsRequired);
+			}
 			
 			var fileMap = new ExeConfigurationFileMap ();
 			fileMap.ExeConfigFilename = filename;
