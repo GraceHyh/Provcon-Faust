@@ -58,4 +58,9 @@
       <Name>MetadataTests</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="test.wsdl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

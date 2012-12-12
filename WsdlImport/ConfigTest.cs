@@ -88,7 +88,7 @@ namespace WsdlImport {
 				config.Sections.Add ("my", my);
 			}
 
-			// my.Hello = 11;
+			my.Hello = 11;
 			// my.TextEncoding = Encoding.UTF8;
 
 			config.Save (ConfigurationSaveMode.Minimal);
@@ -98,9 +98,17 @@ namespace WsdlImport {
 			Utils.Dump (filename);
 		}
 
+		public class MyCollectionElement : ConfigurationElement {
+		}
+
 		public class MySection : ConfigurationSection {
 
 			ConfigurationPropertyCollection _properties;
+
+			[ConfigurationProperty ("list", Options = ConfigurationPropertyOptions.None)]
+			public MyCollectionElement List {
+				get { return (MyCollectionElement) this ["list"]; }
+			}
 
 			[ConfigurationProperty ("Hello", DefaultValue = 8)]
 			public int Hello {
@@ -128,6 +136,7 @@ namespace WsdlImport {
 					if (_properties == null) {
 						_properties = base.Properties;
 						_properties.Add (new ConfigurationProperty ("textEncoding", typeof (Encoding), "utf-8", EncodingConverter.Instance, null, ConfigurationPropertyOptions.None));
+						_properties.Add (new ConfigurationProperty ("list", typeof (MyCollectionElement), null, null, null, ConfigurationPropertyOptions.None));
 					}
 					return _properties;
 				}

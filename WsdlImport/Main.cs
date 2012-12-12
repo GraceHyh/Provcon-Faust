@@ -27,9 +27,11 @@
 using System;
 using System.CodeDom;
 using System.CodeDom.Compiler;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Configuration;
@@ -44,9 +46,7 @@ using System.Xml.Schema;
 using System.Xml.Serialization;
 using System.Web.Services;
 using System.Web.Services.Discovery;
-
-using System.Collections.Generic;
-using System.Runtime.Serialization;
+using Microsoft.CSharp;
 
 using WS = System.Web.Services.Description;
 
@@ -86,19 +86,70 @@ namespace WsdlImport {
 				return;
 
 			default:
-				TestConfig ();
-				ConfigTest.Run ("my.config");
+				TestSvcUtil ("test.wsdl");
+				// Utils.PrettyPrintXML ("test.wsdl");
+				// TestConfig ();
+				// ConfigTest.Run ("my.config");
 				return;
 			}
 		}
 
 		static void TestConfig ()
 		{
-			var binding = new BasicHttpBinding ();
+			var binding = new CustomBinding ();
 			binding.Name = "Test";
 			Utils.CreateConfig (binding, "test.config");
 			// Utils.NormalizeConfig ("test.config");
 			// CheckConfig ();
+		}
+
+		static void TestSvcUtil (string filename)
+		{
+			var sd = WS.ServiceDescription.Read (filename);
+			MetadataSet metadata = new MetadataSet ();
+			metadata.MetadataSections.Add (new MetadataSection ("http://schemas.xmlsoap.org/wsdl/", "Test", sd));
+
+			WsdlImporter importer = new WsdlImporter (metadata);
+
+			var endpoints = importer.ImportAllEndpoints ();
+			var contracts = importer.ImportAllContracts ();
+
+			var code_provider = new Microsoft.CSharp.CSharpCodeProvider ();
+
+			var ccu = new CodeCompileUnit ();
+			var cns = new CodeNamespace ("TestNamespace");
+			ccu.Namespaces.Add (cns);
+
+			if (File.Exists ("output.cs"))
+				File.Delete ("output.cs");
+			if (File.Exists ("test.config"))
+				File.Delete ("test.config");
+
+			var fileMap = new ExeConfigurationFileMap ();
+			fileMap.ExeConfigFilename = "test.config";
+			var config = ConfigurationManager.OpenMappedExeConfiguration (
+				fileMap, ConfigurationUserLevel.None);
+			
+			var generator = new ServiceContractGenerator (ccu, config);
+			generator.Options = ServiceContractGenerationOptions.None;
+
+			foreach (ContractDescription cd in contracts) {
+				// generator.GenerateServiceContractType (cd);
+			}
+
+			using (TextWriter w = File.CreateText ("output.cs")) {
+				code_provider.GenerateCodeFromCompileUnit (ccu, w, null);
+			}
+
+			foreach (var endpoint in endpoints) {
+				ChannelEndpointElement channelElement;
+				generator.GenerateServiceEndpoint (endpoint, out channelElement);
+
+				// string sectionName, configName;
+				//generator.GenerateBinding (endpoint.Binding, out sectionName, out configName);
+			}
+
+			config.Save (ConfigurationSaveMode.Minimal);
 		}
 
 		static void CheckConfig ()
