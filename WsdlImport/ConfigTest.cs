@@ -41,6 +41,8 @@ using NUnit.Framework;
 using NUnit.Framework.Constraints;
 using NUnit.Framework.SyntaxHelpers;
 
+using MonoTests.System.ServiceModel.MetadataTests;
+
 namespace WsdlImport {
 
 	public class ConfigTest {
@@ -71,20 +73,80 @@ namespace WsdlImport {
 			return true;
 		}
 
+		public abstract class MachineConfigProvider {
+			public void Create (string filename)
+			{
+				if (File.Exists (filename))
+					File.Delete (filename);
+				
+				var settings = new XmlWriterSettings ();
+				settings.Indent = true;
+				
+				using (var writer = XmlTextWriter.Create (filename, settings)) {
+					writer.WriteStartElement ("configuration");
+					WriteXml (writer);
+					writer.WriteEndElement ();
+				}
+			}
+
+			protected virtual void WriteXml (XmlWriter writer)
+			{
+				writer.WriteStartElement ("configSections");
+				WriteSections (writer);
+				writer.WriteEndElement ();
+				WriteValues (writer);
+			}
+
+			protected abstract void WriteSections (XmlWriter writer);
+
+			protected abstract void WriteValues (XmlWriter writer);
+		}
+
+		class DefaultMachineConfig : MachineConfigProvider {
+			protected override void WriteSections (XmlWriter writer)
+			{
+				writer.WriteStartElement ("section");
+				writer.WriteAttributeString ("name", "my");
+				writer.WriteAttributeString ("type", typeof (MySection).AssemblyQualifiedName);
+				writer.WriteAttributeString ("allowLocation", "true");
+				writer.WriteAttributeString ("allowDefinition", "Everywhere");
+				writer.WriteAttributeString ("allowExeDefinition", "MachineToRoamingUser");
+				writer.WriteAttributeString ("restartOnExternalChanges", "true");
+				writer.WriteAttributeString ("requirePermission", "true");
+				writer.WriteEndElement ();
+			}
+
+			protected override void WriteValues (XmlWriter writer)
+			{
+				writer.WriteStartElement ("my");
+				writer.WriteEndElement ();
+			}
+		}
+
+		class EmptySectionMachineConfig : DefaultMachineConfig {
+			protected override void WriteValues (XmlWriter writer)
+			{
+				writer.WriteStartElement ("my");
+				writer.WriteEndElement ();
+			}
+		}
+
 		public static void CreateMachine (string filename)
 		{
 			if (File.Exists (filename))
 				File.Delete (filename);
 
-			using (var writer = XmlTextWriter.Create (filename)) {
+			var settings = new XmlWriterSettings ();
+			settings.Indent = true;
+
+			using (var writer = XmlTextWriter.Create (filename, settings)) {
 				writer.WriteStartElement ("configuration");
+				writer.WriteStartElement ("my");
+				writer.WriteEndElement ();
 				writer.WriteEndElement ();
 			}
 
-			var map = new ConfigurationFileMap (filename);
-			var config = ConfigurationManager.OpenMappedMachineConfiguration (map);
-
-#if FIXME
+#if REALLY_FIXME
 			var protectedData = (ProtectedConfigurationSection)config.Sections ["configProtectedData"];
 			if (protectedData == null) {
 				protectedData = new ProtectedConfigurationSection ();
@@ -95,19 +157,22 @@ namespace WsdlImport {
 			protectedData.DefaultProvider = "RsaProtectedConfigurationProvider";
 #endif
 
-			var my = new MySection ();
-			my.SectionInformation.AllowExeDefinition = ConfigurationAllowExeDefinition.MachineToRoamingUser;
-			config.Sections.Add ("my", my);
-
-			config.Save (ConfigurationSaveMode.Full);
+#if FIXME
+			Console.WriteLine ();
+			Console.WriteLine ("MACHINE CONFIG: {0}", filename);
+			Console.WriteLine ("==================================");
 			Utils.Dump (filename);
+			Console.WriteLine ("==================================");
+			Console.WriteLine ();
+#endif
 		}
 
-		public delegate void TestFunction (Configuration config);
-		public delegate void XmlCheckFunction (XPathNavigator nav);
+		public delegate void TestFunction (Configuration config, TestLabel label);
+		public delegate void XmlCheckFunction (XPathNavigator nav, TestLabel label);
 
-		public static void Run (TestFunction func)
+		public static void Run (string name, TestFunction func)
 		{
+			var label = new TestLabel (name);
 			var filename = Path.GetTempFileName ();
 			
 			try {
@@ -118,28 +183,35 @@ namespace WsdlImport {
 				var config = ConfigurationManager.OpenMappedExeConfiguration (
 					fileMap, ConfigurationUserLevel.None);
 				
-				func (config);
-				
-				config.Save (ConfigurationSaveMode.Modified);
-				
-				Console.WriteLine ();
-				Console.WriteLine (filename);
-				if (File.Exists (filename))
-					Utils.Dump (filename);
-				else
-					Console.WriteLine ("<empty>");
+				func (config, label);
 			} finally {
 				if (File.Exists (filename))
 					File.Delete (filename);
 			}
 		}
 
-		public static void RunWithMachineConfig (TestFunction func)
+		public static void Run<TMachine> (string name, TestFunction func)
+			where TMachine : MachineConfigProvider, new ()
 		{
-			RunWithMachineConfig (func, null);
+			Run<TMachine> (new TestLabel (name), func, null);
 		}
 
-		public static void RunWithMachineConfig (TestFunction func, XmlCheckFunction check)
+		public static void Run<TMachine> (TestLabel label, TestFunction func)
+			where TMachine : MachineConfigProvider, new ()
+		{
+			Run<TMachine> (label, func, null);
+		}
+
+		public static void Run<TMachine> (
+			string name, TestFunction func, XmlCheckFunction check)
+			where TMachine : MachineConfigProvider, new ()
+		{
+			Run<TMachine> (new TestLabel (name), func, check);
+		}
+
+		public static void Run<TMachine> (
+			TestLabel label, TestFunction func, XmlCheckFunction check)
+			where TMachine : MachineConfigProvider, new ()
 		{
 			var machine = Path.GetTempFileName ();
 			var filename = Path.GetTempFileName ();
@@ -148,11 +220,8 @@ namespace WsdlImport {
 				File.Delete (machine);
 				File.Delete (filename);
 
-				CreateMachine (machine);
-
-				Console.WriteLine (machine);
-				Utils.Dump (machine);
-				Console.WriteLine ();
+				var machineProvider = new TMachine ();
+				machineProvider.Create (machine);
 
 				Assert.That (File.Exists (filename), Is.False);
 					
@@ -165,18 +234,14 @@ namespace WsdlImport {
 				Assert.That (File.Exists (filename), Is.False);
 
 				try {
-					func (config);
+					label.EnterScope ("config");
+					func (config, label);
 				} catch (Exception ex) {
 					Console.WriteLine ("ERROR: {0}", ex);
 					return;
+				} finally {
+					label.LeaveScope ();
 				}
-
-				Console.WriteLine ();
-				Console.WriteLine (filename);
-				if (File.Exists (filename))
-					Utils.Dump (filename);
-				else
-					Console.WriteLine ("<empty>");
 
 				if (check == null)
 					return;
@@ -186,9 +251,12 @@ namespace WsdlImport {
 
 				var nav = xml.CreateNavigator ().SelectSingleNode ("/configuration");
 				try {
-					check (nav);
+					label.EnterScope ("xml");
+					check (nav, label);
 				} catch (Exception ex) {
 					Console.WriteLine ("ERROR CHECKING XML: {0}", ex);
+				} finally {
+					label.LeaveScope ();
 				}
 			} finally {
 				if (File.Exists (machine))
@@ -198,161 +266,254 @@ namespace WsdlImport {
 			}
 		}
 
+		static void AssertNotModified (MySection my, TestLabel label)
+		{
+			label.EnterScope ("modified");
+			Assert.That (my, Is.Not.Null, label.Get ());
+			Assert.That (my.IsModified, Is.False, label.Get ());
+			Assert.That (my.List, Is.Not.Null, label.Get ());
+			Assert.That (my.List.Collection.Count, Is.EqualTo (0), label.Get ());
+			Assert.That (my.List.IsModified, Is.False, label.Get ());
+			label.LeaveScope ();
+		}
+
 		public static void TestNotModified ()
 		{
-			RunWithMachineConfig (config => {
+			Run<DefaultMachineConfig> ("NotModified", (config,label) => {
 				var my = config.Sections ["my"] as MySection;
-				Assert.That (my, Is.Not.Null, "#1");
-				Assert.That (my.IsModified, Is.False, "#2");
-				Assert.That (my.List, Is.Not.Null, "#3");
-				Assert.That (my.List.Collection.Count, Is.EqualTo (0), "#4");
-				Assert.That (my.List.IsModified, Is.False, "#5");
 
-				Assert.That (File.Exists (config.FilePath), Is.False, "#6");
+				AssertNotModified (my, label);
+
+				label.EnterScope ("file");
+				Assert.That (File.Exists (config.FilePath), Is.False, label.Get ());
 
 				config.Save (ConfigurationSaveMode.Minimal);
-				Assert.That (File.Exists (config.FilePath), Is.False, "#7");
+				Assert.That (File.Exists (config.FilePath), Is.False, label.Get ());
+				label.LeaveScope ();
 			});
 		}
 
 		public static void TestNotModifiedAfterSave ()
 		{
-			RunWithMachineConfig (config => {
+			Run<DefaultMachineConfig> ("NotModifiedAfterSave", (config,label) => {
 				var my = config.Sections ["my"] as MySection;
-				Assert.That (my, Is.Not.Null, "#1a");
-				Assert.That (my.IsModified, Is.False, "#1b");
-				Assert.That (my.List, Is.Not.Null, "#1c");
-				Assert.That (my.List.Collection.Count, Is.EqualTo (0), "#1d");
-				Assert.That (my.List.IsModified, Is.False, "#1e");
 
+				AssertNotModified (my, label);
+
+				label.EnterScope ("add");
 				var element = my.List.Collection.AddElement ();
-				Assert.That (my.IsModified, Is.True, "#2a");
-				Assert.That (my.List.IsModified, Is.True, "#2b");
-				Assert.That (my.List.Collection.IsModified, Is.True, "#2c");
-				Assert.That (element.IsModified, Is.False, "#2d");
+				Assert.That (my.IsModified, Is.True, label.Get ());
+				Assert.That (my.List.IsModified, Is.True, label.Get ());
+				Assert.That (my.List.Collection.IsModified, Is.True, label.Get ());
+				Assert.That (element.IsModified, Is.False, label.Get ());
+				label.LeaveScope ();
 
 				config.Save ();
-				Assert.That (File.Exists (config.FilePath), Is.True, "#3");
 
-				Assert.That (my.IsModified, Is.False, "#3a");
-				Assert.That (my.List.IsModified, Is.False, "#3b");
-				Assert.That (my.List.Collection.IsModified, Is.False, "#3c");
+				label.EnterScope ("1st-save");
+				Assert.That (File.Exists (config.FilePath), Is.True, label.Get ());
+
+				Assert.That (my.IsModified, Is.False, label.Get ());
+				Assert.That (my.List.IsModified, Is.False, label.Get ());
+				Assert.That (my.List.Collection.IsModified, Is.False, label.Get ());
 
 				element.Hello = 1;
-				Assert.That (element.IsModified, Is.True, "#4a");
-				Assert.That (my.List.Collection.IsModified, Is.True, "#4b");
-				Assert.That (my.List.IsModified, Is.True, "#4c");
-				Assert.That (my.IsModified, Is.True, "#4d");
+				label.EnterScope ("modified");
+				Assert.That (element.IsModified, Is.True, label.Get ());
+				Assert.That (my.List.Collection.IsModified, Is.True, label.Get ());
+				Assert.That (my.List.IsModified, Is.True, label.Get ());
+				Assert.That (my.IsModified, Is.True, label.Get ());
+				label.LeaveScope ();
+				label.LeaveScope ();
 
 				config.Save ();
-				Assert.That (element.IsModified, Is.False, "#5a");
-				Assert.That (my.List.Collection.IsModified, Is.False, "#5b");
-				Assert.That (my.List.IsModified, Is.False, "#5c");
-				Assert.That (my.IsModified, Is.False, "#5d");
+				label.EnterScope ("2nd-save");
+				Assert.That (element.IsModified, Is.False, label.Get ());
+				Assert.That (my.List.Collection.IsModified, Is.False, label.Get ());
+				Assert.That (my.List.IsModified, Is.False, label.Get ());
+				Assert.That (my.IsModified, Is.False, label.Get ());
+				label.LeaveScope ();
 			});
 		}
 
 		public static void TestAddSection ()
 		{
-			Run (config => {
-				config.Sections.Add ("my2", new MySection ());
-				config.Save ();
+			Run ("AddSection", (config,label) => {
+				Assert.That (config.Sections ["my"], Is.Null, label.Get ());
 
-				Assert.That (File.Exists (config.FilePath), Is.True, "#1");
+				var my = new MySection ();
+				config.Sections.Add ("my2", my);
+				config.Save (ConfigurationSaveMode.Full);
+
+				Assert.That (File.Exists (config.FilePath), Is.True, label.Get ());
 			});
 		}
 
 		public static void TestAddElement_Modified ()
 		{
-			RunWithMachineConfig (config => {
+			Run<EmptySectionMachineConfig> ("AddElement_Modified", (config,label) => {
 				var my = config.Sections ["my"] as MySection;
-				Assert.That (my, Is.Not.Null, "#c1a");
-				Assert.That (my.IsModified, Is.False, "#c1b");
 
+				AssertNotModified (my, label);
+
+				label.EnterScope ("add-element");
 				my.List.DefaultCollection.AddElement ();
+				Assert.That (my.IsModified, Is.True, label.Get ());
+				label.LeaveScope ();
+
 				config.Save (ConfigurationSaveMode.Modified);
 
-				Assert.That (File.Exists (config.FilePath), Is.True, "#c2");
-			}, nav => {
-				Assert.That (nav.HasChildren, Is.True, "#x1");
+				label.EnterScope ("file");
+				Assert.That (File.Exists (config.FilePath), Is.True, label.Get ());
+				label.LeaveScope ();
+			}, (nav,label) => {
+				Console.WriteLine ("ADD ELEMENT MODIFIED: {0}", nav.OuterXml);
+
+				Assert.That (nav.HasChildren, Is.True, label.Get ());
 				var iter = nav.SelectChildren (XPathNodeType.Element);
 
-				Assert.That (iter.Count, Is.EqualTo (1), "#x2");
-				Assert.That (iter.MoveNext (), Is.True, "#x2b");
+				Assert.That (iter.Count, Is.EqualTo (1), label.Get ());
+				Assert.That (iter.MoveNext (), Is.True, label.Get ());
 
 				var my = iter.Current;
-				Assert.That (my.Name, Is.EqualTo ("my"), "#x2c");
-				Assert.That (my.HasAttributes, Is.False, "#x2d");
+				label.EnterScope ("my");
+				Assert.That (my.Name, Is.EqualTo ("my"), label.Get ());
+				Assert.That (my.HasAttributes, Is.False, label.Get ());
 
 				// FIXME: Fails
-				Assert.That (my.HasChildren, Is.False, "#x2e");
+				label.EnterScope ("children");
+				Assert.That (my.HasChildren, Is.False, label.Get ());
+				label.LeaveScope ();
+				label.LeaveScope ();
+			});
+		}
+
+		public static void TestAddElement_Modified2 ()
+		{
+			Run<EmptySectionMachineConfig> ("AddElement_Modified2", (config, label) => {
+				var my = config.Sections ["my"] as MySection;
+
+				AssertNotModified (my, label);
+
+				my.List.DefaultCollection.AddElement ();
+
+				var element2 = my.List.DefaultCollection.AddElement ();
+				element2.Hello = 1;
+				my.List.DefaultCollection.RemoveElement (element2);
+
+				config.Save (ConfigurationSaveMode.Modified);
+
+				label.EnterScope ("file");
+				Assert.That (File.Exists (config.FilePath), Is.True, label.Get ());
+				label.LeaveScope ();
+			}, (nav,label) => {
+				Console.WriteLine ("ADD ELEMENT MODIFIED: {0}", nav.OuterXml);
+				
+				Assert.That (nav.HasChildren, Is.True, label.Get ());
+				var iter = nav.SelectChildren (XPathNodeType.Element);
+				
+				Assert.That (iter.Count, Is.EqualTo (1), label.Get ());
+				Assert.That (iter.MoveNext (), Is.True, label.Get ());
+				
+				var my = iter.Current;
+				label.EnterScope ("my");
+				Assert.That (my.Name, Is.EqualTo ("my"), label.Get ());
+				Assert.That (my.HasAttributes, Is.False, label.Get ());
+				
+				// FIXME: Fails
+				label.EnterScope ("children");
+				Assert.That (my.HasChildren, Is.False, label.Get ());
+				label.LeaveScope ();
+				label.LeaveScope ();
 			});
 		}
 
 		public static void TestAddElement_Minimal ()
 		{
-			RunWithMachineConfig (config => {
+			Run<EmptySectionMachineConfig> ("AddElement_Minimal", (config,label) => {
 				var my = config.Sections ["my"] as MySection;
-				Assert.That (my, Is.Not.Null, "#c1a");
-				Assert.That (my.IsModified, Is.False, "#c1b");
-				
+
+				AssertNotModified (my, label);
+
+				label.EnterScope ("add-element");
 				my.List.DefaultCollection.AddElement ();
+				Assert.That (my.IsModified, Is.True, label.Get ());
+				label.LeaveScope ();
+
 				config.Save (ConfigurationSaveMode.Minimal);
 
 				// FIXME: Fails
-				Assert.That (File.Exists (config.FilePath), Is.False, "#c2");
+				label.EnterScope ("file");
+				Assert.That (File.Exists (config.FilePath), Is.False, label.Get ());
+				label.LeaveScope ();
 			});
 		}
 
 		public static void TestAddElement2 ()
 		{
-			RunWithMachineConfig (config => {
+			Run<EmptySectionMachineConfig> ("AddElement2", (config,label) => {
+				Console.WriteLine ("ADD ELEMENT 2");
+
 				var my = config.Sections ["my"] as MySection;
-				Assert.That (my, Is.Not.Null, "#c1a");
-				Assert.That (my.IsModified, Is.False, "#c1b");
-				
+
+				AssertNotModified (my, label);
+
 				var element = my.List.DefaultCollection.AddElement ();
 				element.Hello = 1;
 
 				config.Save (ConfigurationSaveMode.Modified);
-				
+
+				label.EnterScope ("file");
 				Assert.That (File.Exists (config.FilePath), Is.True, "#c2");
-			}, nav => {
-				Assert.That (nav.HasChildren, Is.True, "#x1");
+				label.LeaveScope ();
+			}, (nav,label) => {
+				Console.WriteLine ("ADD ELEMENT 2: {0}", nav.OuterXml);
+
+				Assert.That (nav.HasChildren, Is.True, label.Get ());
 				var iter = nav.SelectChildren (XPathNodeType.Element);
 				
-				Assert.That (iter.Count, Is.EqualTo (1), "#x2");
-				Assert.That (iter.MoveNext (), Is.True, "#x2b");
+				Assert.That (iter.Count, Is.EqualTo (1), label.Get ());
+				Assert.That (iter.MoveNext (), Is.True, label.Get ());
 				
 				var my = iter.Current;
-				Assert.That (my.Name, Is.EqualTo ("my"), "#x2c");
-				Assert.That (my.HasAttributes, Is.False, "#x2d");
-				Assert.That (my.HasChildren, Is.True, "#x2e");
+				label.EnterScope ("my");
+				Assert.That (my.Name, Is.EqualTo ("my"), label.Get ());
+				Assert.That (my.HasAttributes, Is.False, label.Get ());
+				Assert.That (my.HasChildren, Is.True, label.Get ());
 
+				label.EnterScope ("children");
 				var iter2 = my.SelectChildren (XPathNodeType.Element);
-				Assert.That (iter2.Count, Is.EqualTo (1), "#x3a");
-				Assert.That (iter2.MoveNext (), Is.True, "#x3b");
+				Assert.That (iter2.Count, Is.EqualTo (1), label.Get ());
+				Assert.That (iter2.MoveNext (), Is.True, label.Get ());
 
 				var list = iter2.Current;
-				Assert.That (list.Name, Is.EqualTo ("list"), "#x4a");
-				Assert.That (list.HasChildren, Is.False, "#x4b");
-				Assert.That (list.HasAttributes, Is.True, "#x4c");
+				label.EnterScope ("list");
+				Assert.That (list.Name, Is.EqualTo ("list"), label.Get ());
+				Assert.That (list.HasChildren, Is.False, label.Get ());
+				Assert.That (list.HasAttributes, Is.True, label.Get ());
 
 				var attr = list.GetAttribute ("Hello", string.Empty);
-				Assert.That (attr, Is.EqualTo ("1"), "#x4d");
+				Assert.That (attr, Is.EqualTo ("1"), label.Get ());
+				label.LeaveScope ();
+				label.LeaveScope ();
+				label.LeaveScope ();
 			});
 		}
 
 		public static void Run ()
 		{
+#if WORKING
 			TestAddSection ();
 
 			TestModified ();
 			TestNotModified ();
 			TestNotModifiedAfterSave ();
+#endif
 
 			TestAddElement_Minimal ();
 			TestAddElement_Modified ();
+			TestAddElement_Modified2 ();
+
 			TestAddElement2 ();
 		}
 
@@ -441,6 +602,11 @@ namespace WsdlImport {
 				var element = new T ();
 				BaseAdd (element);
 				return element;
+			}
+
+			public void RemoveElement (T element)
+			{
+				BaseRemove (GetElementKey (element));
 			}
 
 			public new bool IsModified {
