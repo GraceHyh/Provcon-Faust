@@ -26,6 +26,7 @@
 using System;
 using System.IO;
 using System.Xml;
+using System.Xml.XPath;
 using System.Linq;
 using System.Text;
 using System.Reflection;
@@ -103,6 +104,7 @@ namespace WsdlImport {
 		}
 
 		public delegate void TestFunction (Configuration config);
+		public delegate void XmlCheckFunction (XPathNavigator nav);
 
 		public static void Run (TestFunction func)
 		{
@@ -134,6 +136,11 @@ namespace WsdlImport {
 
 		public static void RunWithMachineConfig (TestFunction func)
 		{
+			RunWithMachineConfig (func, null);
+		}
+
+		public static void RunWithMachineConfig (TestFunction func, XmlCheckFunction check)
+		{
 			var machine = Path.GetTempFileName ();
 			var filename = Path.GetTempFileName ();
 
@@ -159,14 +166,21 @@ namespace WsdlImport {
 				
 				func (config);
 
-				config.Save (ConfigurationSaveMode.Modified);
-
 				Console.WriteLine ();
 				Console.WriteLine (filename);
 				if (File.Exists (filename))
 					Utils.Dump (filename);
 				else
 					Console.WriteLine ("<empty>");
+
+				if (check == null)
+					return;
+
+				var xml = new XmlDocument ();
+				xml.Load (filename);
+
+				var nav = xml.CreateNavigator ().SelectSingleNode ("/configuration");
+				check (nav);
 			} finally {
 				if (File.Exists (machine))
 					File.Delete (machine);
@@ -239,6 +253,84 @@ namespace WsdlImport {
 			});
 		}
 
+		public static void TestAddElement_Modified ()
+		{
+			RunWithMachineConfig (config => {
+				var my = config.Sections ["my"] as MySection;
+				Assert.That (my, Is.Not.Null, "#c1a");
+				Assert.That (my.IsModified, Is.False, "#c1b");
+
+				my.List.DefaultCollection.AddElement ();
+				config.Save (ConfigurationSaveMode.Modified);
+
+				Assert.That (File.Exists (config.FilePath), Is.True, "#c2");
+			}, nav => {
+				Assert.That (nav.HasChildren, Is.True, "#x1");
+				var iter = nav.SelectChildren (XPathNodeType.Element);
+
+				Assert.That (iter.Count, Is.EqualTo (1), "#x2");
+				Assert.That (iter.MoveNext (), Is.True, "#x2b");
+
+				var my = iter.Current;
+				Assert.That (my.Name, Is.EqualTo ("my"), "#x2c");
+				Assert.That (my.HasAttributes, Is.False, "#x2d");
+				Assert.That (my.HasChildren, Is.False, "#x2e");
+			});
+		}
+
+		public static void TestAddElement_Minimal ()
+		{
+			RunWithMachineConfig (config => {
+				var my = config.Sections ["my"] as MySection;
+				Assert.That (my, Is.Not.Null, "#c1a");
+				Assert.That (my.IsModified, Is.False, "#c1b");
+				
+				my.List.DefaultCollection.AddElement ();
+				config.Save (ConfigurationSaveMode.Minimal);
+				
+				Assert.That (File.Exists (config.FilePath), Is.False, "#c2");
+			});
+		}
+
+		public static void TestAddElement2 ()
+		{
+			RunWithMachineConfig (config => {
+				var my = config.Sections ["my"] as MySection;
+				Assert.That (my, Is.Not.Null, "#c1a");
+				Assert.That (my.IsModified, Is.False, "#c1b");
+				
+				var element = my.List.DefaultCollection.AddElement ();
+				element.Hello = 1;
+
+				config.Save (ConfigurationSaveMode.Modified);
+				
+				Assert.That (File.Exists (config.FilePath), Is.True, "#c2");
+			}, nav => {
+				Assert.That (nav.HasChildren, Is.True, "#x1");
+				var iter = nav.SelectChildren (XPathNodeType.Element);
+				
+				Assert.That (iter.Count, Is.EqualTo (1), "#x2");
+				Assert.That (iter.MoveNext (), Is.True, "#x2b");
+				
+				var my = iter.Current;
+				Assert.That (my.Name, Is.EqualTo ("my"), "#x2c");
+				Assert.That (my.HasAttributes, Is.False, "#x2d");
+				Assert.That (my.HasChildren, Is.True, "#x2e");
+
+				var iter2 = my.SelectChildren (XPathNodeType.Element);
+				Assert.That (iter2.Count, Is.EqualTo (1), "#x3a");
+				Assert.That (iter2.MoveNext (), Is.True, "#x3b");
+
+				var list = iter2.Current;
+				Assert.That (list.Name, Is.EqualTo ("list"), "#x4a");
+				Assert.That (list.HasChildren, Is.False, "#x4b");
+				Assert.That (list.HasAttributes, Is.True, "#x4c");
+
+				var attr = list.GetAttribute ("Hello", string.Empty);
+				Assert.That (attr, Is.EqualTo ("1"), "#x4d");
+			});
+		}
+
 		public static void Run ()
 		{
 			TestAddSection ();
@@ -246,6 +338,10 @@ namespace WsdlImport {
 			TestModified ();
 			TestNotModified ();
 			TestNotModifiedAfterSave ();
+
+			TestAddElement_Minimal ();
+			TestAddElement_Modified ();
+			TestAddElement2 ();
 		}
 
 		public static void Run (string filename, string filename2)
@@ -321,6 +417,12 @@ namespace WsdlImport {
 				return ((T)element).GetHashCode ();
 			}
 			#endregion
+
+			public override ConfigurationElementCollectionType CollectionType {
+				get {
+					return ConfigurationElementCollectionType.BasicMap;
+				}
+			}
 
 			public T AddElement ()
 			{
