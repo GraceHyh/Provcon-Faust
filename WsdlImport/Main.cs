@@ -53,6 +53,8 @@ using WS = System.Web.Services.Description;
 using NUnit.Framework;
 using Mono.Options;
 
+using MonoTests.System.ServiceModel.MetadataTests;
+
 namespace WsdlImport {
 
 	class Program {
@@ -74,7 +76,7 @@ namespace WsdlImport {
 
 			switch (mode) {
 			case Mode.Export:
-				// MetadataSamples.Export ();
+				MetadataSamples.Export ("metadata");
 				return;
 
 			case Mode.Server:
@@ -86,21 +88,17 @@ namespace WsdlImport {
 				return;
 
 			default:
-				TestSvcUtil ("test.wsdl");
-				// Utils.PrettyPrintXML ("test.wsdl");
+				ConfigTest.Run ();
 				// TestConfig ();
-				// ConfigTest.Run ("my.config");
 				return;
 			}
 		}
 
 		static void TestConfig ()
 		{
-			var binding = new CustomBinding ();
-			binding.Name = "Test";
-			Utils.CreateConfig (binding, "test.config");
-			// Utils.NormalizeConfig ("test.config");
-			// CheckConfig ();
+			var test = new ImportTests_CreateMetadata ();
+			test.BasicHttp_Config ();
+			test.BasicHttp_Config2 ();
 		}
 
 		static void TestSvcUtil (string filename)

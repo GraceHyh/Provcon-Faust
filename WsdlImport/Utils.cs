@@ -164,6 +164,21 @@ namespace WsdlImport {
 			Dump (config.FilePath);
 		}
 
+		public static void GenerateConfig (MetadataSet metadata, Configuration config)
+		{
+			WsdlImporter importer = new WsdlImporter (metadata);
+				
+			var endpoints = importer.ImportAllEndpoints ();
+				
+			var generator = new ServiceContractGenerator (config);
+			generator.Options = ServiceContractGenerationOptions.None;
+				
+			foreach (var endpoint in endpoints) {
+				ChannelEndpointElement channelElement;
+				generator.GenerateServiceEndpoint (endpoint, out channelElement);
+			}
+		}
+
 		public static void NormalizeConfig (string filename)
 		{
 			var doc = new XmlDocument ();

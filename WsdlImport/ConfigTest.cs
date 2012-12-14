@@ -31,11 +31,14 @@ using System.Text;
 using System.Reflection;
 using System.Globalization;
 using System.Configuration;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.ServiceModel;
 using System.ServiceModel.Configuration;
 
 using NUnit.Framework;
+using NUnit.Framework.Constraints;
+using NUnit.Framework.SyntaxHelpers;
 
 namespace WsdlImport {
 
@@ -67,49 +70,175 @@ namespace WsdlImport {
 			return true;
 		}
 
-		public static void Run (string filename)
+		public static void CreateMachine (string filename)
 		{
-#if FIXME
-			if (ReadConfig (filename))
+			if (File.Exists (filename))
 				return;
-#endif
+
+			using (var writer = XmlTextWriter.Create (filename)) {
+				writer.WriteStartElement ("configuration");
+				writer.WriteEndElement ();
+			}
+
+			var map = new ConfigurationFileMap (filename);
+			var config = ConfigurationManager.OpenMappedMachineConfiguration (map);
+
+			var protectedData = (ProtectedConfigurationSection)config.Sections ["configProtectedData"];
+			if (protectedData == null) {
+				protectedData = new ProtectedConfigurationSection ();
+				config.Sections.Add ("configProtectedData", protectedData);
+			}
+			var settings = new ProviderSettings ("RsaProtectedConfigurationProvider", typeof (RsaProtectedConfigurationProvider).AssemblyQualifiedName);
+			protectedData.Providers.Add (settings);
+			protectedData.DefaultProvider = "RsaProtectedConfigurationProvider";
+
+			var my = new MySection ();
+			my.SectionInformation.AllowExeDefinition = ConfigurationAllowExeDefinition.MachineToRoamingUser;
+			config.Sections.Add ("my", my);
+
+			config.Save (ConfigurationSaveMode.Full);
+			Utils.Dump (filename);
+		}
+
+		public delegate void TestFunction (Configuration config);
+
+		public static void Run (TestFunction func)
+		{
+			var machine = Path.GetTempFileName ();
+			var filename = Path.GetTempFileName ();
+
+			try {
+				File.Delete (machine);
+				File.Delete (filename);
+
+				CreateMachine (machine);
+
+				Console.WriteLine (machine);
+				Utils.Dump (machine);
+				Console.WriteLine ();
+					
+				var fileMap = new ExeConfigurationFileMap ();
+				fileMap.ExeConfigFilename = filename;
+				fileMap.MachineConfigFilename = machine;
+				var config = ConfigurationManager.OpenMappedExeConfiguration (
+					fileMap, ConfigurationUserLevel.None);
+
+				func (config);
+
+				config.Save (ConfigurationSaveMode.Modified);
+
+				Console.WriteLine ();
+				Console.WriteLine (filename);
+				if (File.Exists (filename))
+					Utils.Dump (filename);
+				else
+					Console.WriteLine ("<empty>");
+			} finally {
+				if (File.Exists (machine))
+					File.Delete (machine);
+				if (File.Exists (filename))
+					File.Delete (filename);
+			}
+		}
+
+		public static void TestNotModified ()
+		{
+			Run (config => {
+				var my = config.Sections ["my"] as MySection;
+				Assert.That (my, Is.Not.Null, "#1");
+				Assert.That (my.IsModified, Is.False, "#2");
+				Assert.That (my.List, Is.Not.Null, "#3");
+				Assert.That (my.List.Collection.Count, Is.EqualTo (0), "#4");
+				Assert.That (my.List.IsModified, Is.False, "#5");
+			});
+		}
+
+		public static void TestNotModifiedAfterSave ()
+		{
+			Run (config => {
+				var my = config.Sections ["my"] as MySection;
+				Assert.That (my, Is.Not.Null, "#1a");
+				Assert.That (my.IsModified, Is.False, "#1b");
+				Assert.That (my.List, Is.Not.Null, "#1c");
+				Assert.That (my.List.Collection.Count, Is.EqualTo (0), "#1d");
+				Assert.That (my.List.IsModified, Is.False, "#1e");
+
+				var element = my.List.Collection.AddElement ();
+				Assert.That (my.IsModified, Is.True, "#2a");
+				Assert.That (my.List.IsModified, Is.True, "#2b");
+				Assert.That (my.List.Collection.IsModified, Is.True, "#2c");
+				Assert.That (element.IsModified, Is.False, "#2d");
+
+				config.Save ();
+
+				Assert.That (my.IsModified, Is.False, "#3a");
+				Assert.That (my.List.IsModified, Is.False, "#3b");
+				Assert.That (my.List.Collection.IsModified, Is.False, "#3c");
+
+				element.Hello = 1;
+				Assert.That (element.IsModified, Is.True, "#4a");
+				Assert.That (my.List.Collection.IsModified, Is.True, "#4b");
+				Assert.That (my.List.IsModified, Is.True, "#4c");
+				Assert.That (my.IsModified, Is.True, "#4d");
+
+				config.Save ();
+				Assert.That (element.IsModified, Is.False, "#5a");
+				Assert.That (my.List.Collection.IsModified, Is.False, "#5b");
+				Assert.That (my.List.IsModified, Is.False, "#5c");
+				Assert.That (my.IsModified, Is.False, "#5d");
+			});
+		}
+
+		public static void Run ()
+		{
+			TestModified ();
+			TestNotModified ();
+			TestNotModifiedAfterSave ();
+		}
+
+		public static void Run (string filename, string filename2)
+		{
+			CreateMachine (filename2);
 
 			if (File.Exists (filename))
 				File.Delete (filename);
 			var fileMap = new ExeConfigurationFileMap ();
 			fileMap.ExeConfigFilename = filename;
+			fileMap.MachineConfigFilename = filename2;
 			var config = ConfigurationManager.OpenMappedExeConfiguration (
 				fileMap, ConfigurationUserLevel.None);
 
-			MySection my;
-			my = (MySection)config.Sections ["my"];
-			if (my == null) {
-				my = new MySection ();
-				config.Sections.Add ("my", my);
-			}
+			var my = (MySection)config.Sections ["my"];
+			// my.List.Collection.AddElement ().Hello = 12;
 
-			my.Hello = 11;
-			// my.TextEncoding = Encoding.UTF8;
-
-			config.Save (ConfigurationSaveMode.Minimal);
+			config.Save (ConfigurationSaveMode.Modified);
 			
 			Console.WriteLine ("TEST: {0}", config.FilePath);
 			
 			Utils.Dump (filename);
 		}
 
-		public class MyCollectionElement : ConfigurationElement {
+		public static void TestModified ()
+		{
+			var my = new MySection ();
+			Assert.That (my.IsModified, Is.False, "#1");
+			Assert.That (my.List, Is.Not.Null, "#2");
+			Assert.That (my.List.IsModified, Is.False, "#3");
+			Assert.That (my.List.Collection.IsModified, Is.False, "#4");
+			Assert.That (my.List.DefaultCollection.IsModified, Is.False, "#5");
+
+			var element = my.List.Collection.AddElement ();
+			Assert.That (element.IsModified, Is.False, "#6");
+			Assert.That (my.List.Collection.IsModified, Is.True, "#7");
+			Assert.That (my.List.DefaultCollection.IsModified, Is.False, "#8");
+			Assert.That (my.List.IsModified, Is.True, "#9");
+			Assert.That (my.IsModified, Is.True, "#10");
+
+			element.Hello = 8;
+			Assert.That (element.IsModified, Is.True, "#11");
 		}
 
-		public class MySection : ConfigurationSection {
-
-			ConfigurationPropertyCollection _properties;
-
-			[ConfigurationProperty ("list", Options = ConfigurationPropertyOptions.None)]
-			public MyCollectionElement List {
-				get { return (MyCollectionElement) this ["list"]; }
-			}
-
+		public class MyElement : ConfigurationElement {
 			[ConfigurationProperty ("Hello", DefaultValue = 8)]
 			public int Hello {
 				get { return (int)base ["Hello"]; }
@@ -122,73 +251,67 @@ namespace WsdlImport {
 				set { base ["World"] = value; }
 			}
 
-			[TypeConverter (typeof (EncodingConverter))]
-			[ConfigurationProperty ("textEncoding",
-			                        DefaultValue = "utf-8",
-			                        Options = ConfigurationPropertyOptions.None)]
-			public Encoding TextEncoding {
-				get { return (Encoding) this ["textEncoding"]; }
-				set { this ["textEncoding"] = value; }
-			}
-
-			protected override ConfigurationPropertyCollection Properties {
-				get {
-					if (_properties == null) {
-						_properties = base.Properties;
-						_properties.Add (new ConfigurationProperty ("textEncoding", typeof (Encoding), "utf-8", EncodingConverter.Instance, null, ConfigurationPropertyOptions.None));
-						_properties.Add (new ConfigurationProperty ("list", typeof (MyCollectionElement), null, null, null, ConfigurationPropertyOptions.None));
-					}
-					return _properties;
-				}
+			new public bool IsModified {
+				get { return base.IsModified (); }
 			}
 		}
 
-		sealed class EncodingConverter : TypeConverter
+		public class MyCollection<T> : ConfigurationElementCollection
+			where T : ConfigurationElement, new ()
 		{
-			static EncodingConverter _instance = new EncodingConverter ();
-			
-			public static EncodingConverter Instance {
-				get { return _instance; }
+			#region implemented abstract members of ConfigurationElementCollection
+			protected override ConfigurationElement CreateNewElement ()
+			{
+				return new T ();
 			}
-			
-			public override bool CanConvertFrom (ITypeDescriptorContext context, Type sourceType) {
-				return sourceType == typeof (string);
+			protected override object GetElementKey (ConfigurationElement element)
+			{
+				return ((T)element).GetHashCode ();
 			}
-			
-			public override object ConvertFrom (ITypeDescriptorContext context, CultureInfo culture, object value) {
-				string encString = (string) value;
-				Encoding encoding;
-				
-				switch (encString.ToLower (CultureInfo.InvariantCulture)) {
-				case "utf-16le":
-				case "utf-16":
-				case "ucs-2":
-				case "unicode":
-				case "iso-10646-ucs-2":
-					encoding = new UnicodeEncoding (false, true);
-					break;
-				case "utf-16be":
-				case "unicodefffe":
-					encoding = new UnicodeEncoding (true, true);
-					break;
-				case "utf-8":
-				case "unicode-1-1-utf-8":
-				case "unicode-2-0-utf-8":
-				case "x-unicode-1-1-utf-8":
-				case "x-unicode-2-0-utf-8":
-					encoding = Encoding.UTF8;
-					break;
-				default:
-					encoding = Encoding.GetEncoding (encString);
-					break;
-				}
-				
-				return encoding;
+			#endregion
+
+			public T AddElement ()
+			{
+				var element = new T ();
+				BaseAdd (element);
+				return element;
 			}
-			
-			public override object ConvertTo (ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType) {
-				Encoding encoding = (Encoding) value;
-				return encoding.WebName;
+
+			public new bool IsModified {
+				get { return base.IsModified (); }
+			}
+		}
+
+		public class MyCollectionElement<T> : ConfigurationElement
+			where T : ConfigurationElement, new ()
+		{
+			[ConfigurationProperty ("",
+			                        Options = ConfigurationPropertyOptions.IsDefaultCollection,
+			                        IsDefaultCollection = true)]
+			public MyCollection<T> DefaultCollection {
+				get { return (MyCollection<T>)this [String.Empty]; }
+				set { this [String.Empty] = value; }
+			}
+
+			[ConfigurationProperty ("collection", Options = ConfigurationPropertyOptions.None)]
+			public MyCollection<T> Collection {
+				get { return (MyCollection<T>)this ["collection"]; }
+				set { this ["collection"] = value; }
+			}
+
+			public new bool IsModified {
+				get { return base.IsModified (); }
+			}
+		}
+
+		public class MySection : ConfigurationSection {
+			[ConfigurationProperty ("list", Options = ConfigurationPropertyOptions.None)]
+			public MyCollectionElement<MyElement> List {
+				get { return (MyCollectionElement<MyElement>) this ["list"]; }
+			}
+
+			new public bool IsModified {
+				get { return base.IsModified (); }
 			}
 		}
 	}
