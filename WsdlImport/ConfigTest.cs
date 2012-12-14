@@ -73,7 +73,7 @@ namespace WsdlImport {
 		public static void CreateMachine (string filename)
 		{
 			if (File.Exists (filename))
-				return;
+				File.Delete (filename);
 
 			using (var writer = XmlTextWriter.Create (filename)) {
 				writer.WriteStartElement ("configuration");
@@ -83,6 +83,7 @@ namespace WsdlImport {
 			var map = new ConfigurationFileMap (filename);
 			var config = ConfigurationManager.OpenMappedMachineConfiguration (map);
 
+#if FIXME
 			var protectedData = (ProtectedConfigurationSection)config.Sections ["configProtectedData"];
 			if (protectedData == null) {
 				protectedData = new ProtectedConfigurationSection ();
@@ -91,6 +92,7 @@ namespace WsdlImport {
 			var settings = new ProviderSettings ("RsaProtectedConfigurationProvider", typeof (RsaProtectedConfigurationProvider).AssemblyQualifiedName);
 			protectedData.Providers.Add (settings);
 			protectedData.DefaultProvider = "RsaProtectedConfigurationProvider";
+#endif
 
 			var my = new MySection ();
 			my.SectionInformation.AllowExeDefinition = ConfigurationAllowExeDefinition.MachineToRoamingUser;
@@ -104,6 +106,34 @@ namespace WsdlImport {
 
 		public static void Run (TestFunction func)
 		{
+			var filename = Path.GetTempFileName ();
+			
+			try {
+				File.Delete (filename);
+				
+				var fileMap = new ExeConfigurationFileMap ();
+				fileMap.ExeConfigFilename = filename;
+				var config = ConfigurationManager.OpenMappedExeConfiguration (
+					fileMap, ConfigurationUserLevel.None);
+				
+				func (config);
+				
+				config.Save (ConfigurationSaveMode.Modified);
+				
+				Console.WriteLine ();
+				Console.WriteLine (filename);
+				if (File.Exists (filename))
+					Utils.Dump (filename);
+				else
+					Console.WriteLine ("<empty>");
+			} finally {
+				if (File.Exists (filename))
+					File.Delete (filename);
+			}
+		}
+
+		public static void RunWithMachineConfig (TestFunction func)
+		{
 			var machine = Path.GetTempFileName ();
 			var filename = Path.GetTempFileName ();
 
@@ -116,6 +146,8 @@ namespace WsdlImport {
 				Console.WriteLine (machine);
 				Utils.Dump (machine);
 				Console.WriteLine ();
+
+				Assert.That (File.Exists (filename), Is.False);
 					
 				var fileMap = new ExeConfigurationFileMap ();
 				fileMap.ExeConfigFilename = filename;
@@ -123,6 +155,8 @@ namespace WsdlImport {
 				var config = ConfigurationManager.OpenMappedExeConfiguration (
 					fileMap, ConfigurationUserLevel.None);
 
+				Assert.That (File.Exists (filename), Is.False);
+				
 				func (config);
 
 				config.Save (ConfigurationSaveMode.Modified);
@@ -143,19 +177,24 @@ namespace WsdlImport {
 
 		public static void TestNotModified ()
 		{
-			Run (config => {
+			RunWithMachineConfig (config => {
 				var my = config.Sections ["my"] as MySection;
 				Assert.That (my, Is.Not.Null, "#1");
 				Assert.That (my.IsModified, Is.False, "#2");
 				Assert.That (my.List, Is.Not.Null, "#3");
 				Assert.That (my.List.Collection.Count, Is.EqualTo (0), "#4");
 				Assert.That (my.List.IsModified, Is.False, "#5");
+
+				Assert.That (File.Exists (config.FilePath), Is.False, "#6");
+
+				config.Save (ConfigurationSaveMode.Minimal);
+				Assert.That (File.Exists (config.FilePath), Is.False, "#7");
 			});
 		}
 
 		public static void TestNotModifiedAfterSave ()
 		{
-			Run (config => {
+			RunWithMachineConfig (config => {
 				var my = config.Sections ["my"] as MySection;
 				Assert.That (my, Is.Not.Null, "#1a");
 				Assert.That (my.IsModified, Is.False, "#1b");
@@ -170,6 +209,7 @@ namespace WsdlImport {
 				Assert.That (element.IsModified, Is.False, "#2d");
 
 				config.Save ();
+				Assert.That (File.Exists (config.FilePath), Is.True, "#3");
 
 				Assert.That (my.IsModified, Is.False, "#3a");
 				Assert.That (my.List.IsModified, Is.False, "#3b");
@@ -189,8 +229,20 @@ namespace WsdlImport {
 			});
 		}
 
+		public static void TestAddSection ()
+		{
+			Run (config => {
+				config.Sections.Add ("my2", new MySection ());
+				config.Save ();
+
+				Assert.That (File.Exists (config.FilePath), Is.True, "#1");
+			});
+		}
+
 		public static void Run ()
 		{
+			TestAddSection ();
+
 			TestModified ();
 			TestNotModified ();
 			TestNotModifiedAfterSave ();

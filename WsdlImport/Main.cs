@@ -89,6 +89,7 @@ namespace WsdlImport {
 
 			default:
 				ConfigTest.Run ();
+				ConfigTest.Run ("my.config", "my2.config");
 				// TestConfig ();
 				return;
 			}
