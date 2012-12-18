@@ -61,9 +61,13 @@ namespace WsdlImport {
 			}
 		}
 
+		public static void Test ()
+		{
+		}
+
 		#region Test Framework
 
-		public abstract class MachineConfigProvider {
+		public abstract class ConfigProvider {
 			public void Create (string filename)
 			{
 				if (File.Exists (filename))
@@ -79,7 +83,15 @@ namespace WsdlImport {
 				}
 			}
 
-			protected virtual void WriteXml (XmlWriter writer)
+			public abstract bool IsMachineConfig {
+				get;
+			}
+
+			protected abstract void WriteXml (XmlWriter writer);
+		}
+
+		public abstract class MachineConfigProvider : ConfigProvider {
+			protected override void WriteXml (XmlWriter writer)
 			{
 				writer.WriteStartElement ("configSections");
 				WriteSections (writer);
@@ -87,6 +99,10 @@ namespace WsdlImport {
 				WriteValues (writer);
 			}
 
+			public override bool IsMachineConfig {
+				get { return true; }
+			}
+			
 			protected abstract void WriteSections (XmlWriter writer);
 
 			protected abstract void WriteValues (XmlWriter writer);
@@ -106,6 +122,14 @@ namespace WsdlImport {
 				writer.WriteEndElement ();
 			}
 
+			internal static void WriteConfigSections (XmlWriter writer)
+			{
+				var provider = new DefaultMachineConfig ();
+				writer.WriteStartElement ("configSections");
+				provider.WriteSections (writer);
+				writer.WriteEndElement ();
+			}
+
 			protected override void WriteValues (XmlWriter writer)
 			{
 				writer.WriteStartElement ("my");
@@ -113,17 +137,17 @@ namespace WsdlImport {
 			}
 		}
 
-		public static void CreateMachine (string filename)
-		{
-			if (File.Exists (filename))
-				File.Delete (filename);
+		class TestConfig : ConfigProvider {
+			public override bool IsMachineConfig {
+				get { return false; }
+			}
 
-			var settings = new XmlWriterSettings ();
-			settings.Indent = true;
-
-			using (var writer = XmlTextWriter.Create (filename, settings)) {
-				writer.WriteStartElement ("configuration");
+			protected override void WriteXml (XmlWriter writer)
+			{
+				DefaultMachineConfig.WriteConfigSections (writer);
 				writer.WriteStartElement ("my");
+				writer.WriteStartElement ("test");
+				writer.WriteAttributeString ("Hello", "29");
 				writer.WriteEndElement ();
 				writer.WriteEndElement ();
 			}
@@ -152,46 +176,55 @@ namespace WsdlImport {
 			}
 		}
 
-		public static void Run<TMachine> (string name, TestFunction func)
-			where TMachine : MachineConfigProvider, new ()
+		public static void Run<TConfig> (string name, TestFunction func)
+			where TConfig : ConfigProvider, new ()
 		{
-			Run<TMachine> (new TestLabel (name), func, null);
+			Run<TConfig> (new TestLabel (name), func, null);
 		}
 
-		public static void Run<TMachine> (TestLabel label, TestFunction func)
-			where TMachine : MachineConfigProvider, new ()
+		public static void Run<TConfig> (TestLabel label, TestFunction func)
+			where TConfig : ConfigProvider, new ()
 		{
-			Run<TMachine> (label, func, null);
+			Run<TConfig> (label, func, null);
 		}
 
-		public static void Run<TMachine> (
+		public static void Run<TConfig> (
 			string name, TestFunction func, XmlCheckFunction check)
-			where TMachine : MachineConfigProvider, new ()
+			where TConfig : ConfigProvider, new ()
 		{
-			Run<TMachine> (new TestLabel (name), func, check);
+			Run<TConfig> (new TestLabel (name), func, check);
 		}
 
-		public static void Run<TMachine> (
+		public static void Run<TConfig> (
 			TestLabel label, TestFunction func, XmlCheckFunction check)
-			where TMachine : MachineConfigProvider, new ()
+			where TConfig : ConfigProvider, new ()
 		{
-			var machine = Path.GetTempFileName ();
+			var parent = Path.GetTempFileName ();
 			var filename = Path.GetTempFileName ();
 
 			try {
-				File.Delete (machine);
+				File.Delete (parent);
 				File.Delete (filename);
 
-				var machineProvider = new TMachine ();
-				machineProvider.Create (machine);
+				var provider = new TConfig ();
+				provider.Create (parent);
 
 				Assert.That (File.Exists (filename), Is.False);
-					
+
+				ConfigurationUserLevel level;
 				var fileMap = new ExeConfigurationFileMap ();
-				fileMap.ExeConfigFilename = filename;
-				fileMap.MachineConfigFilename = machine;
+				if (provider.IsMachineConfig) {
+					fileMap.ExeConfigFilename = filename;
+					fileMap.MachineConfigFilename = parent;
+					level = ConfigurationUserLevel.None;
+				} else {
+					fileMap.ExeConfigFilename = parent;
+					fileMap.RoamingUserConfigFilename = filename;
+					level = ConfigurationUserLevel.PerUserRoaming;
+				}
+
 				var config = ConfigurationManager.OpenMappedExeConfiguration (
-					fileMap, ConfigurationUserLevel.None);
+					fileMap, level);
 
 				Assert.That (File.Exists (filename), Is.False);
 
@@ -223,8 +256,8 @@ namespace WsdlImport {
 					label.LeaveScope ();
 				}
 			} finally {
-				if (File.Exists (machine))
-					File.Delete (machine);
+				if (File.Exists (parent))
+					File.Delete (parent);
 				if (File.Exists (filename))
 					File.Delete (filename);
 			}
@@ -245,6 +278,38 @@ namespace WsdlImport {
 			label.LeaveScope ();
 		}
 
+		static void AssertListElement (XPathNavigator nav, TestLabel label)
+		{
+			Assert.That (nav.HasChildren, Is.True, label.Get ());
+			var iter = nav.SelectChildren (XPathNodeType.Element);
+			
+			Assert.That (iter.Count, Is.EqualTo (1), label.Get ());
+			Assert.That (iter.MoveNext (), Is.True, label.Get ());
+			
+			var my = iter.Current;
+			label.EnterScope ("my");
+			Assert.That (my.Name, Is.EqualTo ("my"), label.Get ());
+			Assert.That (my.HasAttributes, Is.False, label.Get ());
+			
+			label.EnterScope ("children");
+			Assert.That (my.HasChildren, Is.True, label.Get ());
+			var iter2 = my.SelectChildren (XPathNodeType.Element);
+			Assert.That (iter2.Count, Is.EqualTo (1), label.Get ());
+			Assert.That (iter2.MoveNext (), Is.True, label.Get ());
+			
+			var test = iter2.Current;
+			label.EnterScope ("test");
+			Assert.That (test.Name, Is.EqualTo ("test"), label.Get ());
+			Assert.That (test.HasChildren, Is.False, label.Get ());
+			Assert.That (test.HasAttributes, Is.True, label.Get ());
+			
+			var attr = test.GetAttribute ("Hello", string.Empty);
+			Assert.That (attr, Is.EqualTo ("29"), label.Get ());
+			label.LeaveScope ();
+			label.LeaveScope ();
+			label.LeaveScope ();
+		}
+		
 		#endregion
 
 		#region Tests
@@ -322,21 +387,23 @@ namespace WsdlImport {
 		}
 
 		[Test]
-		public static void AddListElement ()
+		public void AddDefaultListElement3 ()
 		{
-			Run<DefaultMachineConfig> ("AddListElement", (config,label) => {
+			Run<DefaultMachineConfig> ("AddDefaultListElement3", (config,label) => {
 				var my = config.Sections ["my"] as MySection;
-				
+
 				AssertNotModified (my, label);
-				
-				my.Test.Hello = 29;
-				
-				label.EnterScope ("file");
-				Assert.That (File.Exists (config.FilePath), Is.False, label.Get ());
-				
-				config.Save (ConfigurationSaveMode.Minimal);
-				Assert.That (File.Exists (config.FilePath), Is.True, label.Get ());
+
+				label.EnterScope ("add");
+				var element = my.List.Collection.AddElement ();
+				Assert.That (my.IsModified, Is.True, label.Get ());
+				Assert.That (my.List.IsModified, Is.True, label.Get ());
+				Assert.That (my.List.Collection.IsModified, Is.True, label.Get ());
+				Assert.That (element.IsModified, Is.False, label.Get ());
 				label.LeaveScope ();
+				
+				config.Save (ConfigurationSaveMode.Full);
+				Assert.That (File.Exists (config.FilePath), Is.True, label.Get ());
 			}, (nav,label) => {
 				Assert.That (nav.HasChildren, Is.True, label.Get ());
 				var iter = nav.SelectChildren (XPathNodeType.Element);
@@ -352,20 +419,59 @@ namespace WsdlImport {
 				label.EnterScope ("children");
 				Assert.That (my.HasChildren, Is.True, label.Get ());
 				var iter2 = my.SelectChildren (XPathNodeType.Element);
-				Assert.That (iter2.Count, Is.EqualTo (1), label.Get ());
-				Assert.That (iter2.MoveNext (), Is.True, label.Get ());
-				
-				var test = iter2.Current;
+				Assert.That (iter2.Count, Is.EqualTo (2), label.Get ());
+
+				label.EnterScope ("list");
+				var iter3 = my.Select ("list/*");
+				Assert.That (iter3.Count, Is.EqualTo (1), label.Get ());
+				Assert.That (iter3.MoveNext (), Is.True, label.Get ());
+				var collection = iter3.Current;
+				Assert.That (collection.Name, Is.EqualTo ("collection"), label.Get ());
+				Assert.That (collection.HasChildren, Is.False, label.Get ());
+				Assert.That (collection.HasAttributes, Is.True, label.Get ());
+				var hello = collection.GetAttribute ("Hello", string.Empty);
+				Assert.That (hello, Is.EqualTo ("8"), label.Get ());
+				var world = collection.GetAttribute ("World", string.Empty);
+				Assert.That (world, Is.EqualTo ("0"), label.Get ());
+				label.LeaveScope ();
+
 				label.EnterScope ("test");
+				var iter4 = my.Select ("test");
+				Assert.That (iter4.Count, Is.EqualTo (1), label.Get ());
+				Assert.That (iter4.MoveNext (), Is.True, label.Get ());
+				var test = iter4.Current;
 				Assert.That (test.Name, Is.EqualTo ("test"), label.Get ());
 				Assert.That (test.HasChildren, Is.False, label.Get ());
 				Assert.That (test.HasAttributes, Is.True, label.Get ());
 				
-				var attr = test.GetAttribute ("Hello", string.Empty);
-				Assert.That (attr, Is.EqualTo ("29"), label.Get ());
+				var hello2 = test.GetAttribute ("Hello", string.Empty);
+				Assert.That (hello2, Is.EqualTo ("8"), label.Get ());
+				var world2 = test.GetAttribute ("World", string.Empty);
+				Assert.That (world2, Is.EqualTo ("0"), label.Get ());
 				label.LeaveScope ();
 				label.LeaveScope ();
 				label.LeaveScope ();
+			});
+		}
+
+		[Test]
+		public void AddListElement ()
+		{
+			Run<DefaultMachineConfig> ("AddListElement", (config,label) => {
+				var my = config.Sections ["my"] as MySection;
+				
+				AssertNotModified (my, label);
+				
+				my.Test.Hello = 29;
+				
+				label.EnterScope ("file");
+				Assert.That (File.Exists (config.FilePath), Is.False, label.Get ());
+				
+				config.Save (ConfigurationSaveMode.Minimal);
+				Assert.That (File.Exists (config.FilePath), Is.True, label.Get ());
+				label.LeaveScope ();
+			}, (nav,label) => {
+				AssertListElement (nav, label);
 			});
 		}
 		
@@ -435,7 +541,7 @@ namespace WsdlImport {
 				AssertNotModified (my, label);
 
 				var element = my.List.DefaultCollection.AddElement ();
-				element.Hello = 1;
+				element.Hello = 12;
 
 				config.Save (ConfigurationSaveMode.Modified);
 
@@ -467,10 +573,50 @@ namespace WsdlImport {
 				Assert.That (list.HasAttributes, Is.True, label.Get ());
 
 				var attr = list.GetAttribute ("Hello", string.Empty);
-				Assert.That (attr, Is.EqualTo ("1"), label.Get ());
+				Assert.That (attr, Is.EqualTo ("12"), label.Get ());
 				label.LeaveScope ();
 				label.LeaveScope ();
 				label.LeaveScope ();
+			});
+		}
+
+		// [Test]
+		public void ModifyListElement ()
+		{
+			Run<TestConfig> ("ModifyListElement", (config,label) => {
+				var my = config.Sections ["my"] as MySection;
+
+				AssertNotModified (my, label);
+				
+				my.Test.Hello = 29;
+				
+				label.EnterScope ("file");
+				Assert.That (File.Exists (config.FilePath), Is.False, label.Get ());
+				
+				config.Save (ConfigurationSaveMode.Minimal);
+				Assert.That (File.Exists (config.FilePath), Is.False, label.Get ());
+				label.LeaveScope ();
+			});
+		}
+
+		// [Test]
+		public void ModifyListElement2 ()
+		{
+			Run<TestConfig> ("ModifyListElement2", (config,label) => {
+				var my = config.Sections ["my"] as MySection;
+
+				AssertNotModified (my, label);
+				
+				my.Test.Hello = 29;
+				
+				label.EnterScope ("file");
+				Assert.That (File.Exists (config.FilePath), Is.False, label.Get ());
+				
+				config.Save (ConfigurationSaveMode.Modified);
+				Assert.That (File.Exists (config.FilePath), Is.True, label.Get ());
+				label.LeaveScope ();
+			}, (nav,label) => {
+				AssertListElement (nav, label);
 			});
 		}
 
