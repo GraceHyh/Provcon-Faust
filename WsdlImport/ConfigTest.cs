@@ -46,6 +46,7 @@ using MonoTests.System.ServiceModel.MetadataTests;
 
 namespace WsdlImport {
 
+	[TestFixture]
 	public class ConfigTest {
 
 		public static void Run ()
@@ -233,7 +234,7 @@ namespace WsdlImport {
 					func (config, label);
 				} catch (Exception ex) {
 					Console.WriteLine ("ERROR: {0}", ex);
-					return;
+					throw;
 				} finally {
 					label.LeaveScope ();
 				}
@@ -252,6 +253,7 @@ namespace WsdlImport {
 					Console.WriteLine ("ERROR CHECKING XML: {0}", ex);
 					Console.WriteLine (xml.OuterXml);
 					Console.WriteLine ();
+					throw;
 				} finally {
 					label.LeaveScope ();
 				}
@@ -580,7 +582,7 @@ namespace WsdlImport {
 			});
 		}
 
-		// [Test]
+		[Test]
 		public void ModifyListElement ()
 		{
 			Run<TestConfig> ("ModifyListElement", (config,label) => {
@@ -589,7 +591,7 @@ namespace WsdlImport {
 				AssertNotModified (my, label);
 				
 				my.Test.Hello = 29;
-				
+
 				label.EnterScope ("file");
 				Assert.That (File.Exists (config.FilePath), Is.False, label.Get ());
 				
@@ -599,7 +601,7 @@ namespace WsdlImport {
 			});
 		}
 
-		// [Test]
+		[Test]
 		public void ModifyListElement2 ()
 		{
 			Run<TestConfig> ("ModifyListElement2", (config,label) => {
