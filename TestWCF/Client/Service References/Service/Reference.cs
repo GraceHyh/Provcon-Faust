@@ -12,10 +12,10 @@ namespace TestWCF.Client.Service {
     
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    [System.ServiceModel.ServiceContractAttribute(Namespace="http://provcon-faust/TestWCF/", ConfigurationName="Service.IMyService")]
+    [System.ServiceModel.ServiceContractAttribute(ConfigurationName="Service.IMyService")]
     public interface IMyService {
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://provcon-faust/TestWCF/IMyService/Hello", ReplyAction="http://provcon-faust/TestWCF/IMyService/HelloResponse")]
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IMyService/Hello", ReplyAction="http://tempuri.org/IMyService/HelloResponse")]
         string Hello();
     }
     
