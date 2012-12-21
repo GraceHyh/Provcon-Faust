@@ -30,6 +30,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.ServiceModel;
+using System.ServiceModel.Description;
 
 namespace TestWCF.ServiceHost
 {
@@ -37,10 +38,23 @@ namespace TestWCF.ServiceHost
 	{
 		static void Main()
 		{
-			var host = new System.ServiceModel.ServiceHost(typeof(MyService));
+			var host = new System.ServiceModel.ServiceHost(
+				typeof(MyService), new Uri ("http://localhost:9999/MyService"));
 			host.AddServiceEndpoint(
-				typeof(IMyService), new BasicHttpBinding(),
-				"http://localhost:9999/MyService.svc");
+				typeof(IMyService), new BasicHttpBinding(), "");
+
+			var smb = host.Description.Behaviors.Find<ServiceMetadataBehavior>();
+			if (smb == null)
+			{
+				smb = new ServiceMetadataBehavior();
+				smb.HttpGetEnabled = true;
+				smb.MetadataExporter.PolicyVersion = PolicyVersion.Policy15;
+				host.Description.Behaviors.Add(smb);
+			}
+			host.AddServiceEndpoint(
+				ServiceMetadataBehavior.MexContractName,
+				MetadataExchangeBindings.CreateMexHttpBinding(), "mex");
+
 			host.Open();
 			Console.WriteLine("Service running");
 			foreach (var se in host.Description.Endpoints)
