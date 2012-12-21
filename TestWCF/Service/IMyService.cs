@@ -33,7 +33,8 @@ using System.Text;
 
 namespace TestWCF
 {
-	[ServiceContract (Namespace = "http://provcon-faust/TestWCF/")]
+	// [ServiceContract (Namespace = "http://provcon-faust/TestWCF/")]
+	[ServiceContract]
 	public interface IMyService
 	{
 		[OperationContract]
