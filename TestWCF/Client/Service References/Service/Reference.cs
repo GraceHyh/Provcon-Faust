@@ -9,65 +9,14 @@
 //------------------------------------------------------------------------------
 
 namespace TestWCF.Client.Service {
-    using System.Runtime.Serialization;
-    using System;
     
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="MyException", Namespace="http://schemas.datacontract.org/2004/07/TestWCF")]
-    [System.SerializableAttribute()]
-    public partial class MyException : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
-        [System.NonSerializedAttribute()]
-        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string MessageField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
-                return this.extensionDataField;
-            }
-            set {
-                this.extensionDataField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public string Message {
-            get {
-                return this.MessageField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.MessageField, value) != true)) {
-                    this.MessageField = value;
-                    this.RaisePropertyChanged("Message");
-                }
-            }
-        }
-        
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
-            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
-                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
-            }
-        }
-    }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    [System.ServiceModel.ServiceContractAttribute(ConfigurationName="Service.IMyService")]
+    [System.ServiceModel.ServiceContractAttribute(Namespace="http://provcon-faust/TestWCF/", ConfigurationName="Service.IMyService")]
     public interface IMyService {
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IMyService/Hello", ReplyAction="http://tempuri.org/IMyService/HelloResponse")]
+        [System.ServiceModel.OperationContractAttribute(Action="http://provcon-faust/TestWCF/IMyService/Hello", ReplyAction="http://provcon-faust/TestWCF/IMyService/HelloResponse")]
         string Hello();
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IMyService/TestError", ReplyAction="http://tempuri.org/IMyService/TestErrorResponse")]
-        [System.ServiceModel.FaultContractAttribute(typeof(TestWCF.Client.Service.MyException), Action="http://tempuri.org/IMyService/TestErrorMyExceptionFault", Name="MyException", Namespace="http://schemas.datacontract.org/2004/07/TestWCF")]
-        void TestError();
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -99,10 +48,6 @@ namespace TestWCF.Client.Service {
         
         public string Hello() {
             return base.Channel.Hello();
-        }
-        
-        public void TestError() {
-            base.Channel.TestError();
         }
     }
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xs:schema xmlns:tns="http://tempuri.org/" elementFormDefault="qualified" targetNamespace="http://tempuri.org/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:schema xmlns:tns="http://provcon-faust/TestWCF/" elementFormDefault="qualified" targetNamespace="http://provcon-faust/TestWCF/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:element name="Hello">
     <xs:complexType>
       <xs:sequence />
@@ -10,16 +10,6 @@
       <xs:sequence>
         <xs:element minOccurs="0" name="HelloResult" nillable="true" type="xs:string" />
       </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="TestError">
-    <xs:complexType>
-      <xs:sequence />
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="TestErrorResponse">
-    <xs:complexType>
-      <xs:sequence />
     </xs:complexType>
   </xs:element>
 </xs:schema>

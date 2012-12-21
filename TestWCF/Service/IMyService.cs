@@ -33,23 +33,10 @@ using System.Text;
 
 namespace TestWCF
 {
-	[ServiceContract]
+	[ServiceContract (Namespace = "http://provcon-faust/TestWCF/")]
 	public interface IMyService
 	{
 		[OperationContract]
 		string Hello();
-
-		[FaultContract (typeof (MyException))]
-		[OperationContract]
-		void TestError();
-	}
-
-	[DataContract]
-	public class MyException
-	{
-		[DataMember]
-		public string Message {
-			get; set;
-		}
 	}
 }

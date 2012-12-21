@@ -40,11 +40,5 @@ namespace TestWCF
 		{
 			return "Hello World";
 		}
-
-		public void TestError()
-		{
-			var error = new MyException { Message = "Test error." };
-			throw new FaultException<MyException>(error);
-		}
 	}
 }
