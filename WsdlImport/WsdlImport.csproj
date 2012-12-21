@@ -16,7 +16,7 @@
     <DebugType>full</DebugType>
     <Optimize>False</Optimize>
     <OutputPath>bin\</OutputPath>
-    <DefineConstants>DEBUG;</DefineConstants>
+    <DefineConstants>DEBUG;NET_2_0;NET_4_0;NET_4_5</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>False</ConsolePause>
@@ -53,6 +53,15 @@
     </Compile>
     <Compile Include="..\..\mono\mcs\class\System.Configuration\Test\Util\TestLabel.cs">
       <Link>Test\Util\TestLabel.cs</Link>
+    </Compile>
+    <Compile Include="..\..\mono\mcs\class\System.Configuration\Test\System.Configuration\ExeConfigurationFileMapTest.cs">
+      <Link>Test\System.Configuration\ExeConfigurationFileMapTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\mono\mcs\class\System.Configuration\Test\System.Configuration\ConfigurationManagerTest.cs">
+      <Link>Test\System.Configuration\ConfigurationManagerTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\mono\mcs\class\System.Configuration\Test\Util\TestUtil.cs">
+      <Link>Test\Util\TestUtil.cs</Link>
     </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

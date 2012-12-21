@@ -96,9 +96,15 @@ namespace WsdlImport {
 
 		static void RunConfigTests ()
 		{
-			var test = new ConfigurationSaveTest ();
+			// RunTests<ConfigurationSaveTest> ();
+			RunTests<ExeConfigurationFileMapTest> ();
+		}
+
+		static void RunTests<T> () where T : new()
+		{
+			var test = new T ();
 			var bf = BindingFlags.Instance | BindingFlags.Public;
-			foreach (var method in typeof (ConfigurationSaveTest).GetMethods (bf)) {
+			foreach (var method in typeof (T).GetMethods (bf)) {
 				var cattr = method.GetCustomAttribute<TestAttribute> ();
 				if (cattr == null)
 					continue;
