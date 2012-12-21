@@ -61,6 +61,7 @@
     </None>
     <None Include="Service References\Service\MyService.wsdl" />
     <None Include="Service References\Service\MyService.xsd" />
+    <None Include="Service References\Service\MyService1.wsdl" />
     <None Include="Service References\Service\MyService1.xsd" />
   </ItemGroup>
   <ItemGroup>
@@ -80,7 +81,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\Service\MyService2.xsd" />
     <None Include="Service References\Service\Reference.svcmap">
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
