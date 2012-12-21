@@ -48,7 +48,12 @@
     <Compile Include="IMyService.cs" />
     <Compile Include="Client.cs" />
     <Compile Include="Options.cs" />
-    <Compile Include="ConfigTest.cs" />
+    <Compile Include="..\..\mono\mcs\class\System.Configuration\Test\System.Configuration\ConfigurationSaveTest.cs">
+      <Link>Test\System.Configuration\ConfigurationSaveTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\mono\mcs\class\System.Configuration\Test\Util\TestLabel.cs">
+      <Link>Test\Util\TestLabel.cs</Link>
+    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
