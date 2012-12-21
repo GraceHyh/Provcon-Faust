@@ -34,6 +34,7 @@ using System.Text;
 
 namespace TestWCF
 {
+	[ServiceBehavior(IncludeExceptionDetailInFaults=true)]
 	public class MyService : IMyService
 	{
 		public string Hello()

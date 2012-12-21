@@ -39,7 +39,7 @@ namespace TestWCF.ServiceHost
 		static void Main()
 		{
 			var host = new System.ServiceModel.ServiceHost(
-				typeof(MyService), new Uri ("http://localhost:9999/MyService"));
+				typeof(MyService), new Uri ("http://provcon-faust:9999/MyService"));
 			host.AddServiceEndpoint(
 				typeof(IMyService), new BasicHttpBinding(), "");
 
@@ -48,9 +48,10 @@ namespace TestWCF.ServiceHost
 			{
 				smb = new ServiceMetadataBehavior();
 				smb.HttpGetEnabled = true;
-				smb.MetadataExporter.PolicyVersion = PolicyVersion.Policy15;
+				// smb.MetadataExporter.PolicyVersion = PolicyVersion.Policy15;
 				host.Description.Behaviors.Add(smb);
 			}
+
 			host.AddServiceEndpoint(
 				ServiceMetadataBehavior.MexContractName,
 				MetadataExchangeBindings.CreateMexHttpBinding(), "mex");
