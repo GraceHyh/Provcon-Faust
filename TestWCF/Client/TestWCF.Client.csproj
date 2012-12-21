@@ -61,7 +61,6 @@
     </None>
     <None Include="Service References\Service\MyService.wsdl" />
     <None Include="Service References\Service\MyService.xsd" />
-    <None Include="Service References\Service\MyService1.wsdl" />
     <None Include="Service References\Service\MyService1.xsd" />
   </ItemGroup>
   <ItemGroup>
